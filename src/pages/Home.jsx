@@ -274,31 +274,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Video Testimonio */}
-      <AnimatedSection className="section" id="testimonio-video">
-        <div className="section__inner">
-          <motion.div className="section__header" variants={fadeUp}>
-            <p className="section-label">Testimonio Real</p>
-            <h2 className="section-title">La Dra. Gissel te cuenta</h2>
-          </motion.div>
-
-          <motion.div variants={fadeUp} style={{ maxWidth: '800px', margin: '0 auto' }}>
-            <div className="video-testimonial">
-              <video
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                controls
-                poster="/assets/img/dra-gissel.png"
-              >
-                <source src="/assets/video/testimonio-alberto.mp4" type="video/mp4" />
-              </video>
-            </div>
-            <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '14px', color: 'var(--color-text-light)' }}>
-              Alberto comparte su experiencia con el Método Bouclier
-            </p>
-          </motion.div>
-        </div>
-      </AnimatedSection>
-
       {/* Testimonios */}
       <AnimatedSection className="section section--alt" id="testimonios">
         <div className="section__inner">

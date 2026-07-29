@@ -248,23 +248,6 @@ export default function Manchas() {
             </div>
           </motion.div>
 
-          <motion.div variants={fadeUp} style={{ marginTop: '48px' }}>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '24px', textAlign: 'center', marginBottom: '24px' }}>Más Resultados</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
-              <div style={{ textAlign: 'center' }}>
-                <img src="/assets/img/acne-tratamiento.png" alt="Tratamiento Acné" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover' }} />
-                <p style={{ marginTop: '12px', fontSize: '14px', color: 'var(--color-text-light)' }}>Tratamiento para Acné</p>
-              </div>
-              <div style={{ textAlign: 'center' }}>
-                <img src="/assets/img/reduccion-corporal.png" alt="Reducción Corporal" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover' }} />
-                <p style={{ marginTop: '12px', fontSize: '14px', color: 'var(--color-text-light)' }}>Reducción Corporal</p>
-              </div>
-              <div style={{ textAlign: 'center' }}>
-                <img src="/assets/img/calvicie.png" alt="Tratamiento Capilar" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover' }} />
-                <p style={{ marginTop: '12px', fontSize: '14px', color: 'var(--color-text-light)' }}>Tratamiento Capilar</p>
-              </div>
-            </div>
-          </motion.div>
         </div>
       </AnimatedSection>
 
