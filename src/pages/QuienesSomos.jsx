@@ -87,17 +87,17 @@ export default function QuienesSomos() {
             </p>
           </motion.div>
 
-          <motion.div variants={fadeUp} style={{ marginBottom: '48px', textAlign: 'center' }}>
+          <motion.div variants={fadeUp} style={{ marginBottom: '48px' }}>
             <img 
-              src="/assets/img/equipo.webp" 
-              alt="Equipo Bouclier Clinique" 
-              style={{ width: '100%', maxWidth: '900px', borderRadius: '0', objectFit: 'cover' }}
+              src="/assets/img/hero-clinica.jpg" 
+              alt="Clínica Bouclier" 
+              style={{ width: '100%', height: '400px', objectFit: 'cover', objectPosition: 'center 30%' }}
             />
           </motion.div>
 
           <motion.div className="card-grid" variants={stagger}>
             <motion.div className="card" variants={fadeUp}>
-              <Award className="card__icon" size={48} />
+              <img src="/assets/img/dra-gissel.png" alt="Dra. Gissel Castellanos" style={{ width: '100%', height: '200px', objectFit: 'cover', objectPosition: 'top', marginBottom: '16px' }} />
               <h3 className="card__title">Dra. Gissel Castellanos</h3>
               <p className="card__text">
                 Dermatóloga certificada. Fundadora de Bouclier con más de 12 años de experiencia en dermatología estética y preventiva.

@@ -195,16 +195,11 @@ export default function Home() {
         <div className="section__inner">
           <motion.div className="expert-section" variants={stagger}>
             <motion.div variants={fadeUp} className="expert-section__video-wrapper">
-              <video
-                className="expert-section__video"
-                autoPlay
-                muted
-                loop
-                playsInline
-                style={{ borderRadius: 0 }}
-              >
-                <source src="/assets/video/doctor.mp4" type="video/mp4" />
-              </video>
+              <img 
+                src="/assets/img/dra-gissel.png" 
+                alt="Dra. Gissel Castellanos" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top' }}
+              />
             </motion.div>
             <motion.div className="expert-section__content" variants={fadeUp}>
               <p className="section-label">Tu Dermatóloga</p>

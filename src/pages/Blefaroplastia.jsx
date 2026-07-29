@@ -165,6 +165,34 @@ export default function Blefaroplastia() {
         </div>
       </AnimatedSection>
 
+      {/* Results Gallery */}
+      <AnimatedSection className="section section--alt" id="resultados">
+        <div className="section__inner">
+          <motion.div className="section__header" variants={fadeUp}>
+            <p className="section-label">Resultados</p>
+            <h2 className="section-title">Transformaciones Reales</h2>
+            <p className="section-subtitle">
+              Casos documentados de rejuvenecimiento de mirada con el Método Bouclier.
+            </p>
+          </motion.div>
+
+          <motion.div variants={fadeUp} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px' }}>
+            <div style={{ textAlign: 'center' }}>
+              <img src="/assets/img/perfilamiento.png" alt="Perfilamiento facial" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover' }} />
+              <p style={{ marginTop: '12px', fontSize: '14px', color: 'var(--color-text-light)' }}>Perfilamiento con Endolyse</p>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <img src="/assets/img/filler-labios.png" alt="Aplicación de fillers" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover' }} />
+              <p style={{ marginTop: '12px', fontSize: '14px', color: 'var(--color-text-light)' }}>Aplicación de fillers</p>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <img src="/assets/img/flacidez.png" alt="Tratamiento flacidez" style={{ width: '100%', aspectRatio: '3/4', objectFit: 'cover' }} />
+              <p style={{ marginTop: '12px', fontSize: '14px', color: 'var(--color-text-light)' }}>Flacidez con Morpheus 8</p>
+            </div>
+          </motion.div>
+        </div>
+      </AnimatedSection>
+
       {/* Quote */}
       <div className="quote-banner">
         <div className="quote-banner__inner">
