@@ -63,11 +63,11 @@ const protocols = [
 ]
 
 const results = [
-  { src: 'https://bouclier-clinique.com/wp-content/uploads/2026/05/Caso-2-Manchas.webm', label: 'Caso 1' },
-  { src: 'https://bouclier-clinique.com/wp-content/uploads/2026/05/Caso-3-Manchas.webm', label: 'Caso 2' },
-  { src: 'https://bouclier-clinique.com/wp-content/uploads/2026/05/Caso-4-Manchas.webm', label: 'Caso 3' },
-  { src: 'https://bouclier-clinique.com/wp-content/uploads/2026/05/Caso-5-Manchas.webm', label: 'Caso 4' },
-  { src: 'https://bouclier-clinique.com/wp-content/uploads/2026/05/Caso-6-Manchas.webm', label: 'Caso 5' },
+  { src: '/assets/video/caso-1.webm', label: 'Caso 1' },
+  { src: '/assets/video/caso-2.webm', label: 'Caso 2' },
+  { src: '/assets/video/caso-3.webm', label: 'Caso 3' },
+  { src: '/assets/video/caso-4.webm', label: 'Caso 4' },
+  { src: '/assets/video/caso-5.webm', label: 'Caso 5' },
 ]
 
 function FAQItem({ q, a }) {
@@ -102,7 +102,7 @@ export default function Manchas() {
         title="Tratamiento de Manchas y Melasma | Bouclier Clinique"
         description="Tratamiento de manchas y melasma con Aerolase Neo 1064nm en CDMX y Playa del Carmen. Protocolos Bouclier: resultados reales en 6-8 sesiones sin dolor."
         canonical="https://bouclier-clinique.com/manchas"
-        ogImage="https://bouclier-clinique.com/wp-content/uploads/2025/11/cropped-Bouclair-Logo.webp"
+        ogImage="/assets/img/logo.webp"
       />
 
       {/* Hero */}
@@ -113,7 +113,7 @@ export default function Manchas() {
           muted
           loop
           playsInline
-          poster="https://bouclier-clinique.com/wp-content/uploads/2025/11/cropped-Bouclair-Logo.webp"
+          poster="/assets/img/logo.webp"
         >
           <source src="https://bouclier-clinique.com/wp-content/uploads/2025/11/6439265_Portrait-Looking-At-Camera-Water-Glass-Window_By_Ira_Belsky_Artlist_2K-1.mp4" type="video/mp4" />
         </video>

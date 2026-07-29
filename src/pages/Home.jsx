@@ -37,7 +37,7 @@ export default function Home() {
         title="Bouclier Clinique | Medicina Estética Preventiva"
         description="La nueva medicina estética preventiva en México. Tratamientos de manchas, blefaroplastia no quirúrgica y rejuvenecimiento con tecnología de vanguardia."
         canonical="https://bouclier-clinique.com/"
-        ogImage="https://bouclier-clinique.com/wp-content/uploads/2025/11/cropped-Bouclair-Logo.webp"
+        ogImage="/assets/img/logo.webp"
       />
 
       {/* Hero */}
@@ -48,7 +48,7 @@ export default function Home() {
           muted
           loop
           playsInline
-          poster="https://bouclier-clinique.com/wp-content/uploads/2025/11/cropped-Bouclair-Logo.webp"
+          poster="/assets/img/logo.webp"
         >
           <source src="https://bouclier-clinique.com/wp-content/uploads/2025/11/6439265_Portrait-Looking-At-Camera-Water-Glass-Window_By_Ira_Belsky_Artlist_2K-1.mp4" type="video/mp4" />
         </video>
@@ -204,7 +204,7 @@ export default function Home() {
                 playsInline
                 style={{ borderRadius: 0 }}
               >
-                <source src="https://bouclier-clinique.com/wp-content/uploads/2025/11/Gissel.mp4" type="video/mp4" />
+                <source src="/assets/video/doctor.mp4" type="video/mp4" />
               </video>
             </motion.div>
             <motion.div className="expert-section__content" variants={fadeUp}>

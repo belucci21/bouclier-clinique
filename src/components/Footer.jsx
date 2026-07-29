@@ -19,7 +19,7 @@ const TwitterIcon = () => (
   </svg>
 )
 
-const LOGO_URL = 'https://bouclier-clinique.com/wp-content/uploads/2025/11/cropped-Bouclair-Logo.webp'
+const LOGO_URL = '/assets/img/logo.webp'
 
 export default function Footer() {
   return (

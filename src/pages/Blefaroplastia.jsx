@@ -76,7 +76,7 @@ export default function Blefaroplastia() {
         title="Blefaroplastia No Quirúrgica | Bouclier Clinique"
         description="Blefaroplastia no quirúrgica con PRP y láser en CDMX y Playa del Carmen. Rejuvenecimiento de mirada sin cirugía, sin cicatrices, sin dolor. Resultados naturales."
         canonical="https://bouclier-clinique.com/blefaroplastia"
-        ogImage="https://bouclier-clinique.com/wp-content/uploads/2025/11/cropped-Bouclair-Logo.webp"
+        ogImage="/assets/img/logo.webp"
       />
 
       {/* Hero */}
@@ -87,7 +87,7 @@ export default function Blefaroplastia() {
           muted
           loop
           playsInline
-          poster="https://bouclier-clinique.com/wp-content/uploads/2025/11/cropped-Bouclair-Logo.webp"
+          poster="/assets/img/logo.webp"
         >
           <source src="https://bouclier-clinique.com/wp-content/uploads/2025/11/6439265_Portrait-Looking-At-Camera-Water-Glass-Window_By_Ira_Belsky_Artlist_2K-1.mp4" type="video/mp4" />
         </video>

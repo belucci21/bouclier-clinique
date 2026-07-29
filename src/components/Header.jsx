@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 
-const LOGO_URL = 'https://bouclier-clinique.com/wp-content/uploads/2025/11/cropped-Bouclair-Logo.webp'
+const LOGO_URL = '/assets/img/logo.webp'
 
 const navLinks = [
   { label: 'Inicio', to: '/' },
