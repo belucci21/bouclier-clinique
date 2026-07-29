@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
-import { HeartPulse, Microscope, ShieldCheck, ArrowRight, ChevronRight, MapPin, Star } from 'lucide-react'
+import { HeartPulse, Microscope, ShieldCheck, ArrowRight, ChevronRight, MapPin, Star, Play, CheckCircle } from 'lucide-react'
 import SEO from '../components/SEO.jsx'
 
 const fadeUp = {
@@ -252,6 +252,130 @@ export default function Home() {
         </div>
       </AnimatedSection>
 
+      {/* Social Proof */}
+      <div className="social-proof">
+        <div className="social-proof__inner">
+          <motion.div className="stat" variants={fadeUp}>
+            <div className="stat__number">+12</div>
+            <div className="stat__label">Años de Experiencia</div>
+          </motion.div>
+          <motion.div className="stat" variants={fadeUp}>
+            <div className="stat__number">+5,000</div>
+            <div className="stat__label">Pacientes Atendidas</div>
+          </motion.div>
+          <motion.div className="stat" variants={fadeUp}>
+            <div className="stat__number">+100</div>
+            <div className="stat__label">Reseñas en Google</div>
+          </motion.div>
+          <motion.div className="stat" variants={fadeUp}>
+            <div className="stat__number">3</div>
+            <div className="stat__label">Sucursales</div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Video Testimonio */}
+      <AnimatedSection className="section" id="testimonio-video">
+        <div className="section__inner">
+          <motion.div className="section__header" variants={fadeUp}>
+            <p className="section-label">Testimonio Real</p>
+            <h2 className="section-title">La Dra. Gissel te cuenta</h2>
+          </motion.div>
+
+          <motion.div variants={fadeUp} style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <div className="video-testimonial">
+              <video
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                controls
+                poster="/assets/img/dra-gissel.png"
+              >
+                <source src="/assets/video/testimonio-alberto.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '14px', color: 'var(--color-text-light)' }}>
+              Alberto comparte su experiencia con el Método Bouclier
+            </p>
+          </motion.div>
+        </div>
+      </AnimatedSection>
+
+      {/* Testimonios */}
+      <AnimatedSection className="section section--alt" id="testimonios">
+        <div className="section__inner">
+          <motion.div className="section__header" variants={fadeUp}>
+            <p className="section-label">Testimonios</p>
+            <h2 className="section-title">Lo que dicen nuestras pacientes</h2>
+          </motion.div>
+
+          <motion.div variants={fadeUp} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
+            <div className="testimonial-card">
+              <div className="testimonial-card__stars">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={16} fill="var(--color-accent)" color="var(--color-accent)" />
+                ))}
+              </div>
+              <p className="testimonial-card__text">
+                "Llevaba años intentando tratar mis manchas con diferentes dermatólogos. En Bouclier no solo eliminaron mis manchas, sino que mi piel se ve mejor que nunca. El método Bouclier cambió mi vida."
+              </p>
+              <p className="testimonial-card__author">María Fernanda</p>
+              <p className="testimonial-card__source">Paciente desde 2022</p>
+            </div>
+            <div className="testimonial-card">
+              <div className="testimonial-card__stars">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={16} fill="var(--color-accent)" color="var(--color-accent)" />
+                ))}
+              </div>
+              <p className="testimonial-card__text">
+                "El trato de la Dra. Gissel es excepcional. No solo es una excelente profesional, sino que realmente se preocupa por sus pacientes. Mis cicatrices del acné mejoraron notablemente."
+              </p>
+              <p className="testimonial-card__author">Laura Sánchez</p>
+              <p className="testimonial-card__source">Paciente desde 2023</p>
+            </div>
+            <div className="testimonial-card">
+              <div className="testimonial-card__stars">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} size={16} fill="var(--color-accent)" color="var(--color-accent)" />
+                ))}
+              </div>
+              <p className="testimonial-card__text">
+                "Después de mi embarazo me salieron muchas manchas. En Bouclier me explicaron que era melasma y me diseñaron un protocolo personalizado. Estoy encantada con los resultados."
+              </p>
+              <p className="testimonial-card__author">Carolina Méndez</p>
+              <p className="testimonial-card__source">Paciente desde 2024</p>
+            </div>
+          </motion.div>
+        </div>
+      </AnimatedSection>
+
+      {/* Trust Badges */}
+      <div className="trust-badges">
+        <div className="trust-badge">
+          <div className="trust-badge__icon">
+            <CheckCircle size={20} />
+          </div>
+          <span>Dermatóloga Certificada</span>
+        </div>
+        <div className="trust-badge">
+          <div className="trust-badge__icon">
+            <CheckCircle size={20} />
+          </div>
+          <span>Tecnología Aerolase Neo</span>
+        </div>
+        <div className="trust-badge">
+          <div className="trust-badge__icon">
+            <CheckCircle size={20} />
+          </div>
+          <span>#1 en Veracruz</span>
+        </div>
+        <div className="trust-badge">
+          <div className="trust-badge__icon">
+            <CheckCircle size={20} />
+          </div>
+          <span>+100 Reseñas Google</span>
+        </div>
+      </div>
+
       {/* Locaciones */}
       <AnimatedSection className="section section--alt" id="ubicaciones">
         <div className="section__inner">
@@ -283,16 +407,20 @@ export default function Home() {
         </div>
       </AnimatedSection>
 
-      {/* CTA */}
-      <section className="cta-section">
-        <div className="cta-section__inner">
-          <h2 className="cta-section__title">¿Lista para empezar?</h2>
-          <p className="cta-section__text">
-            Agenda tu consulta y descubre qué puede hacer Bouclier por tu piel.
+      {/* CTA Urgency */}
+      <section className="cta-urgency">
+        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 24px' }}>
+          <div className="cta-urgency__badge">Oferta de Bienvenida</div>
+          <h2 className="cta-urgency__title">Primera evaluación dermatológica sin costo</h2>
+          <p className="cta-urgency__text">
+            Descubre qué necesita tu piel con un diagnóstico personalizado por la Dra. Gissel Castellanos. 
+            Sin compromiso, sin costos ocultos.
           </p>
-          <div className="cta-section__actions">
-            <Link to="/citas" className="btn-primary">Agendar Cita</Link>
-            <Link to="/metodo-bouclier" className="btn-ghost">Conoce el Método</Link>
+          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to="/citas" className="btn-primary">Agendar Mi Evaluación Gratis</Link>
+            <a href="https://api.whatsapp.com/send?phone=522291087016&text=Hola%2C+quiero+agendar+mi+evaluación+gratuita" className="btn-ghost" target="_blank" rel="noopener noreferrer">
+              WhatsApp Directo
+            </a>
           </div>
         </div>
       </section>
