@@ -102,7 +102,7 @@ export default function Manchas() {
         title="Tratamiento de Manchas y Melasma | Bouclier Clinique"
         description="Tratamiento de manchas y melasma con Aerolase Neo 1064nm en CDMX y Playa del Carmen. Protocolos Bouclier: resultados reales en 6-8 sesiones sin dolor."
         canonical="https://bouclier-clinique.com/manchas"
-        ogImage="/assets/img/logo.webp"
+        ogImage="/assets/img/aerolase.webp"
       />
 
       {/* Hero */}
@@ -113,7 +113,6 @@ export default function Manchas() {
           muted
           loop
           playsInline
-          poster="/assets/img/logo.webp"
         >
           <source src="/assets/video/hero.mp4" type="video/mp4" />
         </video>

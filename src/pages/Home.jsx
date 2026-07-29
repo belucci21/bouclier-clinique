@@ -48,7 +48,6 @@ export default function Home() {
           muted
           loop
           playsInline
-          poster="/assets/img/logo.webp"
         >
           <source src="/assets/video/hero.mp4" type="video/mp4" />
         </video>
@@ -152,7 +151,7 @@ export default function Home() {
 
           <motion.div className="treatment-grid" variants={stagger}>
             <motion.div variants={fadeUp}>
-              <Link to="/manchas" className="treatment-card">
+              <Link to="/manchas" className="treatment-card" style={{ backgroundImage: 'url(/assets/img/aerolase.webp)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
                 <div className="treatment-card__overlay" />
                 <div className="treatment-card__content">
                   <h3 className="treatment-card__title">Manchas y Melasma</h3>
@@ -164,7 +163,7 @@ export default function Home() {
               </Link>
             </motion.div>
             <motion.div variants={fadeUp}>
-              <Link to="/blefaroplastia" className="treatment-card">
+              <Link to="/blefaroplastia" className="treatment-card" style={{ backgroundImage: 'url(/assets/img/nano-banana.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
                 <div className="treatment-card__overlay" />
                 <div className="treatment-card__content">
                   <h3 className="treatment-card__title">Blefaroplastia No Quirúrgica</h3>
@@ -176,7 +175,7 @@ export default function Home() {
               </Link>
             </motion.div>
             <motion.div variants={fadeUp}>
-              <a href="https://bouclier-dermatologia.com/" target="_blank" rel="noopener noreferrer" className="treatment-card">
+              <a href="https://bouclier-dermatologia.com/" target="_blank" rel="noopener noreferrer" className="treatment-card" style={{ backgroundImage: 'url(/assets/img/soma-clinique.webp)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
                 <div className="treatment-card__overlay" />
                 <div className="treatment-card__content">
                   <h3 className="treatment-card__title">Todos los Tratamientos</h3>

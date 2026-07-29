@@ -152,6 +152,12 @@ export default function MetodoBouclier() {
             </p>
           </motion.div>
 
+          <motion.div variants={fadeUp} style={{ marginBottom: '48px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            <img src="/assets/img/soma-clinique.webp" alt="Soma Clínique" style={{ width: '100%', objectFit: 'cover', aspectRatio: '4/3' }} />
+            <img src="/assets/img/soma-laser.webp" alt="Láser Bouclier" style={{ width: '100%', objectFit: 'cover', aspectRatio: '4/3' }} />
+            <img src="/assets/img/soma-masajes.webp" alt="Tratamiento Bouclier" style={{ width: '100%', objectFit: 'cover', aspectRatio: '4/3' }} />
+          </motion.div>
+
           <motion.div className="card-grid" variants={stagger}>
             <motion.div className="card" variants={fadeUp}>
               <Zap className="card__icon" size={48} />

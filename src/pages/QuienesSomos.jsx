@@ -87,6 +87,14 @@ export default function QuienesSomos() {
             </p>
           </motion.div>
 
+          <motion.div variants={fadeUp} style={{ marginBottom: '48px', textAlign: 'center' }}>
+            <img 
+              src="/assets/img/equipo.webp" 
+              alt="Equipo Bouclier Clinique" 
+              style={{ width: '100%', maxWidth: '900px', borderRadius: '0', objectFit: 'cover' }}
+            />
+          </motion.div>
+
           <motion.div className="card-grid" variants={stagger}>
             <motion.div className="card" variants={fadeUp}>
               <Award className="card__icon" size={48} />
