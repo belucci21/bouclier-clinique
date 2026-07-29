@@ -50,7 +50,7 @@ export default function Home() {
           playsInline
           poster="/assets/img/logo.webp"
         >
-          <source src="https://bouclier-clinique.com/wp-content/uploads/2025/11/6439265_Portrait-Looking-At-Camera-Water-Glass-Window_By_Ira_Belsky_Artlist_2K-1.mp4" type="video/mp4" />
+          <source src="/assets/video/hero.mp4" type="video/mp4" />
         </video>
         <div className="page-hero__overlay" />
         <motion.div
