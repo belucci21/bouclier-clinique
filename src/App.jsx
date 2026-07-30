@@ -12,8 +12,8 @@ import Reports from './pages/Reports';
 import CheckIn from './pages/CheckIn';
 import Layout from './components/Layout';
 
-function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth();
+function ProtectedRoute({ children, roles }) {
+  const { user, profile, loading } = useAuth();
 
   if (loading) {
     return (
@@ -25,7 +25,10 @@ function ProtectedRoute({ children }) {
     );
   }
 
-  return user ? children : <Navigate to="/login" />;
+  if (!user) return <Navigate to="/login" />;
+  if (roles && !roles.includes(profile?.role)) return <Navigate to="/" />;
+
+  return children;
 }
 
 function AppRoutes() {
@@ -48,11 +51,11 @@ function AppRoutes() {
       >
         <Route index element={<Dashboard />} />
         <Route path="citas" element={<Appointments />} />
-        <Route path="pacientes" element={<Patients />} />
-        <Route path="doctores" element={<Doctors />} />
-        <Route path="diagnosticos" element={<Diagnoses />} />
-        <Route path="recetas" element={<Prescriptions />} />
-        <Route path="informes" element={<Reports />} />
+        <Route path="pacientes" element={<ProtectedRoute roles={['admin', 'doctor', 'reception']}><Patients /></ProtectedRoute>} />
+        <Route path="doctores" element={<ProtectedRoute roles={['admin']}><Doctors /></ProtectedRoute>} />
+        <Route path="diagnosticos" element={<ProtectedRoute roles={['admin', 'doctor']}><Diagnoses /></ProtectedRoute>} />
+        <Route path="recetas" element={<ProtectedRoute roles={['admin', 'doctor']}><Prescriptions /></ProtectedRoute>} />
+        <Route path="informes" element={<ProtectedRoute roles={['admin', 'doctor']}><Reports /></ProtectedRoute>} />
       </Route>
     </Routes>
   );

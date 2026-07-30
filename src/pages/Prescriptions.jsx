@@ -61,6 +61,18 @@ export default function Prescriptions() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (file) {
+      const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error('Tipo de archivo no permitido. Usa PDF, JPG, PNG o WebP.');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error('El archivo no debe exceder 10 MB.');
+        return;
+      }
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
 
     const { error } = await supabase.from('prescriptions').insert({

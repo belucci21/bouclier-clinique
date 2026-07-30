@@ -58,9 +58,13 @@ export default function Patients() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const array = new Uint8Array(16);
+    crypto.getRandomValues(array);
+    const tempPassword = Array.from(array, b => b.toString(16).padStart(2, '0')).join('').slice(0, 16) + '!A';
+
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: formData.email,
-      password: 'Temp1234!', // Temporal, el paciente cambiará su contraseña
+      password: tempPassword,
       options: {
         data: {
           full_name: formData.full_name,

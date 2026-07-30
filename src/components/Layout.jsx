@@ -14,14 +14,14 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-const navItems = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/citas', icon: Calendar, label: 'Citas' },
-  { to: '/pacientes', icon: Users, label: 'Pacientes' },
-  { to: '/doctores', icon: UserCheck, label: 'Doctores' },
-  { to: '/diagnosticos', icon: FileText, label: 'Diagnósticos' },
-  { to: '/recetas', icon: Pill, label: 'Recetas' },
-  { to: '/informes', icon: FileText, label: 'Informes' },
+const allNavItems = [
+  { to: '/', icon: LayoutDashboard, label: 'Dashboard', roles: ['admin', 'doctor', 'reception'] },
+  { to: '/citas', icon: Calendar, label: 'Citas', roles: ['admin', 'doctor', 'reception'] },
+  { to: '/pacientes', icon: Users, label: 'Pacientes', roles: ['admin', 'doctor', 'reception'] },
+  { to: '/doctores', icon: UserCheck, label: 'Doctores', roles: ['admin'] },
+  { to: '/diagnosticos', icon: FileText, label: 'Diagnósticos', roles: ['admin', 'doctor'] },
+  { to: '/recetas', icon: Pill, label: 'Recetas', roles: ['admin', 'doctor'] },
+  { to: '/informes', icon: FileText, label: 'Informes', roles: ['admin', 'doctor'] },
 ];
 
 export default function Layout() {
@@ -64,7 +64,9 @@ export default function Layout() {
 
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1">
-            {navItems.map(({ to, icon: Icon, label }) => (
+            {allNavItems
+              .filter(item => !item.roles || item.roles.includes(profile?.role))
+              .map(({ to, icon: Icon, label }) => (
               <NavLink
                 key={to}
                 to={to}
