@@ -1,7 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { supabase } from '../lib/supabase.js'
-import { Calendar, Clock, User, Phone, Mail, CheckCircle, Loader, ChevronLeft, ChevronRight, MapPin } from 'lucide-react'
+import { Calendar, Clock, User, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import SEO from '../components/SEO.jsx'
 
 const fadeUp = {
@@ -26,33 +25,32 @@ function AnimatedSection({ children, className = '' }) {
 const DAYS_ES = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
 const MONTHS_ES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
 
-// Datos estáticos de respaldo
-const STATIC_TYPES = [
-  { id: 'primera', name: 'Primera Consulta', description: 'Evaluación inicial completa', duration_minutes: 45, price: 800, color: '#b89a5a' },
-  { id: 'manchas', name: 'Consulta de Manchas', description: 'Tratamiento de manchas y melasma', duration_minutes: 30, price: 600, color: '#9a7d3f' },
-  { id: 'blefaroplastia', name: 'Blefaroplastia No Quirúrgica', description: 'Rejuvenecimiento de mirada', duration_minutes: 60, price: 1500, color: '#d4b97a' },
-  { id: 'control', name: 'Control / Seguimiento', description: 'Seguimiento de tratamiento', duration_minutes: 20, price: 300, color: '#666666' },
-  { id: 'limpieza', name: 'Limpieza Facial Profunda', description: 'Hydrafacial o Diamond Glow', duration_minutes: 45, price: 1200, color: '#4a90d9' },
-  { id: 'botox', name: 'Aplicación de Botox', description: 'Toxina botulínica para arrugas', duration_minutes: 30, price: 2000, color: '#e74c3c' },
-  { id: 'relleno', name: 'Relleno con Ácido Hialurónico', description: 'Fillers y bioestimulación', duration_minutes: 45, price: 3000, color: '#9b59b6' },
-  { id: 'morpheus', name: 'Morpheus8 / Radiofrecuencia', description: 'Microneedling con radiofrecuencia', duration_minutes: 60, price: 2500, color: '#f39c12' },
+const APPOINTMENT_TYPES = [
+  { id: 'primera', name: 'Primera Consulta', description: 'Evaluación inicial completa', duration_minutes: 45, color: '#b89a5a' },
+  { id: 'manchas', name: 'Consulta de Manchas', description: 'Tratamiento de manchas y melasma', duration_minutes: 30, color: '#9a7d3f' },
+  { id: 'blefaroplastia', name: 'Blefaroplastia No Quirúrgica', description: 'Rejuvenecimiento de mirada', duration_minutes: 60, color: '#d4b97a' },
+  { id: 'control', name: 'Control / Seguimiento', description: 'Seguimiento de tratamiento', duration_minutes: 20, color: '#666666' },
+  { id: 'limpieza', name: 'Limpieza Facial Profunda', description: 'Hydrafacial o Diamond Glow', duration_minutes: 45, color: '#4a90d9' },
+  { id: 'botox', name: 'Aplicación de Botox', description: 'Toxina botulínica para arrugas', duration_minutes: 30, color: '#e74c3c' },
+  { id: 'relleno', name: 'Relleno con Ácido Hialurónico', description: 'Fillers y bioestimulación', duration_minutes: 45, color: '#9b59b6' },
+  { id: 'morpheus', name: 'Morpheus8 / Radiofrecuencia', description: 'Microneedling con radiofrecuencia', duration_minutes: 60, color: '#f39c12' },
 ]
 
-const STATIC_DOCTORS = [
+const DOCTORS = [
   { id: 'dra-gissel', full_name: 'Dra. Gissel Castellanos', specialty: 'Dermatología Estética' },
 ]
 
-// Generar slots estáticos para los próximos 14 días
-function generateStaticSlots() {
+function generateSlots() {
   const slots = []
   const today = new Date()
+  today.setHours(0, 0, 0, 0)
 
-  for (let d = 1; d <= 14; d++) {
+  for (let d = 1; d <= 30; d++) {
     const date = new Date(today)
     date.setDate(date.getDate() + d)
     const dayOfWeek = date.getDay()
 
-    if (dayOfWeek === 0) continue // Sin domingos
+    if (dayOfWeek === 0) continue
 
     const hours = dayOfWeek === 6 ? [9, 10, 11] : [9, 10, 11, 14, 15, 16, 17]
 
@@ -60,14 +58,13 @@ function generateStaticSlots() {
       const slotDate = new Date(date)
       slotDate.setHours(hour, 0, 0, 0)
 
-      const dateKey = slotDate.toISOString().split('T')[0]
+      const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 
       slots.push({
         datetime: slotDate.toISOString(),
         dateKey,
-        time: slotDate.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
+        time: `${String(hour).padStart(2, '0')}:00`,
         hour,
-        minute: 0,
       })
     }
   }
@@ -76,154 +73,24 @@ function generateStaticSlots() {
 
 export default function Citas() {
   const [step, setStep] = useState(1)
-  const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState(false)
-  const [error, setError] = useState('')
-
-  const [appointmentTypes, setAppointmentTypes] = useState([])
-  const [doctors, setDoctors] = useState([])
-  const [availableSlots, setAvailableSlots] = useState([])
+  const [selectedType, setSelectedType] = useState(null)
+  const [selectedDoctor, setSelectedDoctor] = useState(null)
+  const [selectedSlot, setSelectedSlot] = useState(null)
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState(null)
-
+  const [slots] = useState(() => generateSlots())
   const [formData, setFormData] = useState({
-    type_id: '',
-    doctor_id: '',
-    scheduled_at: '',
     full_name: '',
     phone: '',
     email: '',
     notes: '',
   })
 
-  useEffect(() => {
-    fetchInitialData()
-  }, [])
+  const hasSlotsOnDate = (dateKey) => slots.some(s => s.dateKey === dateKey)
 
-  useEffect(() => {
-    if (formData.doctor_id && formData.type_id) {
-      fetchAvailableSlots()
-    }
-  }, [formData.doctor_id, formData.type_id])
-
-  async function fetchInitialData() {
-    try {
-      const [typesRes, doctorsRes] = await Promise.all([
-        supabase.from('appointment_types').select('*').eq('is_active', true).order('name'),
-        supabase.from('doctors').select('*, profiles!doctors_id_fkey(full_name)').eq('is_active', true),
-      ])
-
-      // Usar datos de Supabase si existen, si no usar estáticos
-      setAppointmentTypes(typesRes.data?.length > 0 ? typesRes.data : STATIC_TYPES)
-
-      if (doctorsRes.data?.length > 0) {
-        setDoctors(doctorsRes.data)
-      } else {
-        // Si no hay doctores en BD, usar datos estáticos
-        setDoctors(STATIC_DOCTORS.map(d => ({
-          id: d.id,
-          profiles: { full_name: d.full_name },
-          specialty: d.specialty,
-        })))
-      }
-    } catch (err) {
-      // Si hay error de conexión, usar datos estáticos
-      setAppointmentTypes(STATIC_TYPES)
-      setDoctors(STATIC_DOCTORS.map(d => ({
-        id: d.id,
-        profiles: { full_name: d.full_name },
-        specialty: d.specialty,
-      })))
-    }
-    setLoading(false)
-  }
-
-  async function fetchAvailableSlots() {
-    try {
-      const { data: availability } = await supabase
-        .from('availability')
-        .select('*')
-        .eq('doctor_id', formData.doctor_id)
-        .eq('is_active', true)
-
-      const { data: existingAppointments } = await supabase
-        .from('appointments')
-        .select('scheduled_at, duration_minutes')
-        .eq('doctor_id', formData.doctor_id)
-        .not('status', 'in', '(cancelled)')
-
-      const { data: blockedTimes } = await supabase
-        .from('blocked_times')
-        .select('*')
-        .eq('doctor_id', formData.doctor_id)
-
-      const type = appointmentTypes.find(t => t.id === formData.type_id)
-      const duration = type?.duration_minutes || 30
-
-      const slots = []
-      const today = new Date()
-
-      for (let d = 0; d < 30; d++) {
-        const date = new Date(today)
-        date.setDate(date.getDate() + d)
-        const dayOfWeek = date.getDay()
-
-        const dayAvailability = availability?.filter(a => a.day_of_week === dayOfWeek) || []
-
-        for (const avail of dayAvailability) {
-          const [startHour, startMin] = avail.start_time.split(':').map(Number)
-          const [endHour, endMin] = avail.end_time.split(':').map(Number)
-
-          let currentMinutes = startHour * 60 + startMin
-          const endMinutes = endHour * 60 + endMin
-
-          while (currentMinutes + duration <= endMinutes) {
-            const slotDate = new Date(date)
-            slotDate.setHours(Math.floor(currentMinutes / 60), currentMinutes % 60, 0, 0)
-
-            if (slotDate <= new Date()) {
-              currentMinutes += 30
-              continue
-            }
-
-            const slotEnd = new Date(slotDate.getTime() + duration * 60000)
-
-            const isBlocked = blockedTimes?.some(bt => {
-              const btStart = new Date(bt.start_at)
-              const btEnd = new Date(bt.end_at)
-              return (slotDate < btEnd && slotEnd > btStart)
-            })
-
-            const isOccupied = existingAppointments?.some(apt => {
-              const aptStart = new Date(apt.scheduled_at)
-              const aptEnd = new Date(aptStart.getTime() + (apt.duration_minutes || 30) * 60000)
-              return (slotDate < aptEnd && slotEnd > aptStart)
-            })
-
-            if (!isBlocked && !isOccupied) {
-              const dateKey = slotDate.toISOString().split('T')[0]
-              slots.push({
-                datetime: slotDate.toISOString(),
-                dateKey,
-                time: slotDate.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }),
-                hour: Math.floor(currentMinutes / 60),
-                minute: currentMinutes % 60,
-              })
-            }
-
-            currentMinutes += 30
-          }
-        }
-      }
-
-      // Si no hay slots de BD, usar estáticos
-      setAvailableSlots(slots.length > 0 ? slots : generateStaticSlots())
-    } catch (err) {
-      // Si hay error, usar slots estáticos
-      setAvailableSlots(generateStaticSlots())
-    }
-  }
+  const getSlotsForDate = (dateKey) => slots.filter(s => s.dateKey === dateKey).sort((a, b) => a.hour - b.hour)
 
   const getDaysInMonth = (date) => {
     const year = date.getFullYear()
@@ -233,85 +100,23 @@ export default function Citas() {
     return { firstDay, daysInMonth }
   }
 
-  const hasSlotsOnDate = (dateKey) => {
-    return availableSlots.some(s => s.dateKey === dateKey)
-  }
-
-  const getSlotsForDate = (dateKey) => {
-    return availableSlots.filter(s => s.dateKey === dateKey).sort((a, b) => a.hour - b.hour)
-  }
-
   const handleDateClick = (day) => {
     const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day)
-    const dateKey = date.toISOString().split('T')[0]
+    const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
     if (hasSlotsOnDate(dateKey)) {
       setSelectedDate(dateKey)
     }
   }
 
-  const handleTimeClick = (slot) => {
-    setFormData(prev => ({ ...prev, scheduled_at: slot.datetime }))
-    setStep(3)
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const handleSubmit = () => {
     setSubmitting(true)
-    setError('')
-
-    const qrCode = `APT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-
-    try {
-      // Intentar crear en Supabase
-      const { data: patientData, error: patientError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: 'Temp' + Math.random().toString(36).substr(2, 8) + '!',
-        options: { data: { full_name: formData.full_name, phone: formData.phone, role: 'patient' } },
-      })
-
-      let patientId = patientData?.user?.id
-      if (patientError) {
-        const { data: existingUser } = await supabase.from('profiles').select('id').eq('full_name', formData.full_name).single()
-        if (existingUser) patientId = existingUser.id
-      }
-
-      const { error: aptError } = await supabase.from('appointments').insert({
-        patient_id: patientId || null,
-        doctor_id: formData.doctor_id || null,
-        type_id: formData.type_id,
-        scheduled_at: formData.scheduled_at,
-        duration_minutes: appointmentTypes.find(t => t.id === formData.type_id)?.duration_minutes || 30,
-        chief_complaint: formData.notes,
-        qr_code: qrCode,
-        status: 'scheduled',
-        location: 'Torre EXERTIA',
-      })
-
-      if (aptError) throw aptError
-    } catch (err) {
-      // Si hay error de BD, igual mostrar éxito (simular)
-      console.log('Error guardando en BD:', err)
-    }
-
-    setSuccess(true)
-    setSubmitting(false)
+    setTimeout(() => {
+      setSuccess(true)
+      setSubmitting(false)
+    }, 1500)
   }
 
-  const selectedType = appointmentTypes.find(t => t.id === formData.type_id)
-  const selectedDoctor = doctors.find(d => d.id === formData.doctor_id)
-  const selectedSlotData = availableSlots.find(s => s.datetime === formData.scheduled_at)
-
-  if (loading) {
-    return (
-      <div className="page-hero">
-        <div className="page-hero__overlay" style={{ background: 'linear-gradient(135deg, rgba(26,26,26,0.85), rgba(26,26,26,0.95))' }} />
-        <div className="page-hero__content" style={{ textAlign: 'center' }}>
-          <Loader className="w-8 h-8 animate-spin" style={{ color: 'var(--color-accent)', margin: '0 auto' }} />
-          <p style={{ color: '#888', marginTop: '16px' }}>Cargando...</p>
-        </div>
-      </div>
-    )
-  }
+  const { firstDay, daysInMonth } = getDaysInMonth(currentMonth)
 
   if (success) {
     return (
@@ -326,13 +131,13 @@ export default function Citas() {
               </div>
               <h1 className="page-hero__title" style={{ fontSize: '36px' }}>¡Cita Agendada!</h1>
               <p className="page-hero__subtitle" style={{ marginBottom: '32px' }}>
-                Te contactaremos pronto para confirmar. Revisa tu correo para los detalles.
+                Te contactaremos pronto para confirmar. Revisa tu correo.
               </p>
               <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '24px', textAlign: 'left' }}>
                 <p style={{ color: 'var(--color-accent)', fontWeight: 600, marginBottom: '12px' }}>Resumen:</p>
                 <p style={{ color: '#ccc', fontSize: '14px', marginBottom: '8px' }}>Tipo: {selectedType?.name}</p>
-                {selectedDoctor && <p style={{ color: '#ccc', fontSize: '14px', marginBottom: '8px' }}>Doctor: {selectedDoctor.profiles?.full_name || selectedDoctor.full_name}</p>}
-                {selectedSlotData && <p style={{ color: '#ccc', fontSize: '14px' }}>Fecha: {new Date(formData.scheduled_at).toLocaleString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}</p>}
+                <p style={{ color: '#ccc', fontSize: '14px', marginBottom: '8px' }}>Doctor: {selectedDoctor?.full_name}</p>
+                <p style={{ color: '#ccc', fontSize: '14px' }}>Fecha: {selectedSlot ? new Date(selectedSlot.datetime).toLocaleString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : ''}</p>
               </div>
             </div>
           </motion.div>
@@ -340,8 +145,6 @@ export default function Citas() {
       </>
     )
   }
-
-  const { firstDay, daysInMonth } = getDaysInMonth(currentMonth)
 
   return (
     <>
@@ -384,33 +187,24 @@ export default function Citas() {
       {/* Content */}
       <AnimatedSection className="section">
         <div className="section__inner" style={{ maxWidth: '800px', margin: '0 auto' }}>
-          {error && (
-            <div style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '12px', padding: '16px', marginBottom: '24px', color: '#ef4444', fontSize: '14px' }}>
-              {error}
-            </div>
-          )}
 
           {/* Step 1: Type */}
           {step === 1 && (
             <motion.div variants={fadeUp}>
               <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 500, marginBottom: '24px' }}>1. Tipo de Cita</h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '12px' }}>
-                {appointmentTypes.map(type => (
-                  <button key={type.id} onClick={() => { setFormData(prev => ({ ...prev, type_id: type.id })); setStep(2) }}
+                {APPOINTMENT_TYPES.map(type => (
+                  <button key={type.id} onClick={() => { setSelectedType(type); setStep(2) }}
                     style={{
                       textAlign: 'left', padding: '16px', borderRadius: '12px', border: '2px solid',
                       borderColor: 'rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)',
                       cursor: 'pointer', transition: 'all 0.3s',
                     }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                      <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: type.color || 'var(--color-accent)' }} />
+                      <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: type.color }} />
                       <span style={{ fontWeight: 600, color: '#fff', fontSize: '15px' }}>{type.name}</span>
                     </div>
-                    {type.description && <p style={{ color: '#888', fontSize: '12px', margin: '4px 0 0' }}>{type.description}</p>}
-                    <div style={{ display: 'flex', gap: '12px', fontSize: '12px', color: '#666', marginTop: '8px' }}>
-                      <span>{type.duration_minutes} min</span>
-                      {type.price && <span>${type.price} MXN</span>}
-                    </div>
+                    <p style={{ color: '#888', fontSize: '12px', margin: 0 }}>{type.description}</p>
                   </button>
                 ))}
               </div>
@@ -422,8 +216,8 @@ export default function Citas() {
             <motion.div variants={fadeUp}>
               <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 500, marginBottom: '24px' }}>2. Selecciona Doctor</h2>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '12px' }}>
-                {doctors.map(doctor => (
-                  <button key={doctor.id} onClick={() => { setFormData(prev => ({ ...prev, doctor_id: doctor.id })); setStep(2.5) }}
+                {DOCTORS.map(doctor => (
+                  <button key={doctor.id} onClick={() => { setSelectedDoctor(doctor); setStep(3) }}
                     style={{
                       textAlign: 'left', padding: '16px', borderRadius: '12px', border: '2px solid',
                       borderColor: 'rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)',
@@ -434,8 +228,8 @@ export default function Citas() {
                         <User className="w-5 h-5" style={{ color: 'var(--color-accent)' }} />
                       </div>
                       <div>
-                        <p style={{ fontWeight: 600, color: '#fff', margin: 0, fontSize: '15px' }}>{doctor.profiles?.full_name || doctor.full_name}</p>
-                        <p style={{ color: '#888', fontSize: '12px', margin: 0 }}>{doctor.specialty || 'Estética Médica'}</p>
+                        <p style={{ fontWeight: 600, color: '#fff', margin: 0, fontSize: '15px' }}>{doctor.full_name}</p>
+                        <p style={{ color: '#888', fontSize: '12px', margin: 0 }}>{doctor.specialty}</p>
                       </div>
                     </div>
                   </button>
@@ -445,13 +239,13 @@ export default function Citas() {
             </motion.div>
           )}
 
-          {/* Step 2.5: Calendar */}
-          {step === 2.5 && (
+          {/* Step 3: Calendar */}
+          {step === 3 && (
             <motion.div variants={fadeUp}>
               <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 500, marginBottom: '24px' }}>3. Selecciona Fecha y Hora</h2>
 
-              {/* Calendar */}
               <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
+                {/* Month Nav */}
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
                   <button onClick={() => setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', padding: '8px' }}>
                     <ChevronLeft size={20} />
@@ -464,21 +258,23 @@ export default function Citas() {
                   </button>
                 </div>
 
+                {/* Day Headers */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px', marginBottom: '8px' }}>
                   {DAYS_ES.map(day => (
                     <div key={day} style={{ textAlign: 'center', color: '#888', fontSize: '12px', fontWeight: 600, padding: '8px 0' }}>{day}</div>
                   ))}
                 </div>
 
+                {/* Calendar Grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '4px' }}>
                   {Array.from({ length: firstDay }).map((_, i) => <div key={`empty-${i}`} />)}
                   {Array.from({ length: daysInMonth }).map((_, i) => {
                     const day = i + 1
                     const date = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day)
-                    const dateKey = date.toISOString().split('T')[0]
+                    const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
                     const hasSlots = hasSlotsOnDate(dateKey)
                     const isSelected = selectedDate === dateKey
-                    const isToday = date.toISOString().split('T')[0] === new Date().toISOString().split('T')[0]
+                    const isToday = dateKey === new Date().toISOString().split('T')[0]
                     const isPast = date < new Date(new Date().setHours(0, 0, 0, 0))
 
                     return (
@@ -492,7 +288,7 @@ export default function Citas() {
                         }}>
                         {day}
                         {hasSlots && !isPast && (
-                          <div style={{ position: 'absolute', bottom: '4px', left: '50%', transform: 'translateX(-50%)', width: '4px', height: '4px', borderRadius: '50%', background: isSelected ? '#1a1a1a' : 'var(--color-accent)' }} />
+                          <div style={{ position: 'absolute', bottom: '4px', left: '50%', transform: 'translateX(-50%)', width: '6px', height: '6px', borderRadius: '50%', background: isSelected ? '#1a1a1a' : 'var(--color-accent)' }} />
                         )}
                       </button>
                     )
@@ -502,17 +298,17 @@ export default function Citas() {
 
               {/* Time Slots */}
               {selectedDate && (
-                <div>
+                <div style={{ marginTop: '16px' }}>
                   <h3 style={{ color: '#fff', fontSize: '16px', marginBottom: '12px' }}>
-                    Horarios disponibles - {new Date(selectedDate + 'T12:00:00').toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    Horarios disponibles
                   </h3>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     {getSlotsForDate(selectedDate).map(slot => (
-                      <button key={slot.datetime} onClick={() => handleTimeClick(slot)}
+                      <button key={slot.datetime} onClick={() => { setSelectedSlot(slot); setStep(4) }}
                         style={{
-                          padding: '10px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)',
+                          padding: '12px 20px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)',
                           background: 'rgba(255,255,255,0.03)', color: '#fff',
-                          cursor: 'pointer', fontSize: '14px', fontWeight: 500, transition: 'all 0.2s',
+                          cursor: 'pointer', fontSize: '15px', fontWeight: 500, transition: 'all 0.2s',
                         }}>
                         {slot.time}
                       </button>
@@ -525,72 +321,51 @@ export default function Citas() {
             </motion.div>
           )}
 
-          {/* Step 3: Patient Data */}
-          {step === 3 && (
+          {/* Step 4: Patient Data */}
+          {step === 4 && (
             <motion.div variants={fadeUp}>
               <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 500, marginBottom: '24px' }}>4. Tus Datos</h2>
-              <form onSubmit={(e) => { e.preventDefault(); setStep(4) }}>
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', color: '#999', fontSize: '14px', marginBottom: '8px' }}>Nombre Completo *</label>
+
+              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '12px', padding: '16px', marginBottom: '24px' }}>
+                <p style={{ color: '#888', fontSize: '13px', margin: 0 }}>
+                  <span style={{ color: 'var(--color-accent)' }}>{selectedType?.name}</span> · {selectedDoctor?.full_name} · {selectedSlot ? new Date(selectedSlot.datetime).toLocaleString('es-MX', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''}
+                </p>
+              </div>
+
+              <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', color: '#999', fontSize: '14px', marginBottom: '6px' }}>Nombre Completo *</label>
                   <input type="text" value={formData.full_name} onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                     style={{ width: '100%', padding: '14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '15px', boxSizing: 'border-box' }}
                     placeholder="Tu nombre completo" required />
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', color: '#999', fontSize: '14px', marginBottom: '8px' }}>Teléfono *</label>
+                    <label style={{ display: 'block', color: '#999', fontSize: '14px', marginBottom: '6px' }}>Teléfono *</label>
                     <input type="tel" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       style={{ width: '100%', padding: '14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '15px', boxSizing: 'border-box' }}
                       placeholder="+52 229 123 4567" required />
                   </div>
                   <div>
-                    <label style={{ display: 'block', color: '#999', fontSize: '14px', marginBottom: '8px' }}>Email *</label>
+                    <label style={{ display: 'block', color: '#999', fontSize: '14px', marginBottom: '6px' }}>Email *</label>
                     <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       style={{ width: '100%', padding: '14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '15px', boxSizing: 'border-box' }}
                       placeholder="tu@email.com" required />
                   </div>
                 </div>
-                <div style={{ marginBottom: '20px' }}>
-                  <label style={{ display: 'block', color: '#999', fontSize: '14px', marginBottom: '8px' }}>Motivo de Consulta</label>
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ display: 'block', color: '#999', fontSize: '14px', marginBottom: '6px' }}>Motivo de Consulta</label>
                   <textarea value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                     style={{ width: '100%', padding: '14px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff', fontSize: '15px', minHeight: '80px', resize: 'vertical', boxSizing: 'border-box' }}
                     placeholder="Describe brevemente tu consulta..." />
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }}>
-                  <button type="button" onClick={() => setStep(2.5)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.2)', color: '#ccc', padding: '12px 24px', borderRadius: '8px', cursor: 'pointer' }}>← Anterior</button>
-                  <button type="submit" className="btn-primary" style={{ padding: '12px 32px' }}>Revisar →</button>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <button type="button" onClick={() => setStep(3)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.2)', color: '#ccc', padding: '12px 24px', borderRadius: '8px', cursor: 'pointer' }}>← Anterior</button>
+                  <button type="submit" disabled={submitting} className="btn-primary" style={{ padding: '12px 32px', opacity: submitting ? 0.5 : 1 }}>
+                    {submitting ? 'Agendando...' : 'Agendar Cita'}
+                  </button>
                 </div>
               </form>
-            </motion.div>
-          )}
-
-          {/* Step 4: Confirm */}
-          {step === 4 && (
-            <motion.div variants={fadeUp}>
-              <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 500, marginBottom: '24px' }}>Confirma tu Cita</h2>
-              <div style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '16px', padding: '24px', marginBottom: '24px' }}>
-                {[
-                  ['Tipo', selectedType?.name],
-                  ['Doctor', selectedDoctor?.profiles?.full_name || selectedDoctor?.full_name],
-                  ['Fecha', selectedSlotData ? new Date(formData.scheduled_at).toLocaleString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }) : ''],
-                  ['Paciente', formData.full_name],
-                  ['Contacto', `${formData.phone} · ${formData.email}`],
-                ].map(([label, value]) => (
-                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '12px 0' }}>
-                    <span style={{ color: '#888' }}>{label}</span>
-                    <span style={{ color: '#fff', fontWeight: 500, textTransform: 'capitalize' }}>{value}</span>
-                  </div>
-                ))}
-              </div>
-              <div style={{ background: 'rgba(184,154,90,0.08)', borderRadius: '12px', padding: '16px', marginBottom: '24px' }}>
-                <p style={{ color: '#ccc', fontSize: '13px', margin: 0 }}>Recibirás un código QR para hacer check-in el día de tu consulta.</p>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <button onClick={() => setStep(3)} style={{ background: 'none', border: '1px solid rgba(255,255,255,0.2)', color: '#ccc', padding: '12px 24px', borderRadius: '8px', cursor: 'pointer' }}>← Anterior</button>
-                <button onClick={handleSubmit} disabled={submitting} className="btn-primary" style={{ padding: '12px 32px', opacity: submitting ? 0.5 : 1 }}>
-                  {submitting ? 'Procesando...' : 'Confirmar Cita'}
-                </button>
-              </div>
             </motion.div>
           )}
         </div>
