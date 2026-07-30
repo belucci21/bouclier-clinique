@@ -15,6 +15,7 @@ export default function Prescriptions() {
     notes: '',
     medications: [{ name: '', dosage: '', frequency: '', duration: '', instructions: '' }],
   });
+  const [file, setFile] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -24,7 +25,7 @@ export default function Prescriptions() {
     const [rxRes, patientsRes, aptRes] = await Promise.all([
       supabase
         .from('prescriptions')
-        .select('*, profiles!prescriptions_patient_id_fkey(full_name), profiles!prescriptions_doctor_id_fkey(full_name), appointments(scheduled_at)')
+        .select('*, profiles!prescriptions_patient_id_fkey(full_name), profiles!prescriptions_doctor_id_fkey(full_name), appointments(scheduled_at), pdf_url')
         .order('created_at', { ascending: false }),
       supabase.from('patients').select('id, profiles!patients_id_fkey(full_name)'),
       supabase.from('appointments').select('id, scheduled_at, profiles!appointments_patient_id_fkey(full_name)').order('scheduled_at', { ascending: false }),
@@ -75,6 +76,34 @@ export default function Prescriptions() {
       return;
     }
 
+    if (file) {
+      const { data: prescription } = await supabase
+        .from('prescriptions')
+        .select('id')
+        .eq('doctor_id', user?.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      if (prescription) {
+        const filePath = `${user.id}/${prescription.id}/${file.name}`;
+        const { error: uploadError } = await supabase.storage
+          .from('prescriptions')
+          .upload(filePath, file);
+
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage
+            .from('prescriptions')
+            .getPublicUrl(filePath);
+
+          await supabase
+            .from('prescriptions')
+            .update({ pdf_url: urlData.publicUrl })
+            .eq('id', prescription.id);
+        }
+      }
+    }
+
     toast.success('Receta creada exitosamente');
     setShowModal(false);
     fetchData();
@@ -82,6 +111,7 @@ export default function Prescriptions() {
       patient_id: '', appointment_id: '', notes: '',
       medications: [{ name: '', dosage: '', frequency: '', duration: '', instructions: '' }],
     });
+    setFile(null);
   };
 
   if (loading) {
@@ -141,6 +171,11 @@ export default function Prescriptions() {
 
                 {rx.notes && (
                   <p className="text-gray-500 text-sm mt-2 italic">{rx.notes}</p>
+                )}
+                {rx.pdf_url && (
+                  <a href={rx.pdf_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-bouclier-gold text-sm hover:underline mt-2">
+                    <Download className="w-4 h-4" /> Ver documento
+                  </a>
                 )}
               </div>
             </div>
@@ -265,6 +300,11 @@ export default function Prescriptions() {
                   rows={3}
                   placeholder="Indicaciones generales..."
                 />
+              </div>
+
+              <div>
+                <label className="block text-gray-400 text-sm mb-1">Archivo adjunto (opcional)</label>
+                <input type="file" accept=".pdf,image/*" onChange={(e) => setFile(e.target.files[0])} className="input-dark" />
               </div>
 
               <div className="flex gap-3 pt-4">

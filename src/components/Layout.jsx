@@ -21,6 +21,7 @@ const navItems = [
   { to: '/doctores', icon: UserCheck, label: 'Doctores' },
   { to: '/diagnosticos', icon: FileText, label: 'Diagnósticos' },
   { to: '/recetas', icon: Pill, label: 'Recetas' },
+  { to: '/informes', icon: FileText, label: 'Informes' },
 ];
 
 export default function Layout() {

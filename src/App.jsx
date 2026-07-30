@@ -8,6 +8,7 @@ import Patients from './pages/Patients';
 import Doctors from './pages/Doctors';
 import Diagnoses from './pages/Diagnoses';
 import Prescriptions from './pages/Prescriptions';
+import Reports from './pages/Reports';
 import CheckIn from './pages/CheckIn';
 import Layout from './components/Layout';
 
@@ -51,6 +52,7 @@ function AppRoutes() {
         <Route path="doctores" element={<Doctors />} />
         <Route path="diagnosticos" element={<Diagnoses />} />
         <Route path="recetas" element={<Prescriptions />} />
+        <Route path="informes" element={<Reports />} />
       </Route>
     </Routes>
   );
