@@ -192,9 +192,13 @@ export default function Reservar() {
 
     const qrCode = `APT-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 
+    const array = new Uint8Array(16)
+    crypto.getRandomValues(array)
+    const tempPassword = Array.from(array, b => b.toString(16).padStart(2, '0')).join('').slice(0, 16) + '!A'
+
     const { data: patientData, error: patientError } = await supabase.auth.signUp({
       email: formData.email,
-      password: 'Temp' + Math.random().toString(36).substr(2, 8) + '!',
+      password: tempPassword,
       options: {
         data: {
           full_name: formData.full_name,
@@ -207,15 +211,14 @@ export default function Reservar() {
     let patientId = patientData?.user?.id
 
     if (patientError) {
-      const { data: existingUser } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('full_name', formData.full_name)
-        .single()
-
-      if (existingUser) {
-        patientId = existingUser.id
+      if (patientError.message?.includes('already registered')) {
+        setError('Ya existe una cuenta con este email. Inicia sesión para agendar.')
+        setSubmitting(false)
+        return
       }
+      setError('Error al crear la cuenta. Por favor intenta de nuevo.')
+      setSubmitting(false)
+      return
     }
 
     const { error: aptError } = await supabase.from('appointments').insert({
