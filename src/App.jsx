@@ -10,6 +10,8 @@ import MetodoBouclier from './pages/MetodoBouclier.jsx'
 import Manchas from './pages/Manchas.jsx'
 import Blefaroplastia from './pages/Blefaroplastia.jsx'
 import Citas from './pages/Citas.jsx'
+import Reservar from './pages/Reservar.jsx'
+import Descargar from './pages/Descargar.jsx'
 import { useEffect } from 'react'
 
 function ScrollToTop() {
@@ -35,6 +37,8 @@ function App() {
           <Route path="/manchas" element={<Manchas />} />
           <Route path="/blefaroplastia" element={<Blefaroplastia />} />
           <Route path="/citas" element={<Citas />} />
+          <Route path="/reservar" element={<Reservar />} />
+          <Route path="/descargar" element={<Descargar />} />
         </Routes>
       </AnimatePresence>
       <Footer />
