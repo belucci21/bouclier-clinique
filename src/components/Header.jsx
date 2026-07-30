@@ -11,9 +11,8 @@ const navLinks = [
   { label: 'Tratamientos', href: 'https://bouclier-dermatologia.com/' },
   { label: 'Método Bouclier', to: '/metodo-bouclier' },
   { label: 'Farmacia', href: 'https://bouclier-dermatologia.com/collections' },
-  { label: 'Citas', to: '/citas' },
+  { label: 'Agendar Cita', to: '/citas', highlight: true },
   { label: 'App', to: '/descargar' },
-  { label: 'Reservar Online', to: '/reservar', highlight: true },
 ]
 
 export default function Header() {
@@ -67,8 +66,8 @@ export default function Header() {
           )}
         </nav>
 
-        <Link to="/reservar" className="btn-primary header__cta">
-          Reservar Cita
+        <Link to="/citas" className="btn-primary header__cta">
+          Agendar Cita
         </Link>
 
         <button

@@ -376,7 +376,10 @@ export default function Reservar() {
                 {appointmentTypes.map(type => (
                   <button
                     key={type.id}
-                    onClick={() => setFormData(prev => ({ ...prev, type_id: type.id }))}
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, type_id: type.id }))
+                      setStep(2)
+                    }}
                     style={{
                       textAlign: 'left', padding: '20px', borderRadius: '12px', border: '2px solid',
                       borderColor: formData.type_id === type.id ? 'var(--color-accent)' : 'rgba(255,255,255,0.1)',
@@ -398,16 +401,6 @@ export default function Reservar() {
                   </button>
                 ))}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '32px' }}>
-                <button
-                  onClick={() => setStep(2)}
-                  disabled={!formData.type_id}
-                  className="btn-gold"
-                  style={{ opacity: !formData.type_id ? 0.5 : 1, cursor: !formData.type_id ? 'not-allowed' : 'pointer' }}
-                >
-                  Siguiente
-                </button>
-              </div>
             </motion.div>
           )}
 
@@ -421,7 +414,10 @@ export default function Reservar() {
                 {doctors.map(doctor => (
                   <button
                     key={doctor.id}
-                    onClick={() => setFormData(prev => ({ ...prev, doctor_id: doctor.id }))}
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, doctor_id: doctor.id }))
+                      setStep(3)
+                    }}
                     style={{
                       textAlign: 'left', padding: '20px', borderRadius: '12px', border: '2px solid',
                       borderColor: formData.doctor_id === doctor.id ? 'var(--color-accent)' : 'rgba(255,255,255,0.1)',
@@ -444,17 +440,7 @@ export default function Reservar() {
                   </button>
                 ))}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px' }}>
-                <button onClick={() => setStep(1)} className="btn-outline">Anterior</button>
-                <button
-                  onClick={() => setStep(3)}
-                  disabled={!formData.doctor_id}
-                  className="btn-gold"
-                  style={{ opacity: !formData.doctor_id ? 0.5 : 1, cursor: !formData.doctor_id ? 'not-allowed' : 'pointer' }}
-                >
-                  Siguiente
-                </button>
-              </div>
+              <button onClick={() => setStep(1)} style={{ marginTop: '24px', background: 'none', border: '1px solid rgba(255,255,255,0.2)', color: '#ccc', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer' }}>← Anterior</button>
             </motion.div>
           )}
 
