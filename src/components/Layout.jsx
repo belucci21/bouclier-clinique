@@ -65,7 +65,7 @@ export default function Layout() {
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1">
             {allNavItems
-              .filter(item => !item.roles || item.roles.includes(profile?.role))
+              .filter(item => !item.roles || !profile?.role || item.roles.includes(profile.role))
               .map(({ to, icon: Icon, label }) => (
               <NavLink
                 key={to}
