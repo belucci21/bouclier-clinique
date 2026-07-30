@@ -53,13 +53,6 @@ export default function Footer() {
                 <p>Torre EXERTIA, Oficina 704 Y 706, Barco Viejo s/n, Col. Mocambo, 94293 Boca del Río, Veracruz</p>
               </div>
             </div>
-            <div className="footer__location">
-              <MapPin size={16} className="footer__icon" />
-              <div>
-                <strong>Bouclier Riviera Veracruzana</strong>
-                <p>Plaza Puerto Ceiba local 15 y 16, Blvd Riviera Veracruzana, Colonia Playas del Conchal</p>
-              </div>
-            </div>
           </div>
 
           <div className="footer__contact">
