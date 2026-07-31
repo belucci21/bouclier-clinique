@@ -22,6 +22,7 @@ import Recetas from './pages/paciente/Recetas.jsx'
 import Informes from './pages/paciente/Informes.jsx'
 import Perfil from './pages/paciente/Perfil.jsx'
 import CodigoQR from './pages/paciente/CodigoQR.jsx'
+import AgendarCita from './pages/paciente/AgendarCita.jsx'
 import { useEffect } from 'react'
 
 function ScrollToTop() {
@@ -77,6 +78,7 @@ function App() {
               <Route path="informes" element={<Informes />} />
               <Route path="perfil" element={<Perfil />} />
               <Route path="qr" element={<CodigoQR />} />
+              <Route path="agendar" element={<AgendarCita />} />
             </Route>
           </Route>
         </Routes>

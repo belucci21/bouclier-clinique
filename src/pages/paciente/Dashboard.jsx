@@ -136,7 +136,7 @@ export default function Dashboard() {
         {appointments.length === 0 ? (
           <div className="portal-empty">
             <p>No tienes citas programadas</p>
-            <a href="/citas" className="portal-btn portal-btn--primary">Agendar una cita</a>
+            <a href="/paciente/agendar" className="portal-btn portal-btn--primary">Agendar una cita</a>
           </div>
         ) : (
           <div className="portal-card-list">
