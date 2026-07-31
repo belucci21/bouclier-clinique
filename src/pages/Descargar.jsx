@@ -94,7 +94,8 @@ export default function Descargar() {
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
               {/* Android Download */}
-              <a href="https://play.google.com/store/apps/details?id=com.bouclier.patient" target="_blank" rel="noopener noreferrer"
+              <a href="https://expo.dev/artifacts/eas/Vs0k2fHo1jg-iEqEgqu7M4MAZ4mrcc4-2_TICjac6YI.apk" target="_blank" rel="noopener noreferrer"
+                download="Bouclier-Paciente.apk"
                 style={{
                   display: 'flex', alignItems: 'center', gap: '14px',
                   background: '#fff', color: '#000',
@@ -104,17 +105,12 @@ export default function Descargar() {
                   transition: 'all 0.3s ease'
                 }}>
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M3.18 23.04c.73.47 1.63.42 2.31-.09l11.2-6.47-2.78-2.78L3.18 23.04z" fill="#34A853"/>
-                  <path d="M1 18.3c-.56.95-.56 2.1 0 3.05.36.61.96.99 1.62 1.06l10.68-10.68-2.96-2.96L1 18.3z" fill="#FBBC04"/>
-                  <path d="M12 9.6l3.12-3.12c.96.96.96 2.52 0 3.48L12 9.6z" fill="#4285F4"/>
-                  <path d="M22.82 10.73c.73-.47 1.18-1.26 1.18-2.13 0-.87-.45-1.66-1.18-2.13l-2.67-1.54-3.3 3.3 3.3 3.3 2.67-1.8z" fill="#EA4335"/>
-                  <path d="M1.62 1.06C.96 1.13.36 1.51 0 2.12c-.56.95-.56 2.1 0 3.05l10.68 10.68 2.96-2.96L1.62 1.06z" fill="#EA4335"/>
-                  <path d="M12 14.4l-3.12 3.12c-.96-.96-.96-2.52 0-3.48L12 14.4z" fill="#FBBC04"/>
-                  <path d="M20.16 3.61L12 12l3.12-3.12 5.04-5.27z" fill="#34A853"/>
+                  <path d="M4 22l8-8m0 0l8 8m-8-8V2" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M4 2v6m16-6v6" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
                 <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontSize: '10px', fontWeight: 400, opacity: 0.7, lineHeight: 1 }}>Disponible en</div>
-                  <div style={{ fontSize: '16px', lineHeight: 1.2 }}>Google Play</div>
+                  <div style={{ fontSize: '10px', fontWeight: 400, opacity: 0.7, lineHeight: 1 }}>Descargar para</div>
+                  <div style={{ fontSize: '16px', lineHeight: 1.2 }}>Android (APK)</div>
                 </div>
               </a>
 
