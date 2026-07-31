@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { Smartphone, Shield, Bell, Calendar, QrCode, Clock, Star, Heart, Apple } from 'lucide-react'
+import { Smartphone, Shield, Bell, Calendar, QrCode, Clock, Star, Heart } from 'lucide-react'
 import SEO from '../components/SEO.jsx'
 
 const fadeUp = {
@@ -98,35 +98,32 @@ export default function Descargar() {
                 download="Bouclier-Paciente.apk"
                 style={{
                   display: 'flex', alignItems: 'center', gap: '14px',
-                  background: '#fff', color: '#000',
-                  padding: '16px 32px', borderRadius: '14px',
-                  textDecoration: 'none', fontSize: '16px', fontWeight: 600,
-                  boxShadow: '0 4px 20px rgba(255,255,255,0.1)',
+                  background: 'var(--color-accent)', color: '#1a1a1a',
+                  padding: '18px 36px', borderRadius: '14px',
+                  textDecoration: 'none', fontSize: '17px', fontWeight: 700,
+                  boxShadow: '0 4px 24px rgba(184,154,90,0.3)',
                   transition: 'all 0.3s ease'
                 }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <path d="M4 22l8-8m0 0l8 8m-8-8V2" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M4 2v6m16-6v6" stroke="#1a1a1a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                <Smartphone className="w-6 h-6" style={{ color: '#1a1a1a' }} />
                 <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontSize: '10px', fontWeight: 400, opacity: 0.7, lineHeight: 1 }}>Descargar para</div>
-                  <div style={{ fontSize: '16px', lineHeight: 1.2 }}>Android (APK)</div>
+                  <div style={{ fontSize: '11px', fontWeight: 400, opacity: 0.7, lineHeight: 1 }}>Descargar para</div>
+                  <div style={{ fontSize: '17px', lineHeight: 1.2 }}>Android</div>
                 </div>
               </a>
 
               {/* iOS Coming Soon */}
               <div style={{
                 display: 'flex', alignItems: 'center', gap: '14px',
-                background: 'rgba(255,255,255,0.05)', color: '#666',
-                padding: '16px 32px', borderRadius: '14px',
-                fontSize: '16px', fontWeight: 600,
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(184,154,90,0.08)', color: '#888',
+                padding: '18px 36px', borderRadius: '14px',
+                fontSize: '17px', fontWeight: 600,
+                border: '1px solid rgba(184,154,90,0.15)',
                 cursor: 'not-allowed'
               }}>
-                <Apple size={28} />
+                <Smartphone className="w-6 h-6" style={{ color: '#666' }} />
                 <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontSize: '10px', fontWeight: 400, opacity: 0.7, lineHeight: 1 }}>Próximamente en</div>
-                  <div style={{ fontSize: '16px', lineHeight: 1.2, color: '#888' }}>App Store</div>
+                  <div style={{ fontSize: '11px', fontWeight: 400, opacity: 0.5, lineHeight: 1 }}>Próximamente en</div>
+                  <div style={{ fontSize: '17px', lineHeight: 1.2, color: '#666' }}>iOS</div>
                 </div>
               </div>
             </div>
