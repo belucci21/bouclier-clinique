@@ -73,6 +73,7 @@ export default function Footer() {
             <Link to="/quienes-somos" className="footer__link">Quiénes Somos</Link>
             <Link to="/metodo-bouclier" className="footer__link">Método Bouclier</Link>
             <Link to="/citas" className="footer__link">Agendar Cita</Link>
+            <Link to="/descargar" className="footer__link">Descargar App</Link>
             <a href="#" className="footer__link">Aviso de Privacidad</a>
             <a href="#" className="footer__link">Términos y Condiciones</a>
           </div>

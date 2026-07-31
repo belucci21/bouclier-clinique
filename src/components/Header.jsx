@@ -12,6 +12,7 @@ const navLinks = [
   { label: 'Método Bouclier', to: '/metodo-bouclier' },
   { label: 'Farmacia', href: 'https://bouclier-dermatologia.com/collections' },
   { label: 'Agendar Cita', to: '/citas', highlight: true },
+  { label: 'Descargar App', to: '/descargar' },
   { label: 'Mi Portal', to: '/paciente/login' },
 ]
 

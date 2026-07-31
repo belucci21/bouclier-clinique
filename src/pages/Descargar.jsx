@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { Smartphone, Shield, Bell, Calendar, QrCode, Monitor, Clock } from 'lucide-react'
+import { Smartphone, Shield, Bell, Calendar, QrCode, Clock, Star, Heart, Apple } from 'lucide-react'
 import SEO from '../components/SEO.jsx'
 
 const fadeUp = {
@@ -23,17 +23,12 @@ function AnimatedSection({ children, className = '' }) {
 }
 
 const patientFeatures = [
-  { icon: Calendar, title: 'Agendar Citas', desc: 'Reserva tu cita en línea en cualquier momento' },
-  { icon: QrCode, title: 'Check-in QR', desc: 'Escanea el código QR al llegar para registrarte' },
-  { icon: Bell, title: 'Recordatorios', desc: 'Recibe notificaciones de tus próximas citas' },
-  { icon: Shield, title: 'Historial', desc: 'Consulta tu historial médico y recetas' },
-]
-
-const doctorFeatures = [
-  { icon: Monitor, title: 'Dashboard', desc: 'Gestiona citas, pacientes y recetas desde la web' },
-  { icon: QrCode, title: 'Check-in Pacientes', desc: 'Escanea QR para registrar llegada de pacientes' },
-  { icon: Calendar, title: 'Calendario', desc: 'Vista completa del día con FullCalendar' },
-  { icon: Shield, title: 'Informes', desc: 'Crea diagnósticos, recetas e informes médicos' },
+  { icon: Calendar, title: 'Agendar Citas', desc: 'Reserva tu cita en línea en cualquier momento del día' },
+  { icon: QrCode, title: 'Check-in QR', desc: 'Escanea el código QR al llegar para registrarte al instante' },
+  { icon: Bell, title: 'Recordatorios', desc: 'Recibe notificaciones de tus próximas citas y tratamientos' },
+  { icon: Shield, title: 'Historial Médico', desc: 'Consulta tus diagnósticos, recetas e informes' },
+  { icon: Heart, title: 'Mi Perfil', desc: 'Gestiona tu información personal y datos de contacto' },
+  { icon: Star, title: 'Fácil y Rápido', desc: 'Interfaz sencilla diseñada para ti' },
 ]
 
 export default function Descargar() {
@@ -41,7 +36,7 @@ export default function Descargar() {
     <>
       <SEO
         title="Descargar App | Bouclier Clinique"
-        description="Descarga la app de Bouclier Clinique para iOS y Android. Agenda citas, haz check-in y gestiona tu salud desde tu celular."
+        description="Descarga la app de Bouclier Clinique para Android. Agenda citas, haz check-in y gestiona tu salud desde tu celular."
         canonical="https://bouclier-clinique.com/descargar"
       />
 
@@ -51,7 +46,7 @@ export default function Descargar() {
         <motion.div className="page-hero__content" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }}>
           <p className="section-label" style={{ color: 'var(--color-accent)' }}>App Móvil</p>
           <h1 className="page-hero__title">Descarga Nuestra App</h1>
-          <p className="page-hero__subtitle">Disponible para iOS y Android. Gestiona tus citas y salud desde tu celular.</p>
+          <p className="page-hero__subtitle">Gestiona tus citas y salud desde tu celular. Disponible para Android.</p>
         </motion.div>
       </section>
 
@@ -60,103 +55,116 @@ export default function Descargar() {
         <div className="section__inner">
           <motion.div variants={fadeUp} style={{ textAlign: 'center', marginBottom: '48px' }}>
             <div style={{
-              width: '80px', height: '80px', borderRadius: '20px',
+              width: '100px', height: '100px', borderRadius: '24px',
               background: 'linear-gradient(135deg, var(--color-accent), #a08848)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 24px'
+              margin: '0 auto 24px', boxShadow: '0 8px 32px rgba(184,154,90,0.3)'
             }}>
-              <Smartphone className="w-10 h-10" style={{ color: '#1a1a1a' }} />
+              <Smartphone className="w-12 h-12" style={{ color: '#1a1a1a' }} />
             </div>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '36px', fontWeight: 500, marginBottom: '12px' }}>App Paciente</h2>
-            <p style={{ color: '#999', fontSize: '18px', maxWidth: '600px', margin: '0 auto' }}>
-              Tu portal personal para agendar citas, hacer check-in y consultar tu historial médico.
+            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '40px', fontWeight: 500, marginBottom: '12px' }}>App Bouclier Paciente</h2>
+            <p style={{ color: '#999', fontSize: '18px', maxWidth: '600px', margin: '0 auto', lineHeight: '1.7' }}>
+              Tu portal personal para agendar citas, hacer check-in, consultar tu historial y recibir recordatorios.
             </p>
           </motion.div>
 
           {/* Patient Features */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '48px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '64px' }}>
             {patientFeatures.map(({ icon: Icon, title, desc }, i) => (
               <motion.div key={i} variants={fadeUp} style={{
-                background: 'rgba(255,255,255,0.03)', borderRadius: '16px', padding: '24px',
-                border: '1px solid rgba(255,255,255,0.05)'
+                background: 'rgba(255,255,255,0.03)', borderRadius: '16px', padding: '28px',
+                border: '1px solid rgba(255,255,255,0.06)', transition: 'all 0.3s ease'
               }}>
-                <Icon className="w-8 h-8" style={{ color: 'var(--color-accent)', marginBottom: '16px' }} />
+                <div style={{
+                  width: '48px', height: '48px', borderRadius: '12px',
+                  background: 'rgba(184,154,90,0.1)', display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', marginBottom: '16px'
+                }}>
+                  <Icon className="w-6 h-6" style={{ color: 'var(--color-accent)' }} />
+                </div>
                 <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>{title}</h3>
                 <p style={{ color: '#888', fontSize: '14px', lineHeight: '1.6' }}>{desc}</p>
               </motion.div>
             ))}
           </div>
 
-          {/* Coming Soon Notice */}
-          <motion.div variants={fadeUp} style={{
-            background: 'rgba(184,154,90,0.1)', borderRadius: '16px', padding: '32px',
-            border: '1px solid rgba(184,154,90,0.2)', textAlign: 'center', marginBottom: '48px'
-          }}>
-            <Clock className="w-10 h-10" style={{ color: 'var(--color-accent)', margin: '0 auto 16px' }} />
-            <h3 style={{ color: '#fff', fontSize: '20px', fontWeight: 600, marginBottom: '12px' }}>Próximamente en Tiendas</h3>
-            <p style={{ color: '#999', fontSize: '15px', maxWidth: '500px', margin: '0 auto', lineHeight: '1.6' }}>
-              Las apps móviles están en proceso de publicación. Mientras tanto, puedes acceder a tu cuenta desde el navegador en el dashboard.
-            </p>
-            <a href="https://bouclier-clinic-system.vercel.app" target="_blank" rel="noopener noreferrer"
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '20px',
-                background: 'var(--color-accent)', color: '#1a1a1a', padding: '14px 28px',
-                borderRadius: '10px', textDecoration: 'none', fontSize: '15px', fontWeight: 600
+          {/* Download Section */}
+          <motion.div variants={fadeUp} style={{ textAlign: 'center' }}>
+            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 500, marginBottom: '32px' }}>Descargar Ahora</h3>
+
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+              {/* Android Download */}
+              <a href="https://play.google.com/store/apps/details?id=com.bouclier.patient" target="_blank" rel="noopener noreferrer"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '14px',
+                  background: '#fff', color: '#000',
+                  padding: '16px 32px', borderRadius: '14px',
+                  textDecoration: 'none', fontSize: '16px', fontWeight: 600,
+                  boxShadow: '0 4px 20px rgba(255,255,255,0.1)',
+                  transition: 'all 0.3s ease'
+                }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                  <path d="M3.18 23.04c.73.47 1.63.42 2.31-.09l11.2-6.47-2.78-2.78L3.18 23.04z" fill="#34A853"/>
+                  <path d="M1 18.3c-.56.95-.56 2.1 0 3.05.36.61.96.99 1.62 1.06l10.68-10.68-2.96-2.96L1 18.3z" fill="#FBBC04"/>
+                  <path d="M12 9.6l3.12-3.12c.96.96.96 2.52 0 3.48L12 9.6z" fill="#4285F4"/>
+                  <path d="M22.82 10.73c.73-.47 1.18-1.26 1.18-2.13 0-.87-.45-1.66-1.18-2.13l-2.67-1.54-3.3 3.3 3.3 3.3 2.67-1.8z" fill="#EA4335"/>
+                  <path d="M1.62 1.06C.96 1.13.36 1.51 0 2.12c-.56.95-.56 2.1 0 3.05l10.68 10.68 2.96-2.96L1.62 1.06z" fill="#EA4335"/>
+                  <path d="M12 14.4l-3.12 3.12c-.96-.96-.96-2.52 0-3.48L12 14.4z" fill="#FBBC04"/>
+                  <path d="M20.16 3.61L12 12l3.12-3.12 5.04-5.27z" fill="#34A853"/>
+                </svg>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontSize: '10px', fontWeight: 400, opacity: 0.7, lineHeight: 1 }}>Disponible en</div>
+                  <div style={{ fontSize: '16px', lineHeight: 1.2 }}>Google Play</div>
+                </div>
+              </a>
+
+              {/* iOS Coming Soon */}
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: '14px',
+                background: 'rgba(255,255,255,0.05)', color: '#666',
+                padding: '16px 32px', borderRadius: '14px',
+                fontSize: '16px', fontWeight: 600,
+                border: '1px solid rgba(255,255,255,0.1)',
+                cursor: 'not-allowed'
               }}>
-              <Monitor className="w-5 h-5" />
-              Abrir Dashboard
-            </a>
+                <Apple size={28} />
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontSize: '10px', fontWeight: 400, opacity: 0.7, lineHeight: 1 }}>Próximamente en</div>
+                  <div style={{ fontSize: '16px', lineHeight: 1.2, color: '#888' }}>App Store</div>
+                </div>
+              </div>
+            </div>
+
+            <p style={{ color: '#666', fontSize: '13px', marginTop: '24px' }}>
+              Versión 1.0.0 · Android 6.0+
+            </p>
           </motion.div>
         </div>
       </AnimatedSection>
 
-      {/* Doctor/Staff Section */}
+      {/* Web Alternative */}
       <AnimatedSection className="section" style={{ background: 'rgba(255,255,255,0.02)' }}>
         <div className="section__inner">
-          <motion.div variants={fadeUp} style={{ textAlign: 'center', marginBottom: '48px' }}>
-            <div style={{
-              width: '80px', height: '80px', borderRadius: '20px',
-              background: 'linear-gradient(135deg, #2a2a2a, #1a1a1a)',
-              border: '2px solid rgba(184,154,90,0.3)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 24px'
-            }}>
-              <Monitor className="w-10 h-10" style={{ color: 'var(--color-accent)' }} />
-            </div>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '36px', fontWeight: 500, marginBottom: '12px' }}>Dashboard Médico</h2>
-            <p style={{ color: '#999', fontSize: '18px', maxWidth: '600px', margin: '0 auto' }}>
-              Plataforma web para doctores, recepción y administración de la clínica.
+          <motion.div variants={fadeUp} style={{
+            background: 'rgba(184,154,90,0.08)', borderRadius: '20px', padding: '48px',
+            border: '1px solid rgba(184,154,90,0.15)', textAlign: 'center'
+          }}>
+            <Clock className="w-10 h-10" style={{ color: 'var(--color-accent)', margin: '0 auto 20px' }} />
+            <h3 style={{ color: '#fff', fontSize: '24px', fontWeight: 600, marginBottom: '12px', fontFamily: 'var(--font-display)' }}>
+              ¿No puedes descargar la app?
+            </h3>
+            <p style={{ color: '#999', fontSize: '16px', maxWidth: '500px', margin: '0 auto 28px', lineHeight: '1.7' }}>
+              Accede a tu cuenta desde el navegador. Tu portal de paciente tiene todas las funciones de la app.
             </p>
-          </motion.div>
-
-          {/* Doctor Features */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px', marginBottom: '48px' }}>
-            {doctorFeatures.map(({ icon: Icon, title, desc }, i) => (
-              <motion.div key={i} variants={fadeUp} style={{
-                background: 'rgba(255,255,255,0.03)', borderRadius: '16px', padding: '24px',
-                border: '1px solid rgba(255,255,255,0.05)'
-              }}>
-                <Icon className="w-8 h-8" style={{ color: 'var(--color-accent)', marginBottom: '16px' }} />
-                <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>{title}</h3>
-                <p style={{ color: '#888', fontSize: '14px', lineHeight: '1.6' }}>{desc}</p>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Dashboard Access */}
-          <motion.div variants={fadeUp} style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
-            <a href="https://bouclier-clinic-system.vercel.app" target="_blank" rel="noopener noreferrer"
+            <a href="https://bouclier-clinique.com/paciente/login" target="_blank" rel="noopener noreferrer"
               style={{
-                display: 'flex', alignItems: 'center', gap: '12px',
-                background: 'var(--color-accent)', color: '#1a1a1a',
-                padding: '16px 32px', borderRadius: '12px',
-                textDecoration: 'none', fontSize: '16px', fontWeight: 600
+                display: 'inline-flex', alignItems: 'center', gap: '10px',
+                background: 'var(--color-accent)', color: '#1a1a1a', padding: '16px 32px',
+                borderRadius: '12px', textDecoration: 'none', fontSize: '16px', fontWeight: 600,
+                transition: 'all 0.3s ease'
               }}>
-              <Monitor className="w-6 h-6" />
-              <div style={{ textAlign: 'left' }}>
-                <div style={{ fontSize: '10px', fontWeight: 400, opacity: 0.7 }}>Acceso para</div>
-                <div style={{ fontSize: '16px' }}>Doctores y Staff</div>
-              </div>
+              <Smartphone className="w-5 h-5" />
+              Abrir Portal Web
             </a>
           </motion.div>
         </div>
