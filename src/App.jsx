@@ -59,13 +59,17 @@ function App() {
           <Route path="/reservar" element={<Reservar />} />
           <Route path="/descargar" element={<Descargar />} />
 
+          <Route path="/paciente/login" element={
+            <PatientAuthProvider>
+              <Login />
+            </PatientAuthProvider>
+          } />
           <Route path="/paciente" element={
             <PatientAuthProvider>
               <PortalLayout />
             </PatientAuthProvider>
           }>
             <Route index element={<Navigate to="login" replace />} />
-            <Route path="login" element={<Login />} />
             <Route element={<ProtectedRoute />}>
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="citas" element={<CitasPaciente />} />
