@@ -11,8 +11,7 @@ const navLinks = [
   { label: 'Tratamientos', href: 'https://bouclier-dermatologia.com/' },
   { label: 'Método Bouclier', to: '/metodo-bouclier' },
   { label: 'Farmacia', href: 'https://bouclier-dermatologia.com/collections' },
-  { label: 'Agendar Cita', to: '/citas', highlight: true },
-  { label: 'Descargar App', to: '/descargar' },
+  { label: 'Agendar Cita', to: '/citas' },
   { label: 'Mi Portal', to: '/paciente/login' },
 ]
 
@@ -67,8 +66,8 @@ export default function Header() {
           )}
         </nav>
 
-        <Link to="/citas" className="btn-primary header__cta">
-          Agendar Cita
+        <Link to="/descargar" className="btn-primary header__cta">
+          Descargar App
         </Link>
 
         <button
@@ -145,8 +144,8 @@ export default function Header() {
                   transition={{ delay: 0.5 }}
                   className="header__mobile-cta-wrapper"
                 >
-                  <Link to="/citas" className="btn-primary header__mobile-cta" onClick={() => setMobileOpen(false)}>
-                    Agendar Cita
+                  <Link to="/descargar" className="btn-primary header__mobile-cta" onClick={() => setMobileOpen(false)}>
+                    Descargar App
                   </Link>
                 </motion.div>
               </div>
