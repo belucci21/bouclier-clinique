@@ -94,7 +94,7 @@ export default function Descargar() {
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
               {/* Android Download */}
-              <a href="https://expo.dev/artifacts/eas/Vs0k2fHo1jg-iEqEgqu7M4MAZ4mrcc4-2_TICjac6YI.apk" target="_blank" rel="noopener noreferrer"
+              <a href="https://expo.dev/artifacts/eas/-AU9FeaVS8S31lLCzYtLseCEJoML6OYfNKlWEhowlQA.apk" target="_blank" rel="noopener noreferrer"
                 download="Bouclier-Paciente.apk"
                 style={{
                   display: 'flex', alignItems: 'center', gap: '14px',
