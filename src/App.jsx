@@ -9,7 +9,6 @@ import { PatientAuthProvider } from './contexts/PatientAuthContext.jsx'
 import PortalLayout from './components/portal/PortalLayout.jsx'
 import ProtectedRoute from './components/portal/ProtectedRoute.jsx'
 import Home from './pages/Home.jsx'
-import QuienesSomos from './pages/QuienesSomos.jsx'
 import MetodoBouclier from './pages/MetodoBouclier.jsx'
 import Manchas from './pages/Manchas.jsx'
 import Blefaroplastia from './pages/Blefaroplastia.jsx'
@@ -27,6 +26,11 @@ import AgendarCita from './pages/paciente/AgendarCita.jsx'
 
 const Tratamientos = lazy(() => import('./pages/Tratamientos.jsx'))
 const TratamientoDetalle = lazy(() => import('./pages/TratamientoDetalle.jsx'))
+const QuienesSomos = lazy(() => import('./pages/QuienesSomos.jsx'))
+const DraGissel = lazy(() => import('./pages/DraGissel.jsx'))
+const Contacto = lazy(() => import('./pages/Contacto.jsx'))
+const PreguntasFrecuentes = lazy(() => import('./pages/PreguntasFrecuentes.jsx'))
+const Legal = lazy(() => import('./pages/Legal.jsx'))
 
 function LazyPage({ children }) {
   return <Suspense fallback={<main className="route-loading" aria-label="Cargando contenido" />}>{children}</Suspense>
@@ -59,7 +63,7 @@ function App() {
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home />} />
-          <Route path="/quienes-somos" element={<QuienesSomos />} />
+          <Route path="/quienes-somos" element={<LazyPage><QuienesSomos /></LazyPage>} />
           <Route path="/metodo-bouclier" element={<MetodoBouclier />} />
           <Route path="/manchas" element={<Manchas />} />
           <Route path="/blefaroplastia" element={<Blefaroplastia />} />
@@ -68,6 +72,10 @@ function App() {
           <Route path="/descargar" element={<Descargar />} />
           <Route path="/tratamientos" element={<LazyPage><Tratamientos /></LazyPage>} />
           <Route path="/tratamientos/:slug" element={<LazyPage><TratamientoDetalle /></LazyPage>} />
+          <Route path="/dra-gissel" element={<LazyPage><DraGissel /></LazyPage>} />
+          <Route path="/contacto" element={<LazyPage><Contacto /></LazyPage>} />
+          <Route path="/preguntas-frecuentes" element={<LazyPage><PreguntasFrecuentes /></LazyPage>} />
+          <Route path="/aviso-de-privacidad" element={<LazyPage><Legal /></LazyPage>} />
 
           <Route path="/paciente/login" element={
             <PatientAuthProvider>

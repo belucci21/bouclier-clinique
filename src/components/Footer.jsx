@@ -1,86 +1,58 @@
+import { Mail, MapPin, Phone } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { Mail, Phone, MapPin } from 'lucide-react'
-
-const InstagramIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
-  </svg>
-)
-
-const FacebookIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-  </svg>
-)
-
-const TwitterIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/>
-  </svg>
-)
+import { SITE_CONTENT } from '../data/siteContent.js'
 
 const LOGO_URL = '/assets/img/logo.webp'
 
+function InstagramIcon() {
+  return <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" /></svg>
+}
+
+function FacebookIcon() {
+  return <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M14 8h3V4.2c-.5-.1-2.2-.2-4.1-.2C9 4 6.3 6.4 6.3 10.8V14H2v4.3h4.3V24h5.2v-5.7h4.1l.7-4.3h-4.8v-2.8C11.5 10 11.9 8 14 8Z" /></svg>
+}
+
 export default function Footer() {
+  const { email, location, name, phone, social, tagline } = SITE_CONTENT
+
   return (
-    <footer className="footer">
+    <footer className="footer editorial-footer">
       <div className="footer__inner">
         <div className="footer__top">
           <div className="footer__brand">
-            <img src={LOGO_URL} alt="Bouclier Clinique" className="footer__logo" />
-            <p className="footer__tagline">
-              La nueva medicina estética preventiva en México. Protegemos tu piel antes de que envejezca.
-            </p>
+            <img src={LOGO_URL} alt={name} className="footer__logo" />
+            <p className="footer__tagline">{tagline}</p>
             <div className="footer__social">
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="footer__social-link" aria-label="Instagram">
-                <InstagramIcon />
-              </a>
-              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="footer__social-link" aria-label="Facebook">
-                <FacebookIcon />
-              </a>
-              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="footer__social-link" aria-label="Twitter">
-                <TwitterIcon />
-              </a>
+              <a href={social.instagram} target="_blank" rel="noreferrer" className="footer__social-link" aria-label="Instagram de Bouclier Dermatología"><InstagramIcon /></a>
+              <a href={social.facebook} target="_blank" rel="noreferrer" className="footer__social-link" aria-label="Facebook de Bouclier Dermatología"><FacebookIcon /></a>
             </div>
           </div>
 
           <div className="footer__locations">
-            <h4 className="footer__heading">Nuestras Clínicas</h4>
-            <div className="footer__location">
-              <MapPin size={16} className="footer__icon" />
-              <div>
-                <strong>Bouclier Clínica</strong>
-                <p>Torre EXERTIA, Oficina 704 Y 706, Barco Viejo s/n, Col. Mocambo, 94293 Boca del Río, Veracruz</p>
-              </div>
-            </div>
+            <h2 className="footer__heading">Clínica</h2>
+            <div className="footer__location"><MapPin aria-hidden="true" size={16} className="footer__icon" /><p>{location.street}<br />{location.city}</p></div>
+            <a className="footer__link" href={location.mapsUrl} target="_blank" rel="noreferrer">Cómo llegar</a>
           </div>
 
           <div className="footer__contact">
-            <h4 className="footer__heading">Contacto</h4>
-            <a href="mailto:info@bouclier-clinique.com" className="footer__contact-item">
-              <Mail size={16} className="footer__icon" />
-              info@bouclier-clinique.com
-            </a>
-            <a href="tel:+522291087016" className="footer__contact-item">
-              <Phone size={16} className="footer__icon" />
-              +52 229 108 7016
-            </a>
+            <h2 className="footer__heading">Contacto</h2>
+            <a href={`mailto:${email}`} className="footer__contact-item"><Mail aria-hidden="true" size={16} className="footer__icon" />{email}</a>
+            <a href={`tel:${phone.e164}`} className="footer__contact-item"><Phone aria-hidden="true" size={16} className="footer__icon" />{phone.display}</a>
           </div>
 
-          <div className="footer__links">
-            <h4 className="footer__heading">Enlaces</h4>
-            <Link to="/" className="footer__link">Inicio</Link>
-            <Link to="/quienes-somos" className="footer__link">Quiénes Somos</Link>
-            <Link to="/metodo-bouclier" className="footer__link">Método Bouclier</Link>
-            <Link to="/citas" className="footer__link">Agendar Cita</Link>
-            <Link to="/descargar" className="footer__link">Descargar App</Link>
-            <a href="#" className="footer__link">Aviso de Privacidad</a>
-            <a href="#" className="footer__link">Términos y Condiciones</a>
-          </div>
+          <nav className="footer__links" aria-label="Enlaces de pie de página">
+            <h2 className="footer__heading">Explorar</h2>
+            <Link to="/tratamientos" className="footer__link">Tratamientos</Link>
+            <Link to="/dra-gissel" className="footer__link">Dra. Gissel</Link>
+            <Link to="/contacto" className="footer__link">Contacto</Link>
+            <Link to="/preguntas-frecuentes" className="footer__link">Preguntas frecuentes</Link>
+            <Link to="/aviso-de-privacidad" className="footer__link">Aviso de privacidad</Link>
+          </nav>
         </div>
 
         <div className="footer__bottom">
-          <p>&copy; {new Date().getFullYear()} Bouclier Clinique. Todos los derechos reservados.</p>
+          <p>&copy; {new Date().getFullYear()} {name}. Todos los derechos reservados.</p>
+          <p>La información del sitio no sustituye una valoración médica.</p>
         </div>
       </div>
     </footer>
