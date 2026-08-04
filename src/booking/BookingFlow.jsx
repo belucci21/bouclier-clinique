@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Check, ChevronLeft } from 'lucide-react'
 import { bookingApi } from '../services/bookingApi.js'
+import { SITE_CONTENT } from '../data/siteContent.js'
 import StripeDepositStep from './StripeDepositStep.jsx'
 
 const STEP_LABELS = ['Tratamiento', 'Especialista', 'Horario', 'Datos', 'Pago']
@@ -12,7 +13,7 @@ function formatMoney(minor, currency = 'mxn') {
 function formatSlot(startsAt) {
   const date = new Date(startsAt)
   return new Intl.DateTimeFormat('es-MX', {
-    timeZone: 'Europe/Madrid',
+    timeZone: 'America/Mexico_City',
     weekday: 'long',
     day: 'numeric',
     month: 'short',
@@ -88,6 +89,7 @@ export default function BookingFlow({ api = bookingApi, PaymentComponent = Strip
         <div className="booking-flow__error" role="alert">
           <p>{error.message || 'No pudimos cargar la reserva.'}</p>
           {error.code === 'slot_conflict' && <button type="button" onClick={backToSlots}>Elegir otro horario</button>}
+          {!options && <a href={SITE_CONTENT.phone.whatsappUrl}>Agendar por WhatsApp</a>}
         </div>
       )}
 

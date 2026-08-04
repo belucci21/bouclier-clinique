@@ -47,7 +47,7 @@ export default function Home() {
       <section className="home-treatment-intro">
         <p className="editorial-kicker">Tratamientos</p>
         <div>
-          <h2>Tratamientos médicos avanzados.</h2>
+          <h2>Tratamientos<br className="desktop-line-break" /> médicos avanzados.</h2>
           <p>Protocolos personalizados que combinan tecnología, experiencia médica y una visión integral de tu piel.</p>
         </div>
       </section>

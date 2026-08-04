@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { usePatientAuth } from '../../contexts/PatientAuthContext';
+import { usePatientAuth } from '../../contexts/usePatientAuth.js';
 
 export default function Perfil() {
   const { user, profile, updateProfile } = usePatientAuth();

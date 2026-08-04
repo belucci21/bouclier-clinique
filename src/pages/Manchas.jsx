@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView, AnimatePresence } from 'framer-motion'
-import { ChevronDown, ChevronUp, Zap, Sun, Sparkles, ArrowRight, Play } from 'lucide-react'
+import { ChevronDown, Zap, Sun, Sparkles } from 'lucide-react'
 import SEO from '../components/SEO.jsx'
 
 const fadeUp = {
@@ -99,7 +99,7 @@ export default function Manchas() {
   return (
     <>
       <SEO
-        title="Tratamiento de Manchas y Melasma | Bouclier Clinique"
+        title="Tratamiento de Manchas y Melasma | Bouclier Dermatología"
         description="Tratamiento de manchas y melasma con Aerolase Neo 1064nm en CDMX y Playa del Carmen. Protocolos Bouclier: resultados reales en 6-8 sesiones sin dolor."
         canonical="https://bouclier-clinique.com/manchas"
         ogImage="/assets/img/aerolase.webp"

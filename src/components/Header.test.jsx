@@ -13,6 +13,8 @@ describe('Header unificado', () => {
     const user = userEvent.setup()
     render(<MemoryRouter><Header /></MemoryRouter>)
 
+    expect(screen.getByRole('banner')).toHaveClass('editorial-header--home')
+
     const treatments = screen.getByRole('button', { name: 'Tratamientos' })
     const appointmentLinks = screen.getAllByRole('link', { name: /agendar cita/i })
 

@@ -27,6 +27,19 @@ describe('Tratamientos', () => {
     expect(screen.queryByRole('link', { name: /conocer hydrafacial/i })).not.toBeInTheDocument()
   })
 
+  it('shows the complete clinical dermatology scope without turning it into products', () => {
+    render(
+      <MemoryRouter>
+        <Tratamientos />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('heading', { name: /dermatología clínica con enfoque funcional/i })).toBeInTheDocument()
+    expect(screen.getByText('Psoriasis')).toBeInTheDocument()
+    expect(screen.getByText('Cáncer de piel')).toBeInTheDocument()
+    expect(screen.getByText('Bioestimulantes')).toBeInTheDocument()
+  })
+
   it('muestra la ficha clínica y conduce a agendar cita', () => {
     render(
       <MemoryRouter initialEntries={['/tratamientos/hydrafacial']}>

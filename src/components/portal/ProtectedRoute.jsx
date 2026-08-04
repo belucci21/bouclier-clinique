@@ -1,5 +1,5 @@
 import { Navigate, Outlet } from 'react-router-dom';
-import { usePatientAuth } from '../../contexts/PatientAuthContext';
+import { usePatientAuth } from '../../contexts/usePatientAuth.js';
 
 export default function ProtectedRoute() {
   const { user, loading } = usePatientAuth();

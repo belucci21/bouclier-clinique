@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { Smartphone, Shield, Bell, Calendar, QrCode, Clock, Star, Heart } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import SEO from '../components/SEO.jsx'
 
 const fadeUp = {
@@ -12,11 +13,11 @@ const stagger = {
   visible: { transition: { staggerChildren: 0.15 } }
 }
 
-function AnimatedSection({ children, className = '' }) {
+function AnimatedSection({ children, className = '', style }) {
   const ref = useRef(null)
   const inView = useInView(ref, { once: true, margin: '-80px' })
   return (
-    <motion.section ref={ref} className={className} initial="hidden" animate={inView ? 'visible' : 'hidden'} variants={stagger}>
+    <motion.section ref={ref} className={className} style={style} initial="hidden" animate={inView ? 'visible' : 'hidden'} variants={stagger}>
       {children}
     </motion.section>
   )
@@ -33,10 +34,10 @@ const patientFeatures = [
 
 export default function Descargar() {
   return (
-    <>
+    <main>
       <SEO
-        title="Descargar App | Bouclier Clinique"
-        description="Descarga la app de Bouclier Clinique para Android. Agenda citas, haz check-in y gestiona tu salud desde tu celular."
+        title="Descargar App | Bouclier Dermatología"
+        description="Descarga la app de Bouclier Dermatología para Android. Agenda citas, haz check-in y gestiona tu salud desde tu celular."
         canonical="https://bouclier-clinique.com/descargar"
       />
 
@@ -56,11 +57,11 @@ export default function Descargar() {
           <motion.div variants={fadeUp} style={{ textAlign: 'center', marginBottom: '48px' }}>
             <div style={{
               width: '100px', height: '100px', borderRadius: '24px',
-              background: 'linear-gradient(135deg, var(--color-accent), #a08848)',
+              background: 'var(--color-primary)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              margin: '0 auto 24px', boxShadow: '0 8px 32px rgba(184,154,90,0.3)'
+              margin: '0 auto 24px', boxShadow: '0 8px 32px rgba(0,0,0,0.18)'
             }}>
-              <Smartphone className="w-12 h-12" style={{ color: '#1a1a1a' }} />
+              <Smartphone className="w-12 h-12" style={{ color: '#fff' }} />
             </div>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '40px', fontWeight: 500, marginBottom: '12px' }}>App Bouclier Paciente</h2>
             <p style={{ color: '#999', fontSize: '18px', maxWidth: '600px', margin: '0 auto', lineHeight: '1.7' }}>
@@ -72,18 +73,18 @@ export default function Descargar() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '24px', marginBottom: '64px' }}>
             {patientFeatures.map(({ icon: Icon, title, desc }, i) => (
               <motion.div key={i} variants={fadeUp} style={{
-                background: 'rgba(255,255,255,0.03)', borderRadius: '16px', padding: '28px',
-                border: '1px solid rgba(255,255,255,0.06)', transition: 'all 0.3s ease'
+                background: 'var(--color-bg-alt)', borderRadius: '16px', padding: '28px',
+                border: '1px solid var(--color-border)', transition: 'all 0.3s ease'
               }}>
                 <div style={{
                   width: '48px', height: '48px', borderRadius: '12px',
-                  background: 'rgba(184,154,90,0.1)', display: 'flex',
+                  background: 'rgba(17,17,17,0.08)', display: 'flex',
                   alignItems: 'center', justifyContent: 'center', marginBottom: '16px'
                 }}>
                   <Icon className="w-6 h-6" style={{ color: 'var(--color-accent)' }} />
                 </div>
-                <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>{title}</h3>
-                <p style={{ color: '#888', fontSize: '14px', lineHeight: '1.6' }}>{desc}</p>
+                <h3 style={{ color: 'var(--color-text)', fontSize: '18px', fontWeight: 600, marginBottom: '8px' }}>{title}</h3>
+                <p style={{ color: 'var(--color-text-light)', fontSize: '14px', lineHeight: '1.6' }}>{desc}</p>
               </motion.div>
             ))}
           </div>
@@ -98,13 +99,13 @@ export default function Descargar() {
                 download="Bouclier-Paciente.apk"
                 style={{
                   display: 'flex', alignItems: 'center', gap: '14px',
-                  background: 'var(--color-accent)', color: '#1a1a1a',
+                  background: 'var(--color-primary)', color: '#fff',
                   padding: '18px 36px', borderRadius: '14px',
                   textDecoration: 'none', fontSize: '17px', fontWeight: 700,
-                  boxShadow: '0 4px 24px rgba(184,154,90,0.3)',
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
                   transition: 'all 0.3s ease'
                 }}>
-                <Smartphone className="w-6 h-6" style={{ color: '#1a1a1a' }} />
+                <Smartphone className="w-6 h-6" style={{ color: '#fff' }} />
                 <div style={{ textAlign: 'left' }}>
                   <div style={{ fontSize: '11px', fontWeight: 400, opacity: 0.7, lineHeight: 1 }}>Descargar para</div>
                   <div style={{ fontSize: '17px', lineHeight: 1.2 }}>Android</div>
@@ -114,10 +115,10 @@ export default function Descargar() {
               {/* iOS Coming Soon */}
               <div style={{
                 display: 'flex', alignItems: 'center', gap: '14px',
-                background: 'rgba(184,154,90,0.08)', color: '#888',
+                background: 'var(--color-bg-alt)', color: 'var(--color-text-light)',
                 padding: '18px 36px', borderRadius: '14px',
                 fontSize: '17px', fontWeight: 600,
-                border: '1px solid rgba(184,154,90,0.15)',
+                border: '1px solid var(--color-border)',
                 cursor: 'not-allowed'
               }}>
                 <Smartphone className="w-6 h-6" style={{ color: '#666' }} />
@@ -136,11 +137,11 @@ export default function Descargar() {
       </AnimatedSection>
 
       {/* Web Alternative */}
-      <AnimatedSection className="section" style={{ background: 'rgba(255,255,255,0.02)' }}>
+      <AnimatedSection className="section" style={{ background: 'var(--color-bg-alt)' }}>
         <div className="section__inner">
           <motion.div variants={fadeUp} style={{
-            background: 'rgba(184,154,90,0.08)', borderRadius: '20px', padding: '48px',
-            border: '1px solid rgba(184,154,90,0.15)', textAlign: 'center'
+            background: 'var(--color-primary)', borderRadius: '20px', padding: '48px',
+            border: '1px solid rgba(255,255,255,0.14)', textAlign: 'center'
           }}>
             <Clock className="w-10 h-10" style={{ color: 'var(--color-accent)', margin: '0 auto 20px' }} />
             <h3 style={{ color: '#fff', fontSize: '24px', fontWeight: 600, marginBottom: '12px', fontFamily: 'var(--font-display)' }}>
@@ -149,19 +150,19 @@ export default function Descargar() {
             <p style={{ color: '#999', fontSize: '16px', maxWidth: '500px', margin: '0 auto 28px', lineHeight: '1.7' }}>
               Accede a tu cuenta desde el navegador. Tu portal de paciente tiene todas las funciones de la app.
             </p>
-            <a href="https://bouclier-clinique.com/paciente/login" target="_blank" rel="noopener noreferrer"
+            <Link to="/paciente/login"
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: '10px',
-                background: 'var(--color-accent)', color: '#1a1a1a', padding: '16px 32px',
+                background: '#fff', color: '#111', padding: '16px 32px',
                 borderRadius: '12px', textDecoration: 'none', fontSize: '16px', fontWeight: 600,
                 transition: 'all 0.3s ease'
               }}>
               <Smartphone className="w-5 h-5" />
               Abrir Portal Web
-            </a>
+            </Link>
           </motion.div>
         </div>
       </AnimatedSection>
-    </>
+    </main>
   )
 }

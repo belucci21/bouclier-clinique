@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { usePatientAuth } from '../../contexts/PatientAuthContext';
+import { usePatientAuth } from '../../contexts/usePatientAuth.js';
 import { supabase } from '../../lib/supabase';
 
 export default function Informes() {
@@ -10,19 +10,18 @@ export default function Informes() {
 
   useEffect(() => {
     if (!user) return;
+    async function fetchReports() {
+      setLoading(true);
+      const { data } = await supabase
+        .from('reports')
+        .select('*, doctors(*, profiles!doctors_id_fkey(full_name))')
+        .eq('patient_id', user.id)
+        .order('created_at', { ascending: false });
+      setReports(data || []);
+      setLoading(false);
+    }
     fetchReports();
   }, [user]);
-
-  async function fetchReports() {
-    setLoading(true);
-    const { data } = await supabase
-      .from('reports')
-      .select('*, doctors(*, profiles!doctors_id_fkey(full_name))')
-      .eq('patient_id', user.id)
-      .order('created_at', { ascending: false });
-    setReports(data || []);
-    setLoading(false);
-  }
 
   function formatDate(dateStr) {
     if (!dateStr) return '';

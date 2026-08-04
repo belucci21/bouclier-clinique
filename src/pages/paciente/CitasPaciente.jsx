@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { usePatientAuth } from '../../contexts/PatientAuthContext';
+import { usePatientAuth } from '../../contexts/usePatientAuth.js';
 import { supabase } from '../../lib/supabase';
 
 export default function CitasPaciente() {
@@ -11,25 +11,18 @@ export default function CitasPaciente() {
 
   useEffect(() => {
     if (!user) return;
+    async function fetchAppointments() {
+      setLoading(true);
+      const { data } = await supabase
+        .from('appointments')
+        .select('*, doctors(*, profiles!doctors_id_fkey(full_name)), appointment_types(name, color)')
+        .eq('patient_id', user.id)
+        .order('scheduled_at', { ascending: false });
+      setAppointments(data || []);
+      setLoading(false);
+    }
     fetchAppointments();
   }, [user]);
-
-  async function fetchAppointments() {
-    setLoading(true);
-    const { data } = await supabase
-      .from('appointments')
-      .select('*, doctors(*, profiles!doctors_id_fkey(full_name)), appointment_types(name, color)')
-      .eq('patient_id', user.id)
-      .order('scheduled_at', { ascending: false });
-    setAppointments(data || []);
-    setLoading(false);
-  }
-
-  function formatDate(dateStr) {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  }
 
   function formatTime(dateStr) {
     if (!dateStr) return '';

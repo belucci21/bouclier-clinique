@@ -1,11 +1,6 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
-
-const PatientAuthContext = createContext(null);
-
-export function usePatientAuth() {
-  return useContext(PatientAuthContext);
-}
+import { PatientAuthContext } from './patientAuthContext.js';
 
 export function PatientAuthProvider({ children }) {
   const [user, setUser] = useState(null);

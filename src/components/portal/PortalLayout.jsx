@@ -15,7 +15,7 @@ export default function PortalLayout() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <img src="/assets/img/logo.webp" alt="Bouclier Clinique" className="portal-topbar__logo" />
+          <img src="/assets/img/logo.webp" alt="Bouclier Dermatología" className="portal-topbar__logo" />
         </header>
         <div className="portal-content">
           <Outlet />

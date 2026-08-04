@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SEO from '../../components/SEO';
-import { usePatientAuth } from '../../contexts/PatientAuthContext';
+import { usePatientAuth } from '../../contexts/usePatientAuth.js';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -40,12 +40,12 @@ export default function Login() {
   return (
     <>
       <SEO
-        title="Mi Portal | Bouclier Clinique"
-        description="Accede a tu portal de paciente Bouclier Clinique. Consulta tus citas, recetas e informes."
+        title="Mi Portal | Bouclier Dermatología"
+        description="Accede a tu portal de paciente Bouclier Dermatología. Consulta tus citas, recetas e informes."
         canonical="https://bouclier-clinique.com/paciente/login"
       />
 
-      <div className="portal-login">
+      <main className="portal-login">
         <div className="portal-login__left">
           <div className="portal-login__brand">
             <img src="/assets/img/logo-white.webp" alt="Bouclier" className="portal-login__logo" />
@@ -132,12 +132,12 @@ export default function Login() {
               ¿No tienes cuenta? Contacta a la clínica para registrarte.
             </p>
 
-            <a href="/" className="portal-login__back">
+            <Link to="/" className="portal-login__back">
               ← Volver al sitio web
-            </a>
+            </Link>
           </motion.form>
         </div>
-      </div>
+      </main>
     </>
   );
 }

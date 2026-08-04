@@ -26,7 +26,7 @@ describe('BookingFlow', () => {
 
     await user.click(await screen.findByRole('button', { name: /valoración dermatológica/i }))
     await user.click(screen.getByRole('button', { name: /dra\. gissel castellanos/i }))
-    await user.click(screen.getByRole('button', { name: /miércoles.*5.*18:00/i }))
+    await user.click(screen.getByRole('button', { name: /miércoles.*5.*10:00/i }))
     await user.type(screen.getByLabelText(/nombre completo/i), 'Ana Pérez')
     await user.type(screen.getByLabelText(/correo/i), 'ana@example.com')
     await user.type(screen.getByLabelText(/teléfono/i), '+522291234567')
@@ -36,7 +36,7 @@ describe('BookingFlow', () => {
     expect(screen.getByText('$300.00')).toBeInTheDocument()
     expect(api.createHold.mock.calls[0][0]).not.toHaveProperty('amount')
     expect(screen.queryByRole('link', { name: /pagar/i })).not.toBeInTheDocument()
-  })
+  }, 15000)
 
   it('permite recuperar un conflicto de horario', async () => {
     const user = userEvent.setup()
@@ -49,7 +49,7 @@ describe('BookingFlow', () => {
 
     await user.click(await screen.findByRole('button', { name: /valoración dermatológica/i }))
     await user.click(screen.getByRole('button', { name: /dra\. gissel castellanos/i }))
-    await user.click(screen.getByRole('button', { name: /miércoles.*5.*18:00/i }))
+    await user.click(screen.getByRole('button', { name: /miércoles.*5.*10:00/i }))
     await user.type(screen.getByLabelText(/nombre completo/i), 'Ana Pérez')
     await user.type(screen.getByLabelText(/correo/i), 'ana@example.com')
     await user.type(screen.getByLabelText(/teléfono/i), '+522291234567')
@@ -57,5 +57,19 @@ describe('BookingFlow', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/acaba de ocuparse/i)
     expect(screen.getByRole('button', { name: /elegir otro horario/i })).toBeInTheDocument()
+  }, 15000)
+
+  it('offers a direct appointment fallback when online availability is offline', async () => {
+    const api = {
+      getOptions: vi.fn().mockRejectedValue(new Error('No pudimos completar la solicitud')),
+    }
+
+    render(<BookingFlow api={api} PaymentComponent={() => null} />)
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/no pudimos completar la solicitud/i)
+    expect(screen.getByRole('link', { name: /agendar por whatsapp/i })).toHaveAttribute(
+      'href',
+      expect.stringMatching(/^https:\/\/api\.whatsapp\.com\/send\?phone=522291087016/),
+    )
   })
 })

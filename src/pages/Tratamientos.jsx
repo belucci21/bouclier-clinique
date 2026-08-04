@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import TreatmentCard from '../components/TreatmentCard.jsx'
 import SEO from '../components/SEO.jsx'
-import { TREATMENT_CATEGORIES, TREATMENTS } from '../data/treatments.js'
+import { CLINICAL_CONCERNS, TREATMENT_CATEGORIES, TREATMENTS } from '../data/treatments.js'
 
 export default function Tratamientos() {
   const [activeCategory, setActiveCategory] = useState('todos')
@@ -25,6 +25,17 @@ export default function Tratamientos() {
           Protocolos personalizados que combinan tecnología, experiencia médica y una visión integral de tu piel.
         </p>
       </header>
+
+      <section className="clinical-scope" aria-labelledby="clinical-scope-title">
+        <div>
+          <p className="editorial-kicker">Consulta dermatológica</p>
+          <h2 id="clinical-scope-title">Dermatología clínica con enfoque funcional.</h2>
+          <p>La tecnología es solo una parte del cuidado. También diagnosticamos y acompañamos enfermedades de piel, pelo y uñas.</p>
+        </div>
+        <ul>
+          {CLINICAL_CONCERNS.map((concern) => <li key={concern}>{concern}</li>)}
+        </ul>
+      </section>
 
       <div className="treatment-filters" role="group" aria-label="Filtrar tratamientos por categoría">
         <button

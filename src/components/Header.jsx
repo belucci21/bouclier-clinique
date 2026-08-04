@@ -17,6 +17,7 @@ export default function Header() {
   const [treatmentsOpen, setTreatmentsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const location = useLocation()
+  const isHome = location.pathname === '/'
   const treatmentButtonRef = useRef(null)
   const treatmentNavRef = useRef(null)
 
@@ -58,7 +59,7 @@ export default function Header() {
   }, [treatmentsOpen])
 
   return (
-    <header className={`header editorial-header ${scrolled ? 'header--scrolled' : ''}`}>
+    <header className={`header editorial-header ${isHome ? 'editorial-header--home' : ''} ${scrolled ? 'header--scrolled' : ''}`}>
       <div className="header__inner">
         <Link to="/" className="header__logo-link" aria-label="Bouclier Dermatología, inicio">
           <img src={LOGO_URL} alt="" className="header__logo" />

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { usePatientAuth } from '../../contexts/PatientAuthContext';
+import { usePatientAuth } from '../../contexts/usePatientAuth.js';
 import { supabase } from '../../lib/supabase';
 
 export default function CodigoQR() {
@@ -10,36 +10,22 @@ export default function CodigoQR() {
 
   useEffect(() => {
     if (!user) return;
+    async function fetchQR() {
+      setLoading(true);
+      const { data } = await supabase
+        .from('appointments')
+        .select('qr_code')
+        .eq('patient_id', user.id)
+        .not('qr_code', 'is', null)
+        .order('scheduled_at', { ascending: false })
+        .limit(1)
+        .single();
+
+      setQrCode(data?.qr_code || `patient:${user.id}`);
+      setLoading(false);
+    }
     fetchQR();
   }, [user]);
-
-  async function fetchQR() {
-    setLoading(true);
-    const { data } = await supabase
-      .from('appointments')
-      .select('qr_code')
-      .eq('patient_id', user.id)
-      .not('qr_code', 'is', null)
-      .order('scheduled_at', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (data?.qr_code) {
-      setQrCode(data.qr_code);
-    } else {
-      setQrCode(`patient:${user.id}`);
-    }
-    setLoading(false);
-  }
-
-  function downloadQR() {
-    const canvas = document.querySelector('.portal-qr__canvas canvas');
-    if (!canvas) return;
-    const link = document.createElement('a');
-    link.download = 'bouclier-qr.png';
-    link.href = canvas.toDataURL();
-    link.click();
-  }
 
   if (loading) {
     return (

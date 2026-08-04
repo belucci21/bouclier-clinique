@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useInView } from 'framer-motion'
-import { Zap, Sun, Sparkles, ArrowRight } from 'lucide-react'
+import { Zap, Sun, Sparkles } from 'lucide-react'
 import SEO from '../components/SEO.jsx'
 
 const fadeUp = {
@@ -55,9 +55,9 @@ const protocols = [
 
 export default function MetodoBouclier() {
   return (
-    <>
+    <main>
       <SEO
-        title="Método Bouclier | Bouclier Clinique"
+        title="Método Bouclier | Bouclier Dermatología"
         description="Descubre el Método Bouclier: un protocolo en 3 niveles (Despertar, Liberación, Renacimiento) que combina tecnología láser y PRP para la renovación completa de tu piel."
         canonical="https://bouclier-clinique.com/metodo-bouclier"
       />
@@ -206,6 +206,6 @@ export default function MetodoBouclier() {
           }
         }
       `}</style>
-    </>
+    </main>
   )
 }

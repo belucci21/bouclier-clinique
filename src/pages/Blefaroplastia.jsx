@@ -73,7 +73,7 @@ export default function Blefaroplastia() {
   return (
     <>
       <SEO
-        title="Blefaroplastia No Quirúrgica | Bouclier Clinique"
+        title="Blefaroplastia No Quirúrgica | Bouclier Dermatología"
         description="Blefaroplastia no quirúrgica con PRP y láser en CDMX y Playa del Carmen. Rejuvenecimiento de mirada sin cirugía, sin cicatrices, sin dolor. Resultados naturales."
         canonical="https://bouclier-clinique.com/blefaroplastia"
         ogImage="/assets/img/nano-banana.jpg"

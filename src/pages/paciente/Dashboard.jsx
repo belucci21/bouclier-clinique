@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { usePatientAuth } from '../../contexts/PatientAuthContext';
+import { usePatientAuth } from '../../contexts/usePatientAuth.js';
 import { supabase } from '../../lib/supabase';
 
 export default function Dashboard() {
@@ -13,39 +13,38 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) return;
+    async function fetchData() {
+      setLoading(true);
+
+      const [apptRes, prescRes, reportRes] = await Promise.all([
+        supabase
+          .from('appointments')
+          .select('*, doctors(*, profiles!doctors_id_fkey(full_name)), appointment_types(name, color)')
+          .eq('patient_id', user.id)
+          .gte('scheduled_at', new Date().toISOString())
+          .order('scheduled_at', { ascending: true })
+          .limit(5),
+        supabase
+          .from('prescriptions')
+          .select('*')
+          .eq('patient_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(3),
+        supabase
+          .from('reports')
+          .select('*')
+          .eq('patient_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(3),
+      ]);
+
+      setAppointments(apptRes.data || []);
+      setPrescriptions(prescRes.data || []);
+      setReports(reportRes.data || []);
+      setLoading(false);
+    }
     fetchData();
   }, [user]);
-
-  async function fetchData() {
-    setLoading(true);
-
-    const [apptRes, prescRes, reportRes] = await Promise.all([
-      supabase
-        .from('appointments')
-        .select('*, doctors(*, profiles!doctors_id_fkey(full_name)), appointment_types(name, color)')
-        .eq('patient_id', user.id)
-        .gte('scheduled_at', new Date().toISOString())
-        .order('scheduled_at', { ascending: true })
-        .limit(5),
-      supabase
-        .from('prescriptions')
-        .select('*')
-        .eq('patient_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(3),
-      supabase
-        .from('reports')
-        .select('*')
-        .eq('patient_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(3),
-    ]);
-
-    setAppointments(apptRes.data || []);
-    setPrescriptions(prescRes.data || []);
-    setReports(reportRes.data || []);
-    setLoading(false);
-  }
 
   function formatDate(dateStr) {
     if (!dateStr) return '';
@@ -102,7 +101,7 @@ export default function Dashboard() {
             Hola, {profile?.full_name || 'Paciente'} 👋
           </h1>
           <p className="portal-welcome__subtitle">
-            Bienvenido a tu portal personal de Bouclier Clinique
+            Bienvenido a tu portal personal de Bouclier Dermatología
           </p>
         </div>
 

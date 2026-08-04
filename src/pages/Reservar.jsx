@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { supabase } from '../lib/supabase.js'
-import { Calendar, Clock, User, Phone, Mail, CheckCircle, Loader, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Calendar, User, CheckCircle, Loader } from 'lucide-react'
 import SEO from '../components/SEO.jsx'
 
 const fadeUp = {
@@ -62,12 +62,6 @@ export default function Reservar() {
     }
   }, [formData.type_id])
 
-  useEffect(() => {
-    if (formData.doctor_id && formData.type_id) {
-      fetchAvailableSlots()
-    }
-  }, [formData.doctor_id, formData.type_id])
-
   async function fetchAppointmentTypes() {
     const { data, error } = await supabase
       .from('appointment_types')
@@ -92,10 +86,8 @@ export default function Reservar() {
     }
   }
 
-  async function fetchAvailableSlots() {
+  const fetchAvailableSlots = useCallback(async () => {
     const today = new Date()
-    const nextWeek = new Date(today)
-    nextWeek.setDate(nextWeek.getDate() + 14)
 
     const { data: availability } = await supabase
       .from('availability')
@@ -118,8 +110,6 @@ export default function Reservar() {
     const duration = type?.duration_minutes || 30
 
     const slots = []
-    const dayMap = { 0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6 }
-
     for (let d = 0; d < 14; d++) {
       const date = new Date(today)
       date.setDate(date.getDate() + d)
@@ -178,7 +168,13 @@ export default function Reservar() {
     }
 
     setAvailableSlots(slots)
-  }
+  }, [appointmentTypes, formData.doctor_id, formData.type_id])
+
+  useEffect(() => {
+    if (formData.doctor_id && formData.type_id) {
+      fetchAvailableSlots()
+    }
+  }, [fetchAvailableSlots, formData.doctor_id, formData.type_id])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -259,7 +255,7 @@ export default function Reservar() {
     return (
       <>
         <SEO
-          title="Cita Agendada | Bouclier Clinique"
+          title="Cita Agendada | Bouclier Dermatología"
           description="Tu cita ha sido agendada exitosamente."
           canonical="https://bouclier-clinique.com/reservar"
         />
@@ -301,8 +297,8 @@ export default function Reservar() {
   return (
     <>
       <SEO
-        title="Reservar Cita | Bouclier Clinique"
-        description="Reserva tu cita en Bouclier Clinique. Selecciona el tipo de consulta, el doctor y el horario disponible."
+        title="Reservar Cita | Bouclier Dermatología"
+        description="Reserva tu cita en Bouclier Dermatología. Selecciona el tipo de consulta, el doctor y el horario disponible."
         canonical="https://bouclier-clinique.com/reservar"
       />
 
@@ -386,7 +382,7 @@ export default function Reservar() {
                     style={{
                       textAlign: 'left', padding: '20px', borderRadius: '12px', border: '2px solid',
                       borderColor: formData.type_id === type.id ? 'var(--color-accent)' : 'rgba(255,255,255,0.1)',
-                      background: formData.type_id === type.id ? 'rgba(184,154,90,0.1)' : 'rgba(255,255,255,0.03)',
+                      background: formData.type_id === type.id ? 'rgba(17,17,17,0.1)' : 'rgba(255,255,255,0.03)',
                       cursor: 'pointer', transition: 'all 0.3s',
                     }}
                   >
@@ -424,14 +420,14 @@ export default function Reservar() {
                     style={{
                       textAlign: 'left', padding: '20px', borderRadius: '12px', border: '2px solid',
                       borderColor: formData.doctor_id === doctor.id ? 'var(--color-accent)' : 'rgba(255,255,255,0.1)',
-                      background: formData.doctor_id === doctor.id ? 'rgba(184,154,90,0.1)' : 'rgba(255,255,255,0.03)',
+                      background: formData.doctor_id === doctor.id ? 'rgba(17,17,17,0.1)' : 'rgba(255,255,255,0.03)',
                       cursor: 'pointer', transition: 'all 0.3s',
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <div style={{
                         width: '48px', height: '48px', borderRadius: '50%',
-                        background: 'rgba(184,154,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: 'rgba(17,17,17,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                       }}>
                         <User className="w-6 h-6" style={{ color: 'var(--color-accent)' }} />
                       </div>
@@ -499,7 +495,7 @@ export default function Reservar() {
                 <button
                   onClick={() => setStep(4)}
                   disabled={!formData.scheduled_at}
-                  className="btn-gold"
+                  className="btn-primary"
                   style={{ opacity: !formData.scheduled_at ? 0.5 : 1, cursor: !formData.scheduled_at ? 'not-allowed' : 'pointer' }}
                 >
                   Siguiente
@@ -567,7 +563,7 @@ export default function Reservar() {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px' }}>
                   <button type="button" onClick={() => setStep(3)} className="btn-outline">Anterior</button>
-                  <button type="submit" className="btn-gold">Revisar Reservación</button>
+                  <button type="submit" className="btn-primary">Revisar Reservación</button>
                 </div>
               </form>
             </motion.div>
@@ -604,7 +600,7 @@ export default function Reservar() {
                 </div>
               </div>
 
-              <div style={{ background: 'rgba(184,154,90,0.08)', borderRadius: '12px', padding: '16px', marginBottom: '24px' }}>
+              <div style={{ background: 'rgba(17,17,17,0.08)', borderRadius: '12px', padding: '16px', marginBottom: '24px' }}>
                 <p style={{ color: '#ccc', fontSize: '13px', margin: 0 }}>
                   Al confirmar, se creará tu cita y recibirás un código QR para hacer check-in el día de tu consulta.
                 </p>
@@ -615,7 +611,7 @@ export default function Reservar() {
                 <button
                   onClick={handleSubmit}
                   disabled={submitting}
-                  className="btn-gold"
+                  className="btn-primary"
                   style={{ opacity: submitting ? 0.5 : 1 }}
                 >
                   {submitting ? (

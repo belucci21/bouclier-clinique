@@ -1,5 +1,5 @@
 import BookingFlow from '../../booking/BookingFlow.jsx'
-import { usePatientAuth } from '../../contexts/PatientAuthContext.jsx'
+import { usePatientAuth } from '../../contexts/usePatientAuth.js'
 
 export default function AgendarCita() {
   const { profile, user } = usePatientAuth()
