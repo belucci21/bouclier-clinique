@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
+    "sync:stripe-catalog": "node src/scripts/syncStripeCatalog.js",
     "test": "vitest run"
   },
   "dependencies": {

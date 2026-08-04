@@ -1,78 +1,142 @@
-# Despliegue Hostinger + Supabase + Stripe
+# Hostinger, Supabase y Stripe: despliegue seguro
 
-## Estado previo obligatorio
+## Estado de esta entrega
 
-1. Revocar y rotar la clave secreta live de Stripe compartida durante el desarrollo.
-2. Reautenticar la conexión de Stripe y verificar que la cuenta correcta muestre el nombre comercial **Bouclier Dermatología**.
-3. No reutilizar en producción ninguna credencial que haya aparecido en chat, documentación o historial de terminal.
-4. Confirmar el esquema real de `appointments` antes de ejecutar la función de confirmación incluida en la segunda migración; los repositorios legacy usan tanto `type_id` como `appointment_type_id`.
+La migracion `202608040005_stripe_variant_catalog.sql` y el catalogo Stripe se entregan como codigo, pero no se han aplicado a servicios externos. La conexion Supabase del controlador no esta disponible y Stripe live no se debe mutar hasta rotar la credencial expuesta anteriormente.
 
-## Supabase
+`PAYMENTS_ENABLED=false` es el valor seguro por defecto. En ese modo:
 
-Ejecutar, en orden, desde el panel SQL o la CLI autorizada:
+- la API arranca sin variables Stripe;
+- `GET /api/booking/options` devuelve `paymentsEnabled: false`;
+- agenda, retenciones y la salida por WhatsApp siguen disponibles;
+- `POST /api/booking/checkout-session` devuelve JSON `503 payments_disabled`;
+- health puede estar `ok` aunque `payments.ready` sea `false`.
 
-1. `supabase/migrations/202608040001_booking_deposits.sql`
-2. `supabase/migrations/202608040002_stripe_webhooks.sql`
+## Arquitectura Hostinger
 
-Después, asignar `price_mxn_minor` a cada tipo de cita activo. El valor es un entero en centavos de MXN; por ejemplo, 100000 representa MXN 1,000.00. La web no envía importes: la API lee este campo y calcula el anticipo del 30%.
+Hay dos configuraciones soportadas:
 
-Las tablas de retenciones, pagos y eventos no exponen políticas de escritura pública. La API debe utilizar exclusivamente la service role en el servidor.
+1. Mismo origen: publicar `dist/` y montar la aplicacion Node de `server/` en `/api`. `VITE_API_BASE_URL` queda vacio.
+2. Subdominio: publicar la SPA en el dominio principal y Node en un origen HTTPS como `https://api.bouclier-clinique.com`. Definir ese origen, sin barra final, en `VITE_API_BASE_URL`; definir el origen de la web en `API_ALLOWED_ORIGIN`.
 
-## API Node en Hostinger
+`public/.htaccess`, copiado a `dist/.htaccess` por Vite, excluye `/api` del fallback SPA. En el modo de mismo origen, la regla/proxy Hostinger que entrega `/api/*` a Node debe ejecutarse antes del sitio estatico. Una respuesta HTML `200` desde `/api/*` indica routing incorrecto.
 
-Directorio de aplicación: `server`
+Aplicacion Node:
 
-- Instalación: `npm ci --omit=dev`
-- Inicio: `npm start`
-- Versión recomendada: Node.js 20 o superior
-- Health/runtime: supervisar el proceso desde el panel de Hostinger
+- directorio: `server`;
+- instalacion: `npm ci --omit=dev`;
+- inicio: `npm start`;
+- runtime: Node.js 20 o superior;
+- health check: `GET /api/health`.
 
-Variables requeridas, cuyos valores se cargan en el panel de Hostinger y nunca en Git:
+## Variables de entorno
 
-- `STRIPE_SECRET_KEY`
-- `STRIPE_WEBHOOK_SECRET`
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `PUBLIC_WEB_URL`
-- `PORT`
+Servidor Node, siempre:
 
-La API se niega a iniciar si falta una variable. El ejemplo seguro está en `server/.env.example`.
+- `PAYMENTS_ENABLED=false` al primer despliegue;
+- `SUPABASE_URL`;
+- `SUPABASE_SERVICE_ROLE_KEY`;
+- `PUBLIC_WEB_URL=https://bouclier-clinique.com`;
+- `API_ALLOWED_ORIGIN=https://bouclier-clinique.com`;
+- `NODE_ENV=production`;
+- `PORT`, asignado por Hostinger cuando corresponda.
 
-## Web pública
+Servidor Node, solo al activar pagos:
 
-Construir desde la raíz con `npm ci && npm run build`. Publicar el contenido de `dist` y configurar fallback SPA hacia `index.html`.
+- `STRIPE_SECRET_KEY` (`sk_test_...` durante verificacion; una nueva `sk_live_...` despues de rotar);
+- `STRIPE_WEBHOOK_SECRET` (`whsec_...` del endpoint exacto);
+- `STRIPE_PUBLISHABLE_KEY` del mismo modo test/live que la clave secreta.
 
-Variables de build:
+Build SPA:
 
-- `VITE_API_BASE_URL`: vacío si `/api` comparte dominio; URL HTTPS de la API si usa subdominio.
-- `VITE_STRIPE_PUBLISHABLE_KEY`: clave publicable rotada/verificada.
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
+- `VITE_API_BASE_URL` segun la arquitectura anterior;
+- `VITE_STRIPE_PUBLISHABLE_KEY` del mismo modo que el servidor cuando Checkout este activo;
+- `VITE_SUPABASE_URL`;
+- `VITE_SUPABASE_ANON_KEY`.
 
-Solo variables con prefijo `VITE_` llegan al navegador. Nunca utilizar ese prefijo con la clave secreta de Stripe ni la service role de Supabase.
+Solo los valores `VITE_` llegan al navegador. Nunca usar ese prefijo con `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` o `SUPABASE_SERVICE_ROLE_KEY`.
 
-## Stripe
+## Migraciones Supabase
 
-Crear un endpoint webhook HTTPS hacia:
+Proyecto esperado: `tmcxgiqmmjpgxqrivbod`.
 
-`https://<dominio-api>/api/stripe/webhook`
+Inspeccionar y aplicar desde una sesion autorizada:
 
-Eventos mínimos:
+```powershell
+supabase link --project-ref tmcxgiqmmjpgxqrivbod
+supabase migration list --linked
+supabase db push --dry-run
+supabase db push
+```
 
-- `checkout.session.completed`
-- `checkout.session.expired`
+Las migraciones de esta rama son `202608040001` a `202608040005`. `003` y `004` ya definen variantes autoritativas, holds atomicos y pago idempotente; `005` solo agrega IDs Stripe, restricciones e indices. No ejecutar `db push` si el diff incluye cambios ajenos.
 
-Copiar el signing secret generado por ese endpoint a `STRIPE_WEBHOOK_SECRET`. Checkout usa modo embebido y métodos de pago dinámicos; no se crean precios fijos en el navegador.
+Pruebas SQL para una base local preparada:
 
-## Verificación antes de publicar
+```powershell
+psql $env:LOCAL_DATABASE_URL -v ON_ERROR_STOP=1 -f supabase/tests/complete_booking_payment_integrity.sql
+psql $env:LOCAL_DATABASE_URL -v ON_ERROR_STOP=1 -f supabase/tests/stripe_variant_catalog_integrity.sql
+```
 
-1. Ejecutar `npm test`, `npm run lint`, `npm run build` y `npm --prefix server test`.
-2. Realizar una reserva con credenciales de prueba de Stripe, nunca live.
-3. Confirmar que un pago completado crea una sola cita aunque Stripe reintente el webhook.
-4. Confirmar que una sesión expirada libera el horario.
-5. Confirmar que el anticipo visible y cobrado equivale al 30% del precio almacenado.
-6. Verificar móvil, escritorio, email de confirmación y registros de Hostinger/Stripe sin datos sensibles.
+## Sincronizacion del catalogo Stripe
 
-### Nota de auditoría de dependencias
+El comando es solo de servidor. Usa Stripe API `2026-02-25.clover`, crea un Product por tratamiento fuente y un Price MXN inmutable por variante activa con el anticipo exacto del 30%. Reutiliza IDs persistidos, desactiva un Price obsoleto antes de reemplazarlo y usa metadata/idempotency estables.
 
-La auditoría del 4 de agosto de 2026 reporta `GHSA-qwww-vcr4-c8h2` en React Router 7.18.2. El aviso afecta el procesamiento de acciones en modo React Server Components (RSC). Esta aplicación se construye como SPA estática con Vite, `BrowserRouter` y una API Express independiente; no habilita RSC ni acciones de React Router en el servidor, por lo que la ruta vulnerable no está expuesta en la arquitectura actual. No aplicar el downgrade automático a 7.11.0: esa versión reintroduce avisos de XSS, redirección abierta y DoS. Reevaluar al publicarse una versión corregida posterior a 7.18.2.
+Primero ejecutar contra Stripe test. Cargar variables mediante el gestor seguro del entorno, no en Git ni en el historial del shell:
+
+```powershell
+npm --prefix server ci
+npm --prefix server run sync:stripe-catalog
+```
+
+El comando exige `PAYMENTS_ENABLED=true` y el conjunto completo de variables Stripe. Para live tambien exige:
+
+```text
+STRIPE_CATALOG_ALLOW_LIVE=true
+STRIPE_CREDENTIAL_ROTATED=true
+```
+
+Estas confirmaciones no sustituyen la rotacion: primero revocar la clave expuesta, crear una nueva credencial y comprobar la cuenta comercial correcta. No reutilizar secretos pegados en conversaciones anteriores.
+
+## Checkout y webhook
+
+Checkout usa sesiones embebidas y metodos de pago dinamicos. Antes de crear cada sesion, la API recupera el Price persistido y valida que este activo, sea `one_time`, pertenezca al Product persistido, use `mxn` y tenga exactamente el anticipo autoritativo. El navegador nunca crea ni envia importes.
+
+Endpoint:
+
+```text
+https://<origen-api>/api/stripe/webhook
+```
+
+Eventos requeridos:
+
+- `checkout.session.completed`;
+- `checkout.session.expired`.
+
+Copiar el signing secret del endpoint exacto a `STRIPE_WEBHOOK_SECRET`. Los reintentos son idempotentes y un pago no agendable queda como `manual_review`.
+
+## Secuencia de activacion
+
+1. Desplegar con `PAYMENTS_ENABLED=false`.
+2. Inspeccionar y aplicar `202608040005` en Supabase.
+3. Rotar credenciales y sincronizar primero Stripe test.
+4. Construir la SPA con la clave publicable correspondiente.
+5. Configurar webhook test y completar una reserva.
+6. Repetir sync: el resumen debe mostrar cero Products/Prices creados o reemplazados.
+7. Solo entonces configurar live con credenciales rotadas, sincronizar, cambiar `PAYMENTS_ENABLED=true` y reiniciar Node.
+
+## Verificacion
+
+```powershell
+npm test
+npm run lint
+npm run build
+npm --prefix server test
+curl.exe -i https://<origen-api>/api/health
+curl.exe -i https://<origen-api>/api/booking/options
+curl.exe -i -X POST https://<origen-api>/api/booking/checkout-session -H "Content-Type: application/json" -d '{"holdId":"missing"}'
+```
+
+Con pagos desactivados, health debe mostrar Supabase listo y pagos desactivados; options debe informar `false`; checkout debe devolver `503 payments_disabled`. Una ruta SPA debe devolver HTML, mientras `/api/ruta-inexistente` debe devolver 404 y nunca `index.html`.
+
+Con pagos activos, health solo queda `ok` cuando todas las variantes activas tienen IDs persistidos. En Stripe test confirmar el 30% exacto, metodos dinamicos, una sola cita ante replay, liberacion del hold expirado y ausencia de secretos/datos clinicos en logs.

@@ -24,6 +24,56 @@ export function createSupabaseBookingStore(supabase) {
   }
 
   return {
+    async checkHealth() {
+      await unwrap(supabase.from('appointment_variants').select('id', { head: true, count: 'exact' }).limit(1))
+    },
+
+    async checkPaymentCatalog() {
+      const variants = await unwrap(
+        supabase
+          .from('appointment_variants')
+          .select('id,stripe_product_id,stripe_deposit_price_id,appointment_types!inner(is_active)')
+          .eq('is_active', true)
+          .eq('appointment_types.is_active', true),
+      )
+      if (!variants.length || variants.some((variant) => !variant.stripe_product_id || !variant.stripe_deposit_price_id)) {
+        throw new Error('payment_catalog_incomplete')
+      }
+    },
+
+    async listActiveCatalogVariants() {
+      const data = await unwrap(
+        supabase
+          .from('appointment_variants')
+          .select('id,appointment_type_id,name,price_mxn_minor,stripe_product_id,stripe_deposit_price_id,appointment_types!inner(name,is_active)')
+          .eq('is_active', true)
+          .eq('appointment_types.is_active', true)
+          .order('appointment_type_id'),
+      )
+      return data.map((variant) => ({
+        id: variant.id,
+        name: variant.name,
+        priceMxnMinor: variant.price_mxn_minor,
+        appointmentTypeId: variant.appointment_type_id,
+        appointmentTypeName: variant.appointment_types.name,
+        stripeProductId: variant.stripe_product_id,
+        stripeDepositPriceId: variant.stripe_deposit_price_id,
+      }))
+    },
+
+    updateVariantStripeCatalog({ variantId, stripeProductId, stripeDepositPriceId }) {
+      return unwrap(
+        supabase
+          .from('appointment_variants')
+          .update({
+            stripe_product_id: stripeProductId,
+            stripe_deposit_price_id: stripeDepositPriceId,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', variantId),
+      )
+    },
+
     async listAppointmentTypes() {
       const data = await unwrap(
         supabase
@@ -114,8 +164,17 @@ export function createSupabaseBookingStore(supabase) {
     },
 
     async getHold(id) {
-      const data = await unwrap(supabase.from('booking_holds').select('id,status,expires_at,deposit_mxn_minor,appointment_types(name)').eq('id', id).single())
-      return data && { id: data.id, status: data.status, expiresAt: data.expires_at, depositMxnMinor: data.deposit_mxn_minor, appointmentTypeName: data.appointment_types?.name }
+      const data = await unwrap(supabase.from('booking_holds').select('id,status,expires_at,deposit_mxn_minor,appointment_variant_id,appointment_types(name),appointment_variants(stripe_product_id,stripe_deposit_price_id)').eq('id', id).single())
+      return data && {
+        id: data.id,
+        status: data.status,
+        expiresAt: data.expires_at,
+        depositMxnMinor: data.deposit_mxn_minor,
+        appointmentTypeName: data.appointment_types?.name,
+        appointmentVariantId: data.appointment_variant_id,
+        stripeProductId: data.appointment_variants?.stripe_product_id,
+        stripeDepositPriceId: data.appointment_variants?.stripe_deposit_price_id,
+      }
     },
 
     markCheckoutCreated({ holdId, sessionId }) {

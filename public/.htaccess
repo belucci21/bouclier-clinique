@@ -1,6 +1,10 @@
 RewriteEngine On
-RewriteBase /
-RewriteRule ^index\.html$ - [L]
+
+# The Node application or Hostinger proxy owns every API route.
+RewriteCond %{REQUEST_URI} ^/api(?:/|$) [NC]
+RewriteRule ^ - [L]
+
+# Only browser routes receive the SPA fallback.
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . /index.html [L]
+RewriteRule ^ index.html [L]

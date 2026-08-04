@@ -27,8 +27,19 @@ function fixture({ paymentsEnabled = false } = {}) {
     releaseExpiredHold: vi.fn(),
   }
   const stripe = {
+    prices: { retrieve: vi.fn().mockResolvedValue({ id: 'price_deposit_1', active: true, currency: 'mxn', unit_amount: 30000, type: 'one_time', product: 'prod_treatment_1' }) },
     checkout: { sessions: { create: vi.fn().mockResolvedValue({ id: 'cs_test_1', client_secret: 'secret_1' }) } },
   }
+  store.getHold.mockResolvedValue({
+    id: 'hold_1',
+    status: 'active',
+    expiresAt: '2026-08-04T12:30:00.000Z',
+    depositMxnMinor: 30000,
+    appointmentTypeName: 'Valoracion dermatologica',
+    appointmentVariantId: 'variant_1',
+    stripeProductId: 'prod_treatment_1',
+    stripeDepositPriceId: 'price_deposit_1',
+  })
   const service = createBookingService({ store, stripe, publicWebUrl: 'https://bouclier-clinique.com', paymentsEnabled, now: () => now })
   return { store, stripe, service }
 }
@@ -181,9 +192,39 @@ describe('booking API', () => {
     expect(result.status).toBe(201)
     expect(result.body).toEqual({ sessionId: 'cs_test_1', clientSecret: 'secret_1' })
     expect(stripe.checkout.sessions.create).toHaveBeenCalledWith(
-      expect.objectContaining({ ui_mode: 'embedded', metadata: { booking_hold_id: 'hold_1' } }),
+      expect.objectContaining({
+        ui_mode: 'embedded',
+        line_items: [{ quantity: 1, price: 'price_deposit_1' }],
+        metadata: { booking_hold_id: 'hold_1' },
+      }),
       { idempotencyKey: 'booking-hold-hold_1' },
     )
+  })
+
+  it('rejects Checkout predictably when payments are disabled', async () => {
+    const { service, store, stripe } = fixture({ paymentsEnabled: false })
+    const app = createApp({ bookingService: service, webhookHandler: vi.fn() })
+
+    const result = await request(app).post('/api/booking/checkout-session').send({ holdId: 'hold_1' })
+
+    expect(result.status).toBe(503)
+    expect(result.body.error).toMatchObject({ code: 'payments_disabled', retryable: false })
+    expect(store.getHold).not.toHaveBeenCalled()
+    expect(stripe.checkout.sessions.create).not.toHaveBeenCalled()
+  })
+
+  it('rejects a persisted Stripe Price whose amount differs from the authoritative deposit', async () => {
+    const { service, stripe } = fixture({ paymentsEnabled: true })
+    stripe.prices.retrieve.mockResolvedValue({
+      id: 'price_deposit_1', active: true, currency: 'mxn', unit_amount: 29999, type: 'one_time', product: 'prod_treatment_1',
+    })
+    const app = createApp({ bookingService: service, webhookHandler: vi.fn() })
+
+    const result = await request(app).post('/api/booking/checkout-session').send({ holdId: 'hold_1' })
+
+    expect(result.status).toBe(503)
+    expect(result.body.error.code).toBe('payment_catalog_mismatch')
+    expect(stripe.checkout.sessions.create).not.toHaveBeenCalled()
   })
 
   it('rejects an expired hold', async () => {

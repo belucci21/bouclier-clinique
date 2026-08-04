@@ -2,6 +2,80 @@ import { describe, expect, it, vi } from 'vitest'
 import { createSupabaseBookingStore } from '../src/services/supabaseBookingStore.js'
 
 describe('Supabase booking store', () => {
+  it('probes an authoritative table for runtime readiness', async () => {
+    const limit = vi.fn().mockResolvedValue({ data: [], error: null })
+    const select = vi.fn(() => ({ limit }))
+    const supabase = { from: vi.fn(() => ({ select })) }
+    const store = createSupabaseBookingStore(supabase)
+
+    await expect(store.checkHealth()).resolves.toBeUndefined()
+    expect(supabase.from).toHaveBeenCalledWith('appointment_variants')
+    expect(select).toHaveBeenCalledWith('id', { head: true, count: 'exact' })
+    expect(limit).toHaveBeenCalledWith(1)
+  })
+
+  it('rejects payment readiness when an active variant lacks catalog identifiers', async () => {
+    const appointmentTypeEq = vi.fn().mockResolvedValue({
+      data: [{ id: 'variant_face', stripe_product_id: 'prod_1', stripe_deposit_price_id: null }],
+      error: null,
+    })
+    const variantEq = vi.fn(() => ({ eq: appointmentTypeEq }))
+    const select = vi.fn(() => ({ eq: variantEq }))
+    const supabase = { from: vi.fn(() => ({ select })) }
+    const store = createSupabaseBookingStore(supabase)
+
+    await expect(store.checkPaymentCatalog()).rejects.toThrow('payment_catalog_incomplete')
+    expect(appointmentTypeEq).toHaveBeenCalledWith('appointment_types.is_active', true)
+  })
+
+  it('loads only active authoritative variants for the server-side catalog sync', async () => {
+    const order = vi.fn().mockResolvedValue({
+      data: [{
+        id: 'variant_face',
+        name: 'Facial',
+        price_mxn_minor: 100000,
+        stripe_product_id: 'prod_1',
+        stripe_deposit_price_id: 'price_1',
+        appointment_type_id: 'type_hydra',
+        appointment_types: { name: 'Hydrafacial' },
+      }],
+      error: null,
+    })
+    const secondEq = vi.fn(() => ({ order }))
+    const firstEq = vi.fn(() => ({ eq: secondEq }))
+    const select = vi.fn(() => ({ eq: firstEq }))
+    const supabase = { from: vi.fn(() => ({ select })) }
+    const store = createSupabaseBookingStore(supabase)
+
+    await expect(store.listActiveCatalogVariants()).resolves.toEqual([{
+      id: 'variant_face',
+      name: 'Facial',
+      priceMxnMinor: 100000,
+      appointmentTypeId: 'type_hydra',
+      appointmentTypeName: 'Hydrafacial',
+      stripeProductId: 'prod_1',
+      stripeDepositPriceId: 'price_1',
+    }])
+    expect(firstEq).toHaveBeenCalledWith('is_active', true)
+    expect(secondEq).toHaveBeenCalledWith('appointment_types.is_active', true)
+  })
+
+  it('persists the synchronized Product and Price identifiers together', async () => {
+    const eq = vi.fn().mockResolvedValue({ data: null, error: null })
+    const update = vi.fn(() => ({ eq }))
+    const supabase = { from: vi.fn(() => ({ update })) }
+    const store = createSupabaseBookingStore(supabase)
+
+    await store.updateVariantStripeCatalog({
+      variantId: 'variant_face', stripeProductId: 'prod_1', stripeDepositPriceId: 'price_1',
+    })
+
+    expect(update).toHaveBeenCalledWith({
+      stripe_product_id: 'prod_1', stripe_deposit_price_id: 'price_1', updated_at: expect.any(String),
+    })
+    expect(eq).toHaveBeenCalledWith('id', 'variant_face')
+  })
+
   it('creates a hold through the atomic database function and returns authoritative money', async () => {
     const supabase = {
       rpc: vi.fn().mockResolvedValue({

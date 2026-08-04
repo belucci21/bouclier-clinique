@@ -213,21 +213,35 @@ export function createBookingService({ store, stripe, publicWebUrl, paymentsEnab
     },
 
     async createCheckoutSession({ holdId } = {}) {
+      if (!paymentsEnabled) throw bookingError('payments_disabled', 'Online payments are disabled', 503)
       required(holdId, 'invalid_request', 'Falta la retención de cita')
       const hold = await store.getHold(holdId)
       if (!hold || !['active', 'checkout_created'].includes(hold.status)) throw bookingError('hold_unavailable', 'La retención ya no está disponible', 409, true)
       if (new Date(hold.expiresAt) <= now()) throw bookingError('hold_expired', 'La retención expiró; elige el horario de nuevo', 409, true)
+
+      let price
+      try {
+        price = hold.stripeDepositPriceId && await stripe.prices.retrieve(hold.stripeDepositPriceId)
+      } catch {
+        throw bookingError('payment_catalog_mismatch', 'The payment catalog is not ready', 503)
+      }
+      const productId = typeof price?.product === 'string' ? price.product : price?.product?.id
+      if (
+        !price?.active
+        || price.currency !== 'mxn'
+        || price.type !== 'one_time'
+        || price.unit_amount !== hold.depositMxnMinor
+        || productId !== hold.stripeProductId
+      ) {
+        throw bookingError('payment_catalog_mismatch', 'The payment catalog is not ready', 503)
+      }
 
       const session = await stripe.checkout.sessions.create({
         ui_mode: 'embedded',
         mode: 'payment',
         line_items: [{
           quantity: 1,
-          price_data: {
-            currency: 'mxn',
-            unit_amount: hold.depositMxnMinor,
-            product_data: { name: `Anticipo 30% · ${hold.appointmentTypeName || 'Cita Bouclier'}` },
-          },
+          price: hold.stripeDepositPriceId,
         }],
         metadata: { booking_hold_id: hold.id },
         return_url: `${publicWebUrl}/citas?session_id={CHECKOUT_SESSION_ID}`,
