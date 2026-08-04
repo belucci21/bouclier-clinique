@@ -11,6 +11,14 @@ export function createBookingRouter({ bookingService }) {
     }
   })
 
+  router.get('/availability', async (request, response, next) => {
+    try {
+      response.json(await bookingService.getAvailability(request.query))
+    } catch (error) {
+      next(error)
+    }
+  })
+
   router.post('/hold', async (request, response, next) => {
     try {
       const hold = await bookingService.createHold(request.body)

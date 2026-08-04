@@ -1,75 +1,131 @@
 /* @vitest-environment jsdom */
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import '../test/setup.js'
 import BookingFlow from './BookingFlow.jsx'
 
-afterEach(cleanup)
+const AUGUST_NOW = new Date('2026-08-04T12:00:00.000Z')
 
 const options = {
-  appointmentTypes: [{ id: 'type_1', name: 'Valoración dermatológica', description: 'Primera consulta', priceMxnMinor: 100000 }],
+  appointmentTypes: [{
+    id: 'type_1',
+    slug: 'hydrafacial',
+    name: 'Hydrafacial',
+    description: 'Limpieza e hidratación',
+    durationMinutes: 60,
+    variants: [{ id: '47992673763636', name: 'Deluxe', priceMxnMinor: 180000, active: true }],
+  }],
   doctors: [{ id: 'doctor_1', name: 'Dra. Gissel Castellanos', specialty: 'Dermatología' }],
-  slots: [{ doctorId: 'doctor_1', startsAt: '2026-08-05T16:00:00.000Z' }],
+  paymentsEnabled: false,
 }
 
-describe('BookingFlow', () => {
-  it('recorre selección, retención y pago embebido sin abrir pestañas', async () => {
-    const user = userEvent.setup()
-    const api = {
-      getOptions: vi.fn().mockResolvedValue(options),
-      createHold: vi.fn().mockResolvedValue({ holdId: 'hold_1', totalMxnMinor: 100000, depositMxnMinor: 30000, currency: 'mxn' }),
-      createCheckoutSession: vi.fn().mockResolvedValue({ sessionId: 'cs_1', clientSecret: 'secret_1' }),
-    }
-    const Payment = ({ clientSecret }) => <div>Pago embebido {clientSecret}</div>
-    render(<BookingFlow api={api} PaymentComponent={Payment} />)
+function apiFixture(overrides = {}) {
+  return {
+    getOptions: vi.fn().mockResolvedValue(options),
+    getAvailability: vi.fn().mockResolvedValue({ slots: [{ startsAt: '2026-08-05T16:00:00.000Z', endsAt: '2026-08-05T17:00:00.000Z' }] }),
+    createHold: vi.fn(),
+    createCheckoutSession: vi.fn(),
+    ...overrides,
+  }
+}
 
-    await user.click(await screen.findByRole('button', { name: /valoración dermatológica/i }))
+async function reachCalendar(user, api) {
+  render(<BookingFlow api={api} now={() => AUGUST_NOW} PaymentComponent={() => null} />)
+  await user.click(await screen.findByRole('button', { name: /hydrafacial/i }))
+  await user.click(screen.getByRole('button', { name: /continuar con el especialista/i }))
+  await user.click(screen.getByRole('button', { name: /dra\. gissel castellanos/i }))
+  await screen.findByRole('heading', { name: /agosto 2026/i })
+}
+
+beforeEach(() => window.history.replaceState({}, '', '/citas'))
+afterEach(cleanup)
+
+describe('BookingFlow', () => {
+  it('preselects treatment and variant from the URL query', async () => {
+    window.history.replaceState({}, '', '/citas?tratamiento=hydrafacial&variante=47992673763636')
+
+    render(<BookingFlow api={apiFixture()} now={() => AUGUST_NOW} PaymentComponent={() => null} />)
+
+    expect(await screen.findByRole('button', { name: /hydrafacial/i })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('radio', { name: /deluxe/i })).toBeChecked()
+  })
+
+  it('limits calendar month navigation to the 90-day booking range', async () => {
+    const user = userEvent.setup()
+    await reachCalendar(user, apiFixture())
+
+    await user.click(screen.getByRole('button', { name: /mes siguiente/i }))
+    expect(screen.getByRole('heading', { name: /septiembre 2026/i })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /mes siguiente/i }))
+    expect(screen.getByRole('heading', { name: /octubre 2026/i })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /mes siguiente/i }))
+    expect(screen.getByRole('heading', { name: /noviembre 2026/i })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /mes siguiente/i })).toBeDisabled()
+  })
+
+  it('requires an available day and time before continuing', async () => {
+    const user = userEvent.setup()
+    const api = apiFixture()
+    await reachCalendar(user, api)
+
+    await user.click(await screen.findByRole('button', { name: /miércoles 5 de agosto/i }))
+    expect(screen.getByRole('button', { name: /continuar con mis datos/i })).toBeDisabled()
+    await user.click(screen.getByRole('button', { name: '10:00' }))
+
+    expect(screen.getByText(/miércoles, 5 de agosto de 2026/i)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /continuar con mis datos/i })).toBeEnabled()
+    expect(api.getAvailability).toHaveBeenCalledWith(expect.objectContaining({ month: '2026-08', variantId: '47992673763636' }))
+  })
+
+  it('keeps all five steps usable and completes through WhatsApp when the API is unavailable', async () => {
+    const user = userEvent.setup()
+    window.history.replaceState({}, '', '/citas?tratamiento=hydrafacial&variante=47992673763636')
+    const api = apiFixture({
+      getOptions: vi.fn().mockRejectedValue(Object.assign(new Error('Agenda en línea temporalmente no disponible'), { code: 'api_unavailable' })),
+      getAvailability: vi.fn().mockRejectedValue(Object.assign(new Error('Sin conexión'), { code: 'api_unavailable' })),
+    })
+    render(<BookingFlow api={api} now={() => AUGUST_NOW} PaymentComponent={() => null} />)
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/temporalmente no disponible/i)
+    expect(screen.getAllByRole('listitem')).toHaveLength(5)
+    await user.click(screen.getByRole('button', { name: /continuar con el especialista/i }))
     await user.click(screen.getByRole('button', { name: /dra\. gissel castellanos/i }))
-    await user.click(screen.getByRole('button', { name: /miércoles.*5.*10:00/i }))
+    await user.click(await screen.findByRole('button', { name: /miércoles 5 de agosto/i }))
+    await user.click(screen.getByRole('button', { name: '10:00' }))
+    await user.click(screen.getByRole('button', { name: /continuar con mis datos/i }))
     await user.type(screen.getByLabelText(/nombre completo/i), 'Ana Pérez')
     await user.type(screen.getByLabelText(/correo/i), 'ana@example.com')
     await user.type(screen.getByLabelText(/teléfono/i), '+522291234567')
-    await user.click(screen.getByRole('button', { name: /continuar al pago/i }))
+    await user.click(screen.getByRole('button', { name: /continuar a confirmación/i }))
 
-    expect(await screen.findByText('Pago embebido secret_1')).toBeInTheDocument()
-    expect(screen.getByText('$300.00')).toBeInTheDocument()
-    expect(api.createHold.mock.calls[0][0]).not.toHaveProperty('amount')
-    expect(screen.queryByRole('link', { name: /pagar/i })).not.toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /pago online próximamente/i })).toBeInTheDocument()
+    const whatsapp = screen.getByRole('link', { name: /reservar por whatsapp/i })
+    const message = new URL(whatsapp.href).searchParams.get('text')
+    expect(message).toContain('Hydrafacial')
+    expect(message).toContain('Deluxe')
+    expect(message).toContain('Ana Pérez')
+    expect(message).toContain('5 de agosto de 2026')
+    expect(api.createHold).not.toHaveBeenCalled()
   }, 15000)
 
-  it('permite recuperar un conflicto de horario', async () => {
+  it('returns to the calendar after a live hold conflict', async () => {
     const user = userEvent.setup()
-    const api = {
-      getOptions: vi.fn().mockResolvedValue(options),
+    const api = apiFixture({
+      getOptions: vi.fn().mockResolvedValue({ ...options, paymentsEnabled: true }),
       createHold: vi.fn().mockRejectedValue(Object.assign(new Error('Ese horario acaba de ocuparse'), { code: 'slot_conflict', retryable: true })),
-      createCheckoutSession: vi.fn(),
-    }
-    render(<BookingFlow api={api} PaymentComponent={() => null} />)
-
-    await user.click(await screen.findByRole('button', { name: /valoración dermatológica/i }))
-    await user.click(screen.getByRole('button', { name: /dra\. gissel castellanos/i }))
-    await user.click(screen.getByRole('button', { name: /miércoles.*5.*10:00/i }))
+    })
+    await reachCalendar(user, api)
+    await user.click(await screen.findByRole('button', { name: /miércoles 5 de agosto/i }))
+    await user.click(screen.getByRole('button', { name: '10:00' }))
+    await user.click(screen.getByRole('button', { name: /continuar con mis datos/i }))
     await user.type(screen.getByLabelText(/nombre completo/i), 'Ana Pérez')
     await user.type(screen.getByLabelText(/correo/i), 'ana@example.com')
     await user.type(screen.getByLabelText(/teléfono/i), '+522291234567')
     await user.click(screen.getByRole('button', { name: /continuar al pago/i }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/acaba de ocuparse/i)
-    expect(screen.getByRole('button', { name: /elegir otro horario/i })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /elegir otro horario/i }))
+    await waitFor(() => expect(screen.getByRole('heading', { name: /agosto 2026/i })).toBeInTheDocument())
   }, 15000)
-
-  it('offers a direct appointment fallback when online availability is offline', async () => {
-    const api = {
-      getOptions: vi.fn().mockRejectedValue(new Error('No pudimos completar la solicitud')),
-    }
-
-    render(<BookingFlow api={api} PaymentComponent={() => null} />)
-
-    expect(await screen.findByRole('alert')).toHaveTextContent(/no pudimos completar la solicitud/i)
-    expect(screen.getByRole('link', { name: /agendar por whatsapp/i })).toHaveAttribute(
-      'href',
-      expect.stringMatching(/^https:\/\/api\.whatsapp\.com\/send\?phone=522291087016/),
-    )
-  })
 })

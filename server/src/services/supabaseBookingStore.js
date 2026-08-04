@@ -1,3 +1,13 @@
+function intervalConflict(errorMessage = 'slot conflict') {
+  const error = new Error(errorMessage)
+  error.code = '23505'
+  return error
+}
+
+function overlaps(start, end, interval) {
+  return start < new Date(interval.endAt) && end > new Date(interval.startAt)
+}
+
 export function createSupabaseBookingStore(supabase) {
   async function unwrap(query) {
     const { data, error } = await query
@@ -5,10 +15,34 @@ export function createSupabaseBookingStore(supabase) {
     return data
   }
 
+  async function listBusyIntervals({ doctorId, from, to, now }) {
+    const appointmentFloor = new Date(new Date(from).getTime() - 24 * 60 * 60_000).toISOString()
+    const [blockedTimes, appointments, holds] = await Promise.all([
+      unwrap(supabase.from('blocked_times').select('start_at,end_at').eq('doctor_id', doctorId).lt('start_at', to).gt('end_at', from)),
+      unwrap(supabase.from('appointments').select('scheduled_at,duration_minutes').eq('doctor_id', doctorId).gte('scheduled_at', appointmentFloor).lt('scheduled_at', to).neq('status', 'cancelled')),
+      unwrap(supabase.from('booking_holds').select('starts_at,ends_at').eq('doctor_id', doctorId).lt('starts_at', to).gt('ends_at', from).gt('expires_at', now).in('status', ['active', 'checkout_created', 'paid'])),
+    ])
+    return [
+      ...blockedTimes.map((item) => ({ startAt: item.start_at, endAt: item.end_at, source: 'blocked_time' })),
+      ...appointments.map((item) => ({
+        startAt: item.scheduled_at,
+        endAt: new Date(new Date(item.scheduled_at).getTime() + (item.duration_minutes || 30) * 60_000).toISOString(),
+        source: 'appointment',
+      })),
+      ...holds.map((item) => ({ startAt: item.starts_at, endAt: item.ends_at, source: 'hold' })),
+    ]
+  }
+
   return {
     async listAppointmentTypes() {
-      const data = await unwrap(supabase.from('appointment_types').select('id,name,description,price_mxn_minor').eq('is_active', true).not('price_mxn_minor', 'is', null).order('name'))
-      return data.map((item) => ({ id: item.id, name: item.name, description: item.description || 'Valoración y protocolo personalizado', priceMxnMinor: item.price_mxn_minor }))
+      const data = await unwrap(supabase.from('appointment_types').select('id,name,description,duration_minutes,price_mxn_minor').eq('is_active', true).not('price_mxn_minor', 'is', null).order('name'))
+      return data.map((item) => ({
+        id: item.id,
+        name: item.name,
+        description: item.description || 'Valoración y protocolo personalizado',
+        durationMinutes: item.duration_minutes || 30,
+        variants: [{ id: item.id, name: item.name, priceMxnMinor: item.price_mxn_minor, active: true }],
+      }))
     },
 
     async listDoctors() {
@@ -16,26 +50,21 @@ export function createSupabaseBookingStore(supabase) {
       return data.map((doctor) => ({ id: doctor.id, name: doctor.profiles?.full_name || 'Especialista Bouclier', specialty: doctor.specialty || 'Dermatología' }))
     },
 
-    async listBusyStarts(from, to) {
-      const [appointments, holds] = await Promise.all([
-        unwrap(supabase.from('appointments').select('scheduled_at').gte('scheduled_at', from).lt('scheduled_at', to).neq('status', 'cancelled')),
-        unwrap(supabase.from('booking_holds').select('starts_at').gte('starts_at', from).lt('starts_at', to).in('status', ['active', 'checkout_created', 'paid'])),
-      ])
-      return [...appointments.map((item) => item.scheduled_at), ...holds.map((item) => item.starts_at)]
+    async listAvailability({ doctorId }) {
+      const data = await unwrap(supabase.from('availability').select('day_of_week,start_time,end_time').eq('doctor_id', doctorId).eq('is_active', true))
+      return data.map((item) => ({ dayOfWeek: item.day_of_week, startTime: item.start_time, endTime: item.end_time }))
     },
+
+    listBusyIntervals,
 
     async getAppointmentType(id) {
       const data = await unwrap(supabase.from('appointment_types').select('id,name,duration_minutes,price_mxn_minor').eq('id', id).eq('is_active', true).single())
-      return data && { id: data.id, name: data.name, durationMinutes: data.duration_minutes, priceMxnMinor: data.price_mxn_minor }
+      return data && { id: data.id, name: data.name, durationMinutes: data.duration_minutes || 30, priceMxnMinor: data.price_mxn_minor }
     },
 
-    async assertSlotAvailable({ doctorId, startsAt }) {
-      const data = await unwrap(supabase.from('appointments').select('id').eq('doctor_id', doctorId).eq('scheduled_at', startsAt).neq('status', 'cancelled').limit(1))
-      if (data?.length) {
-        const error = new Error('slot conflict')
-        error.code = '23505'
-        throw error
-      }
+    async assertSlotAvailable({ doctorId, startsAt, endsAt, now }) {
+      const intervals = await listBusyIntervals({ doctorId, from: startsAt, to: endsAt, now })
+      if (intervals.some((interval) => overlaps(new Date(startsAt), new Date(endsAt), interval))) throw intervalConflict()
     },
 
     async createHold(record) {

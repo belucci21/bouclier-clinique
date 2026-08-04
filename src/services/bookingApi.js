@@ -10,6 +10,15 @@ function apiError(payload, status) {
 }
 
 async function parseResponse(response) {
+  const contentType = response.headers?.get?.('content-type') || ''
+  if (response.ok && !contentType.toLowerCase().includes('application/json')) {
+    const error = new Error('La agenda en línea no está disponible en este momento')
+    error.code = 'api_unavailable'
+    error.retryable = true
+    error.status = response.status
+    throw error
+  }
+
   let payload
   try {
     payload = await response.json()
@@ -45,11 +54,16 @@ export function createBookingApi({ fetchImpl = globalThis.fetch, baseUrl = DEFAU
     getOptions() {
       return request('/api/booking/options')
     },
+    getAvailability({ doctorId, appointmentTypeId, variantId, month }) {
+      const query = new URLSearchParams({ doctorId, appointmentTypeId, variantId, month })
+      return request(`/api/booking/availability?${query}`)
+    },
     createHold(input) {
       return request('/api/booking/hold', {
         method: 'POST',
         body: {
           appointmentTypeId: input.appointmentTypeId,
+          variantId: input.variantId,
           doctorId: input.doctorId,
           startsAt: input.startsAt,
           patient: patientPayload(input.patient),

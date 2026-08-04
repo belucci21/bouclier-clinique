@@ -1,5 +1,10 @@
 import { calculateDepositMinor } from '../../../src/booking/deposit.js'
 
+const BOOKING_TIME_ZONE = 'America/Mexico_City'
+const SLOT_INTERVAL_MINUTES = 30
+const BOOKING_RANGE_DAYS = 90
+const DAY_MS = 24 * 60 * 60_000
+
 function bookingError(code, message, status = 400, retryable = false) {
   const error = new Error(message)
   error.code = code
@@ -14,40 +19,104 @@ function required(value, code, message) {
   return value
 }
 
-export function createBookingService({ store, stripe, publicWebUrl, now = () => new Date() }) {
+function localParts(date, timeZone = BOOKING_TIME_ZONE) {
+  return Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date).filter(({ type }) => type !== 'literal').map(({ type, value }) => [type, Number(value)]))
+}
+
+function zonedDateTime(year, month, day, hour = 0, minute = 0, timeZone = BOOKING_TIME_ZONE) {
+  const wanted = Date.UTC(year, month - 1, day, hour, minute)
+  let instant = wanted
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const parts = localParts(new Date(instant), timeZone)
+    const observed = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute)
+    instant += wanted - observed
+  }
+  return new Date(instant)
+}
+
+function clockMinutes(value) {
+  const [hour, minute] = String(value).split(':').map(Number)
+  return hour * 60 + minute
+}
+
+function overlaps(start, end, busy) {
+  return start < new Date(busy.endAt) && end > new Date(busy.startAt)
+}
+
+function monthBounds(month) {
+  if (!/^\d{4}-(0[1-9]|1[0-2])$/.test(month)) throw bookingError('invalid_request', 'El mes no es válido')
+  const [year, monthNumber] = month.split('-').map(Number)
+  return {
+    year,
+    monthNumber,
+    start: zonedDateTime(year, monthNumber, 1),
+    end: zonedDateTime(year, monthNumber + 1, 1),
+    days: new Date(Date.UTC(year, monthNumber, 0)).getUTCDate(),
+  }
+}
+
+function slotConflict() {
+  return bookingError('slot_conflict', 'Ese horario acaba de ocuparse', 409, true)
+}
+
+export function createBookingService({ store, stripe, publicWebUrl, paymentsEnabled = false, now = () => new Date() }) {
   return {
     async getOptions() {
       const [appointmentTypes, doctors] = await Promise.all([
         store.listAppointmentTypes(),
         store.listDoctors(),
       ])
+      return { appointmentTypes, doctors, paymentsEnabled: Boolean(paymentsEnabled) }
+    },
+
+    async getAvailability(input = {}) {
+      const doctorId = required(input.doctorId, 'invalid_request', 'Selecciona un especialista')
+      const appointmentTypeId = required(input.appointmentTypeId, 'invalid_request', 'Selecciona un tratamiento')
+      required(input.variantId, 'invalid_request', 'Selecciona una variante')
+      const bounds = monthBounds(required(input.month, 'invalid_request', 'Selecciona un mes'))
       const rangeStart = now()
-      const rangeEnd = new Date(rangeStart.getTime() + 15 * 24 * 60 * 60_000)
-      const busy = new Set((await store.listBusyStarts(rangeStart.toISOString(), rangeEnd.toISOString())).map((value) => new Date(value).toISOString()))
+      const rangeEnd = new Date(rangeStart.getTime() + BOOKING_RANGE_DAYS * DAY_MS)
+      if (bounds.end <= rangeStart || bounds.start > rangeEnd) throw bookingError('invalid_range', 'El mes está fuera del periodo de reserva')
+
+      const type = await store.getAppointmentType(appointmentTypeId)
+      if (!type) throw bookingError('invalid_request', 'El tratamiento no está disponible')
+      const durationMinutes = type.durationMinutes || SLOT_INTERVAL_MINUTES
+      const [availability, busyIntervals] = await Promise.all([
+        store.listAvailability({ doctorId }),
+        store.listBusyIntervals({ doctorId, from: bounds.start.toISOString(), to: bounds.end.toISOString(), now: rangeStart.toISOString() }),
+      ])
+
       const slots = []
-      const dateParts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Mexico_City', year: 'numeric', month: '2-digit', day: '2-digit' })
-
-      for (let dayOffset = 1; dayOffset <= 14; dayOffset += 1) {
-        const cursor = new Date(rangeStart.getTime() + dayOffset * 24 * 60 * 60_000)
-        const parts = Object.fromEntries(dateParts.formatToParts(cursor).filter((part) => part.type !== 'literal').map((part) => [part.type, part.value]))
-        const dateKey = `${parts.year}-${parts.month}-${parts.day}`
-        const weekday = new Date(`${dateKey}T12:00:00-06:00`).getUTCDay()
-        if (weekday === 0) continue
-        const hours = weekday === 6 ? [10, 11, 12, 13, 14] : [10, 11, 12, 13, 15, 16, 17, 18]
-
-        for (const doctor of doctors) {
-          for (const hour of hours) {
-            const startsAt = new Date(`${dateKey}T${String(hour).padStart(2, '0')}:00:00-06:00`).toISOString()
-            if (!busy.has(startsAt)) slots.push({ doctorId: doctor.id, startsAt })
+      for (let day = 1; day <= bounds.days; day += 1) {
+        const weekday = new Date(Date.UTC(bounds.year, bounds.monthNumber - 1, day)).getUTCDay()
+        for (const window of availability.filter((item) => item.dayOfWeek === weekday)) {
+          const windowStart = clockMinutes(window.startTime)
+          const windowEnd = clockMinutes(window.endTime)
+          for (let minute = windowStart; minute + durationMinutes <= windowEnd; minute += SLOT_INTERVAL_MINUTES) {
+            const startsAt = zonedDateTime(bounds.year, bounds.monthNumber, day, Math.floor(minute / 60), minute % 60)
+            const endsAt = new Date(startsAt.getTime() + durationMinutes * 60_000)
+            if (startsAt <= rangeStart || startsAt > rangeEnd) continue
+            if (busyIntervals.some((busy) => overlaps(startsAt, endsAt, busy))) continue
+            slots.push({ startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString() })
           }
         }
       }
 
-      return { appointmentTypes, doctors, slots }
+      return { month: input.month, timeZone: BOOKING_TIME_ZONE, intervalMinutes: SLOT_INTERVAL_MINUTES, slots }
     },
 
     async createHold(input = {}) {
       const appointmentTypeId = required(input.appointmentTypeId, 'invalid_request', 'Selecciona un tratamiento')
+      const variantId = required(input.variantId, 'invalid_request', 'Selecciona una variante')
       const doctorId = required(input.doctorId, 'invalid_request', 'Selecciona un especialista')
       const startsAt = new Date(required(input.startsAt, 'invalid_request', 'Selecciona un horario'))
       if (Number.isNaN(startsAt.getTime()) || startsAt <= now()) throw bookingError('invalid_slot', 'El horario seleccionado no es válido')
@@ -61,14 +130,15 @@ export function createBookingService({ store, stripe, publicWebUrl, now = () => 
       }
 
       const endsAt = new Date(startsAt.getTime() + type.durationMinutes * 60_000)
-      await store.assertSlotAvailable({ doctorId, startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString() })
       const depositMxnMinor = calculateDepositMinor(type.priceMxnMinor)
       const expiresAt = new Date(now().getTime() + 30 * 60_000)
 
       let hold
       try {
+        await store.assertSlotAvailable({ doctorId, startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString(), now: now().toISOString() })
         hold = await store.createHold({
           appointmentTypeId,
+          variantId,
           appointmentTypeName: type.name,
           doctorId,
           startsAt: startsAt.toISOString(),
@@ -84,7 +154,7 @@ export function createBookingService({ store, stripe, publicWebUrl, now = () => 
           depositMxnMinor,
         })
       } catch (error) {
-        if (error.code === '23505') throw bookingError('slot_conflict', 'Ese horario acaba de ocuparse', 409, true)
+        if (error.code === '23505' || error.code === 'slot_conflict') throw slotConflict()
         throw error
       }
 
@@ -130,7 +200,6 @@ export function createBookingService({ store, stripe, publicWebUrl, now = () => 
     async processWebhook(event) {
       const claimed = await store.claimWebhookEvent(event.id, event.type)
       if (!claimed) return { duplicate: true }
-
       if (event.type === 'checkout.session.completed') {
         await store.completePayment({ eventId: event.id, session: event.data.object })
       } else if (event.type === 'checkout.session.expired') {
