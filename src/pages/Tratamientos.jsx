@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import TreatmentCard from '../components/TreatmentCard.jsx'
 import SEO from '../components/SEO.jsx'
+import { CalendarDays, LockKeyhole, Tags } from 'lucide-react'
 import { CLINICAL_CONCERNS, TREATMENT_CATEGORIES, TREATMENTS } from '../data/treatments.js'
 
 export default function Tratamientos() {
@@ -19,23 +20,8 @@ export default function Tratamientos() {
       />
 
       <header className="treatments-page__intro">
-        <p className="editorial-kicker">Tratamientos</p>
-        <h1>Tratamientos médicos avanzados.</h1>
-        <p>
-          Protocolos personalizados que combinan tecnología, experiencia médica y una visión integral de tu piel.
-        </p>
+        <h1>Tratamientos <br aria-hidden="true" />médicos avanzados.</h1>
       </header>
-
-      <section className="clinical-scope" aria-labelledby="clinical-scope-title">
-        <div>
-          <p className="editorial-kicker">Consulta dermatológica</p>
-          <h2 id="clinical-scope-title">Dermatología clínica con enfoque funcional.</h2>
-          <p>La tecnología es solo una parte del cuidado. También diagnosticamos y acompañamos enfermedades de piel, pelo y uñas.</p>
-        </div>
-        <ul>
-          {CLINICAL_CONCERNS.map((concern) => <li key={concern}>{concern}</li>)}
-        </ul>
-      </section>
 
       <div className="treatment-filters" role="group" aria-label="Filtrar tratamientos por categoría">
         <button
@@ -67,6 +53,23 @@ export default function Tratamientos() {
         {visibleTreatments.map((treatment) => (
           <TreatmentCard key={treatment.slug} treatment={treatment} />
         ))}
+      </section>
+
+      <section className="treatment-confidence" aria-label="Información de reserva">
+        <p><Tags aria-hidden="true" /> Precios y variantes activas mostrados.</p>
+        <p><LockKeyhole aria-hidden="true" /> Pago en línea próximamente.</p>
+        <p><CalendarDays aria-hidden="true" /> Agenda tu cita en línea disponible.</p>
+      </section>
+
+      <section className="clinical-scope" aria-labelledby="clinical-scope-title">
+        <div>
+          <p className="editorial-kicker">Dermatología clínica y protocolos</p>
+          <h2 id="clinical-scope-title">Dermatología clínica con enfoque funcional.</h2>
+          <p>La tecnología es solo una parte del cuidado. También diagnosticamos y acompañamos enfermedades de piel, pelo y uñas.</p>
+        </div>
+        <ul>
+          {CLINICAL_CONCERNS.map((concern) => <li key={concern}>{concern}</li>)}
+        </ul>
       </section>
     </main>
   )

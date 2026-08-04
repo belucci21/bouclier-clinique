@@ -2,7 +2,7 @@ import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SEO from '../components/SEO.jsx'
 import TreatmentCard from '../components/TreatmentCard.jsx'
-import { TREATMENTS } from '../data/treatments.js'
+import { CLINICAL_RESULTS, TREATMENTS } from '../data/treatments.js'
 
 const featuredTreatments = ['hydrafacial', 'red-touch', 'accent-prime']
   .map((slug) => TREATMENTS.find((treatment) => treatment.slug === slug))
@@ -86,6 +86,31 @@ export default function Home() {
           <h2>Dra. Gissel</h2>
           <p>Una práctica centrada en comprender la piel, indicar solo lo necesario y acompañar cada evolución con honestidad clínica.</p>
           <Link className="editorial-link" to="/dra-gissel">Conocer a la doctora</Link>
+        </div>
+      </section>
+
+      <section className="home-results" aria-labelledby="home-results-title">
+        <div className="home-results__intro">
+          <div>
+            <p className="editorial-kicker">Resultados reales</p>
+            <h2 id="home-results-title">Casos clínicos.<br />Resultados documentados.</h2>
+            <p className="home-results__verified">Todos los casos son reales, verificados y documentados por nuestra clínica.</p>
+          </div>
+          <p>Resultados individuales.<br />Cada caso requiere valoración médica.</p>
+        </div>
+        <div className="home-results__grid">
+          {CLINICAL_RESULTS.map((result) => (
+            <figure key={result.id}>
+              <figcaption>{result.name}</figcaption>
+              <img
+                src={result.image}
+                alt={`Resultado clínico real: ${result.name}`}
+                loading="lazy"
+                width="640"
+                height="480"
+              />
+            </figure>
+          ))}
         </div>
       </section>
 

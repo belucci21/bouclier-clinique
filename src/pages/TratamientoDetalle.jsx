@@ -1,7 +1,7 @@
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import SEO from '../components/SEO.jsx'
-import { getTreatmentBySlug } from '../data/treatments.js'
+import { getTreatmentBySlug, getTreatmentPriceLabel } from '../data/treatments.js'
 
 export default function TratamientoDetalle() {
   const { slug } = useParams()
@@ -24,7 +24,7 @@ export default function TratamientoDetalle() {
         title={`${treatment.name} | Bouclier Dermatología`}
         description={treatment.summary}
         canonical={`https://bouclier-clinique.com/tratamientos/${treatment.slug}`}
-        ogImage={treatment.image}
+        ogImage={treatment.cover}
       />
 
       <section className="treatment-detail__hero">
@@ -35,13 +35,16 @@ export default function TratamientoDetalle() {
           <p className="editorial-kicker">{treatment.eyebrow}</p>
           <h1>{treatment.name}</h1>
           <p className="treatment-detail__summary">{treatment.summary}</p>
-          <Link className="btn-primary" to={`/citas?tratamiento=${treatment.slug}`}>
-            Agendar valoración <ArrowRight aria-hidden="true" size={18} />
-          </Link>
+          <div className="treatment-detail__actions">
+            <Link className="btn-primary" to={`/citas?tratamiento=${treatment.slug}`}>
+              Agendar valoración <ArrowRight aria-hidden="true" size={18} />
+            </Link>
+            <span className="treatment-detail__payment-state">Pago online próximamente</span>
+          </div>
         </div>
         <img
           className="treatment-detail__image"
-          src={treatment.image}
+          src={treatment.cover}
           alt={`Tratamiento ${treatment.name} en Bouclier Dermatología`}
           width="920"
           height="920"
@@ -63,6 +66,17 @@ export default function TratamientoDetalle() {
           <span>03</span>
           <h2>Tecnología</h2>
           <p>{treatment.technology}</p>
+        </article>
+        <article className="treatment-detail__pricing">
+          <span>Precio</span>
+          <h2>{getTreatmentPriceLabel(treatment)}</h2>
+          {treatment.bookingMode === 'direct' ? (
+            <ul aria-label="Variantes activas">
+              {treatment.variants.filter(({ active }) => active).map((item) => (
+                <li key={item.id}>{item.name}</li>
+              ))}
+            </ul>
+          ) : <p>El precio se determina en tu valoración personalizada según tus necesidades.</p>}
         </article>
       </section>
 
