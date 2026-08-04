@@ -1,3 +1,4 @@
+import { lazy, Suspense, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { useLocation } from 'react-router-dom'
@@ -23,7 +24,13 @@ import Informes from './pages/paciente/Informes.jsx'
 import Perfil from './pages/paciente/Perfil.jsx'
 import CodigoQR from './pages/paciente/CodigoQR.jsx'
 import AgendarCita from './pages/paciente/AgendarCita.jsx'
-import { useEffect } from 'react'
+
+const Tratamientos = lazy(() => import('./pages/Tratamientos.jsx'))
+const TratamientoDetalle = lazy(() => import('./pages/TratamientoDetalle.jsx'))
+
+function LazyPage({ children }) {
+  return <Suspense fallback={<main className="route-loading" aria-label="Cargando contenido" />}>{children}</Suspense>
+}
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -59,6 +66,8 @@ function App() {
           <Route path="/citas" element={<Citas />} />
           <Route path="/reservar" element={<Reservar />} />
           <Route path="/descargar" element={<Descargar />} />
+          <Route path="/tratamientos" element={<LazyPage><Tratamientos /></LazyPage>} />
+          <Route path="/tratamientos/:slug" element={<LazyPage><TratamientoDetalle /></LazyPage>} />
 
           <Route path="/paciente/login" element={
             <PatientAuthProvider>
