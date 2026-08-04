@@ -6,6 +6,24 @@ export function createSupabaseBookingStore(supabase) {
   }
 
   return {
+    async listAppointmentTypes() {
+      const data = await unwrap(supabase.from('appointment_types').select('id,name,description,price_mxn_minor').eq('is_active', true).not('price_mxn_minor', 'is', null).order('name'))
+      return data.map((item) => ({ id: item.id, name: item.name, description: item.description || 'Valoración y protocolo personalizado', priceMxnMinor: item.price_mxn_minor }))
+    },
+
+    async listDoctors() {
+      const data = await unwrap(supabase.from('doctors').select('id,specialty,profiles!doctors_id_fkey(full_name)').eq('is_active', true))
+      return data.map((doctor) => ({ id: doctor.id, name: doctor.profiles?.full_name || 'Especialista Bouclier', specialty: doctor.specialty || 'Dermatología' }))
+    },
+
+    async listBusyStarts(from, to) {
+      const [appointments, holds] = await Promise.all([
+        unwrap(supabase.from('appointments').select('scheduled_at').gte('scheduled_at', from).lt('scheduled_at', to).neq('status', 'cancelled')),
+        unwrap(supabase.from('booking_holds').select('starts_at').gte('starts_at', from).lt('starts_at', to).in('status', ['active', 'checkout_created', 'paid'])),
+      ])
+      return [...appointments.map((item) => item.scheduled_at), ...holds.map((item) => item.starts_at)]
+    },
+
     async getAppointmentType(id) {
       const data = await unwrap(supabase.from('appointment_types').select('id,name,duration_minutes,price_mxn_minor').eq('id', id).eq('is_active', true).single())
       return data && { id: data.id, name: data.name, durationMinutes: data.duration_minutes, priceMxnMinor: data.price_mxn_minor }

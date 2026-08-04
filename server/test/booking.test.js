@@ -21,6 +21,20 @@ function fixture() {
 }
 
 describe('booking API', () => {
+  it('publica opciones reservables sin datos privados de pacientes', async () => {
+    const { service, store } = fixture()
+    store.listAppointmentTypes = vi.fn().mockResolvedValue([{ id: 'type_1', name: 'Valoración', description: 'Consulta', priceMxnMinor: 100000 }])
+    store.listDoctors = vi.fn().mockResolvedValue([{ id: 'doctor_1', name: 'Dra. Gissel', specialty: 'Dermatología' }])
+    store.listBusyStarts = vi.fn().mockResolvedValue([])
+    const app = createApp({ bookingService: service, webhookHandler: vi.fn() })
+
+    const result = await request(app).get('/api/booking/options')
+
+    expect(result.status).toBe(200)
+    expect(result.body.appointmentTypes[0]).not.toHaveProperty('patient')
+    expect(result.body.slots.length).toBeGreaterThan(0)
+  })
+
   it('recalcula el anticipo desde el precio almacenado', async () => {
     const { service, store } = fixture()
     const app = createApp({ bookingService: service, webhookHandler: vi.fn() })

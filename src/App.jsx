@@ -12,7 +12,6 @@ import Home from './pages/Home.jsx'
 import MetodoBouclier from './pages/MetodoBouclier.jsx'
 import Manchas from './pages/Manchas.jsx'
 import Blefaroplastia from './pages/Blefaroplastia.jsx'
-import Citas from './pages/Citas.jsx'
 import Reservar from './pages/Reservar.jsx'
 import Descargar from './pages/Descargar.jsx'
 import Login from './pages/paciente/Login.jsx'
@@ -22,7 +21,6 @@ import Recetas from './pages/paciente/Recetas.jsx'
 import Informes from './pages/paciente/Informes.jsx'
 import Perfil from './pages/paciente/Perfil.jsx'
 import CodigoQR from './pages/paciente/CodigoQR.jsx'
-import AgendarCita from './pages/paciente/AgendarCita.jsx'
 
 const Tratamientos = lazy(() => import('./pages/Tratamientos.jsx'))
 const TratamientoDetalle = lazy(() => import('./pages/TratamientoDetalle.jsx'))
@@ -31,6 +29,8 @@ const DraGissel = lazy(() => import('./pages/DraGissel.jsx'))
 const Contacto = lazy(() => import('./pages/Contacto.jsx'))
 const PreguntasFrecuentes = lazy(() => import('./pages/PreguntasFrecuentes.jsx'))
 const Legal = lazy(() => import('./pages/Legal.jsx'))
+const Citas = lazy(() => import('./pages/Citas.jsx'))
+const AgendarCita = lazy(() => import('./pages/paciente/AgendarCita.jsx'))
 
 function LazyPage({ children }) {
   return <Suspense fallback={<main className="route-loading" aria-label="Cargando contenido" />}>{children}</Suspense>
@@ -67,7 +67,7 @@ function App() {
           <Route path="/metodo-bouclier" element={<MetodoBouclier />} />
           <Route path="/manchas" element={<Manchas />} />
           <Route path="/blefaroplastia" element={<Blefaroplastia />} />
-          <Route path="/citas" element={<Citas />} />
+          <Route path="/citas" element={<LazyPage><Citas /></LazyPage>} />
           <Route path="/reservar" element={<Reservar />} />
           <Route path="/descargar" element={<Descargar />} />
           <Route path="/tratamientos" element={<LazyPage><Tratamientos /></LazyPage>} />
@@ -95,7 +95,7 @@ function App() {
               <Route path="informes" element={<Informes />} />
               <Route path="perfil" element={<Perfil />} />
               <Route path="qr" element={<CodigoQR />} />
-              <Route path="agendar" element={<AgendarCita />} />
+              <Route path="agendar" element={<LazyPage><AgendarCita /></LazyPage>} />
             </Route>
           </Route>
         </Routes>

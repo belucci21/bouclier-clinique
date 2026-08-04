@@ -42,6 +42,9 @@ export function createBookingApi({ fetchImpl = globalThis.fetch, baseUrl = DEFAU
   }
 
   return {
+    getOptions() {
+      return request('/api/booking/options')
+    },
     createHold(input) {
       return request('/api/booking/hold', {
         method: 'POST',

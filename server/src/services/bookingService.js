@@ -16,6 +16,36 @@ function required(value, code, message) {
 
 export function createBookingService({ store, stripe, publicWebUrl, now = () => new Date() }) {
   return {
+    async getOptions() {
+      const [appointmentTypes, doctors] = await Promise.all([
+        store.listAppointmentTypes(),
+        store.listDoctors(),
+      ])
+      const rangeStart = now()
+      const rangeEnd = new Date(rangeStart.getTime() + 15 * 24 * 60 * 60_000)
+      const busy = new Set((await store.listBusyStarts(rangeStart.toISOString(), rangeEnd.toISOString())).map((value) => new Date(value).toISOString()))
+      const slots = []
+      const dateParts = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Mexico_City', year: 'numeric', month: '2-digit', day: '2-digit' })
+
+      for (let dayOffset = 1; dayOffset <= 14; dayOffset += 1) {
+        const cursor = new Date(rangeStart.getTime() + dayOffset * 24 * 60 * 60_000)
+        const parts = Object.fromEntries(dateParts.formatToParts(cursor).filter((part) => part.type !== 'literal').map((part) => [part.type, part.value]))
+        const dateKey = `${parts.year}-${parts.month}-${parts.day}`
+        const weekday = new Date(`${dateKey}T12:00:00-06:00`).getUTCDay()
+        if (weekday === 0) continue
+        const hours = weekday === 6 ? [10, 11, 12, 13, 14] : [10, 11, 12, 13, 15, 16, 17, 18]
+
+        for (const doctor of doctors) {
+          for (const hour of hours) {
+            const startsAt = new Date(`${dateKey}T${String(hour).padStart(2, '0')}:00:00-06:00`).toISOString()
+            if (!busy.has(startsAt)) slots.push({ doctorId: doctor.id, startsAt })
+          }
+        }
+      }
+
+      return { appointmentTypes, doctors, slots }
+    },
+
     async createHold(input = {}) {
       const appointmentTypeId = required(input.appointmentTypeId, 'invalid_request', 'Selecciona un tratamiento')
       const doctorId = required(input.doctorId, 'invalid_request', 'Selecciona un especialista')
