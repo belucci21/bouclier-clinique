@@ -63,8 +63,21 @@ function catalogFixture(initialVariants, { pageSize = 100 } = {}) {
       ...variant,
     }))),
     listActiveCatalogVariants: vi.fn(async () => structuredClone(variants)),
-    updateVariantStripeCatalog: vi.fn(async ({ variantId, stripeProductId, stripeDepositPriceId }) => {
+    updateVariantStripeCatalog: vi.fn(async ({
+      leaseToken,
+      variantId,
+      expectedStripeProductId,
+      expectedStripeDepositPriceId,
+      stripeProductId,
+      stripeDepositPriceId,
+    }) => {
       const variant = variants.find(({ id }) => id === variantId)
+      if (!leaseToken) throw new Error('catalog_sync_lease_lost')
+      if (
+        !variant
+        || variant.stripeProductId !== expectedStripeProductId
+        || variant.stripeDepositPriceId !== expectedStripeDepositPriceId
+      ) throw new Error('catalog_variant_changed')
       variant.stripeProductId = stripeProductId
       variant.stripeDepositPriceId = stripeDepositPriceId
     }),
@@ -113,10 +126,12 @@ describe('Stripe catalog sync', () => {
   it('deactivates and replaces a stale persisted Price', async () => {
     const fixture = catalogFixture([{ ...TWO_VARIANTS[0], stripeProductId: 'prod_existing', stripeDepositPriceId: 'price_stale' }])
     fixture.products.set('prod_existing', {
-      id: 'prod_existing', active: true, name: 'Hydrafacial', metadata: { bouclier_appointment_type_id: 'type_hydra' },
+      id: 'prod_existing', active: true, name: 'Hydrafacial', metadata: { bouclier_catalog: 'appointment_deposits', bouclier_appointment_type_id: 'type_hydra' },
     })
     fixture.prices.set('price_stale', {
-      id: 'price_stale', active: true, type: 'one_time', currency: 'mxn', unit_amount: 29999, product: 'prod_existing', metadata: { bouclier_variant_id: 'variant_face' },
+      id: 'price_stale', active: true, type: 'one_time', currency: 'mxn', unit_amount: 29999, product: 'prod_existing', metadata: {
+        bouclier_catalog: 'appointment_deposits', bouclier_variant_id: 'variant_face', bouclier_appointment_type_id: 'type_hydra', bouclier_deposit_rate_bps: '3000', bouclier_variant_price_mxn_minor: '100000',
+      },
     })
 
     const result = await syncStripeCatalog(fixture)
@@ -157,6 +172,7 @@ describe('Stripe catalog sync', () => {
         bouclier_variant_id: 'variant_face',
         bouclier_appointment_type_id: 'type_hydra',
         bouclier_deposit_rate_bps: '3000',
+        bouclier_variant_price_mxn_minor: '100000',
       },
     })
 
@@ -168,7 +184,24 @@ describe('Stripe catalog sync', () => {
     })
   })
 
-  it('replaces an exact persisted Price that lacks Bouclier ownership metadata', async () => {
+  it('repairs a foreign persisted Product mapping without updating or deactivating the Product', async () => {
+    const fixture = catalogFixture([{
+      ...TWO_VARIANTS[0], stripeProductId: 'prod_foreign', stripeDepositPriceId: null,
+    }])
+    const foreignProduct = {
+      id: 'prod_foreign', active: true, name: 'Unrelated merchant product',
+      metadata: { bouclier_appointment_type_id: 'type_hydra', owner: 'another-system' },
+    }
+    fixture.products.set('prod_foreign', structuredClone(foreignProduct))
+
+    await syncStripeCatalog(fixture)
+
+    expect(fixture.products.get('prod_foreign')).toEqual(foreignProduct)
+    expect(fixture.stripe.products.create).toHaveBeenCalledOnce()
+    expect(fixture.variants[0].stripeProductId).not.toBe('prod_foreign')
+  })
+
+  it('repairs a foreign persisted Price mapping without deactivating the Price', async () => {
     const fixture = catalogFixture([{
       ...TWO_VARIANTS[0], stripeProductId: 'prod_managed', stripeDepositPriceId: 'price_unmanaged',
     }])
@@ -183,7 +216,8 @@ describe('Stripe catalog sync', () => {
 
     await syncStripeCatalog(fixture)
 
-    expect(fixture.prices.get('price_unmanaged').active).toBe(false)
+    expect(fixture.prices.get('price_unmanaged').active).toBe(true)
+    expect(fixture.prices.get('price_unmanaged').metadata).not.toHaveProperty('bouclier_catalog')
     expect(fixture.stripe.prices.create).toHaveBeenCalledOnce()
     expect(fixture.variants[0].stripeDepositPriceId).not.toBe('price_unmanaged')
   })
@@ -211,6 +245,7 @@ describe('Stripe catalog sync', () => {
           bouclier_variant_id: 'variant_face',
           bouclier_appointment_type_id: 'type_hydra',
           bouclier_deposit_rate_bps: '3000',
+          bouclier_variant_price_mxn_minor: '100000',
         },
       })
     }
@@ -233,7 +268,7 @@ describe('Stripe catalog sync', () => {
     })
     fixture.prices.set('price_inactive', {
       id: 'price_inactive', active: true, type: 'one_time', currency: 'mxn', unit_amount: 30000, product: 'prod_inactive',
-      metadata: { bouclier_catalog: 'appointment_deposits', bouclier_variant_id: 'variant_face', bouclier_appointment_type_id: 'type_hydra', bouclier_deposit_rate_bps: '3000' },
+      metadata: { bouclier_catalog: 'appointment_deposits', bouclier_variant_id: 'variant_face', bouclier_appointment_type_id: 'type_hydra', bouclier_deposit_rate_bps: '3000', bouclier_variant_price_mxn_minor: '100000' },
     })
 
     await syncStripeCatalog(fixture)

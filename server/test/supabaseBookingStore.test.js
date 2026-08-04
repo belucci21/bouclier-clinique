@@ -109,19 +109,41 @@ describe('Supabase booking store', () => {
   })
 
   it('persists the synchronized Product and Price identifiers together', async () => {
-    const eq = vi.fn().mockResolvedValue({ data: null, error: null })
-    const update = vi.fn(() => ({ eq }))
-    const supabase = { from: vi.fn(() => ({ update })) }
+    const rpc = vi.fn().mockResolvedValue({ data: true, error: null })
+    const supabase = { rpc }
     const store = createSupabaseBookingStore(supabase)
 
     await store.updateVariantStripeCatalog({
-      variantId: 'variant_face', stripeProductId: 'prod_1', stripeDepositPriceId: 'price_1',
+      leaseToken: 'lease-token',
+      variantId: 'variant_face',
+      expectedStripeProductId: null,
+      expectedStripeDepositPriceId: null,
+      stripeProductId: 'prod_1',
+      stripeDepositPriceId: 'price_1',
     })
 
-    expect(update).toHaveBeenCalledWith({
-      stripe_product_id: 'prod_1', stripe_deposit_price_id: 'price_1', updated_at: expect.any(String),
+    expect(rpc).toHaveBeenCalledWith('update_variant_stripe_catalog', {
+      p_holder_token: 'lease-token',
+      p_variant_id: 'variant_face',
+      p_expected_stripe_product_id: null,
+      p_expected_stripe_deposit_price_id: null,
+      p_stripe_product_id: 'prod_1',
+      p_stripe_deposit_price_id: 'price_1',
     })
-    expect(eq).toHaveBeenCalledWith('id', 'variant_face')
+  })
+
+  it('rejects a missing or concurrently changed variant catalog row', async () => {
+    const rpc = vi.fn().mockResolvedValue({ data: false, error: null })
+    const store = createSupabaseBookingStore({ rpc })
+
+    await expect(store.updateVariantStripeCatalog({
+      leaseToken: 'lease-token',
+      variantId: 'variant_face',
+      expectedStripeProductId: 'prod_old',
+      expectedStripeDepositPriceId: 'price_old',
+      stripeProductId: 'prod_new',
+      stripeDepositPriceId: 'price_new',
+    })).rejects.toThrow('catalog_variant_changed')
   })
 
   it('creates a hold through the atomic database function and returns authoritative money', async () => {

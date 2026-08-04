@@ -72,18 +72,20 @@ supabase db push --dry-run
 supabase db push
 ```
 
-Las migraciones de esta rama son `202608040001` a `202608040005`. `003` y `004` ya definen variantes autoritativas, holds atomicos y pago idempotente; `005` solo agrega IDs Stripe, restricciones e indices. No ejecutar `db push` si el diff incluye cambios ajenos.
+Las migraciones de esta rama son `202608040001` a `202608040005`. `003` y `004` definen variantes autoritativas, compatibilidad de `type_id`, holds atomicos y pago idempotente. `005` agrega IDs Stripe, restricciones e indices, el lease de sincronizacion, persistencia compare-and-set ligada al lease y la expiracion idempotente del hold. No ejecutar `db push` si el diff incluye cambios ajenos.
 
 Pruebas SQL para una base local preparada:
 
 ```powershell
+psql $env:LOCAL_DATABASE_URL -v ON_ERROR_STOP=1 -f supabase/tests/legacy_appointment_type_compatibility.sql
 psql $env:LOCAL_DATABASE_URL -v ON_ERROR_STOP=1 -f supabase/tests/complete_booking_payment_integrity.sql
+psql $env:LOCAL_DATABASE_URL -v ON_ERROR_STOP=1 -f supabase/tests/expire_booking_hold_integrity.sql
 psql $env:LOCAL_DATABASE_URL -v ON_ERROR_STOP=1 -f supabase/tests/stripe_variant_catalog_integrity.sql
 ```
 
 ## Sincronizacion del catalogo Stripe
 
-El comando es solo de servidor. Usa Stripe API `2026-02-25.clover`, crea un Product por tratamiento fuente y un Price MXN inmutable por variante activa con el anticipo exacto del 30%. Descubre todo el catalogo Bouclier con paginacion y metadata estable, recupera mapeos perdidos, desactiva duplicados/stale/inactivos y persiste el objeto canonico. Un lease renovable en Supabase impide dos sincronizaciones simultaneas; errores de red/autorizacion detienen el proceso y nunca se interpretan como objetos ausentes.
+El comando es solo de servidor. Usa Stripe API `2026-02-25.clover`, crea un Product por tratamiento fuente y un Price MXN inmutable por variante activa con el anticipo exacto del 30%. Descubre todo el catalogo Bouclier con paginacion y metadata estable, recupera mapeos perdidos, desactiva duplicados/stale/inactivos y persiste el objeto canonico. Un ID guardado en la base no concede propiedad: un objeto Stripe sin el marcador y la identidad Bouclier exactos nunca se adopta, actualiza ni desactiva. La base repara ese mapeo a un objeto administrado. Un lease renovable en Supabase impide dos sincronizaciones simultaneas y la persistencia compare-and-set rechaza una variante eliminada o modificada concurrentemente; errores de red/autorizacion detienen el proceso y nunca se interpretan como objetos ausentes.
 
 Primero ejecutar contra Stripe test. Cargar variables mediante el gestor seguro del entorno, no en Git ni en el historial del shell:
 
@@ -142,4 +144,4 @@ curl.exe -i -X POST https://<origen-api>/api/booking/checkout-session -H "Conten
 
 Con pagos desactivados, health debe mostrar Supabase listo y pagos desactivados; options debe informar `false`; checkout debe devolver `503 payments_disabled`. Una ruta SPA debe devolver HTML, mientras `/api/ruta-inexistente` debe devolver 404 y nunca `index.html`.
 
-Con pagos activos, health solo queda `ok` cuando todas las variantes activas tienen IDs persistidos y los Products/Prices reales de Stripe estan activos, administrados por Bouclier y coinciden con Product, variante, MXN y 30% autoritativo. En Stripe test confirmar el 30% exacto, metodos dinamicos, una sola cita ante replay, reintento de expiracion despues de fallo transitorio, liberacion del hold expirado y ausencia de secretos/datos clinicos en logs.
+Con pagos activos, health solo queda `ok` cuando todas las variantes activas tienen IDs persistidos y los Products/Prices reales de Stripe estan activos, administrados por Bouclier y coinciden con Product, variante, MXN y 30% autoritativo. La verificacion real se comparte entre llamadas concurrentes y usa un cache conservador de TTL acotado para que el endpoint publico no amplifique llamadas Stripe; la respuesta nunca incluye errores ni secretos. En Stripe test confirmar el 30% exacto, metodos dinamicos, una sola cita ante replay, reintento de expiracion despues de fallo transitorio, liberacion del hold expirado y ausencia de secretos/datos clinicos en logs.

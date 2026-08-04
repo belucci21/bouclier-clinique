@@ -39,6 +39,20 @@ function productTypeId(product) {
   return product.metadata?.bouclier_appointment_type_id
 }
 
+function ownedProductForType(product, appointmentTypeId) {
+  return managed(product) && productTypeId(product) === appointmentTypeId
+}
+
+function ownedPriceForVariant(price, variant) {
+  return Boolean(
+    managed(price)
+    && price.metadata?.bouclier_variant_id === variant.id
+    && price.metadata?.bouclier_appointment_type_id === variant.appointmentTypeId
+    && price.metadata?.bouclier_deposit_rate_bps === String(DEPOSIT_RATE_BPS)
+    && /^\d+$/.test(price.metadata?.bouclier_variant_price_mxn_minor || '')
+  )
+}
+
 function priceProductId(price) {
   return typeof price?.product === 'string' ? price.product : price?.product?.id
 }
@@ -72,11 +86,11 @@ async function deactivatePrice(stripe, price, summary) {
 
 async function ensureProduct({ stripe, appointmentTypeId, appointmentTypeName, variants, products, summary }) {
   const preferredIds = variants.map(({ stripeProductId }) => stripeProductId).filter(Boolean)
-  const candidates = products.filter((product) => productTypeId(product) === appointmentTypeId)
+  const candidates = products.filter((product) => ownedProductForType(product, appointmentTypeId))
   for (const persistedId of preferredIds) {
     if (candidates.some(({ id }) => id === persistedId)) continue
     const persisted = await retrieveOrNull(stripe.products.retrieve.bind(stripe.products), persistedId)
-    if (persisted && productTypeId(persisted) === appointmentTypeId) candidates.push(persisted)
+    if (persisted && ownedProductForType(persisted, appointmentTypeId)) candidates.push(persisted)
   }
 
   const input = {
@@ -105,10 +119,10 @@ async function ensureProduct({ stripe, appointmentTypeId, appointmentTypeName, v
 
 async function ensurePrice({ stripe, variant, productId, prices, summary }) {
   const depositMxnMinor = calculateDepositMinor(variant.priceMxnMinor)
-  const candidates = prices.filter((price) => price.metadata?.bouclier_variant_id === variant.id)
+  const candidates = prices.filter((price) => ownedPriceForVariant(price, variant))
   if (variant.stripeDepositPriceId && !candidates.some(({ id }) => id === variant.stripeDepositPriceId)) {
     const persisted = await retrieveOrNull(stripe.prices.retrieve.bind(stripe.prices), variant.stripeDepositPriceId)
-    if (persisted) candidates.push(persisted)
+    if (persisted && ownedPriceForVariant(persisted, variant)) candidates.push(persisted)
   }
   const matching = candidates.filter((price) => priceMatches(price, { variant, productId, depositMxnMinor }))
   let price = canonical(matching, [variant.stripeDepositPriceId].filter(Boolean))
@@ -165,6 +179,8 @@ export async function syncStripeCatalog({ stripe, store }) {
     }
     const canonicalProductIds = new Set()
     const activeVariantIds = new Set(activeVariants.map(({ id }) => id))
+    const variantsById = new Map(variants.map((variant) => [variant.id, variant]))
+    const appointmentTypeIds = new Set(variants.map(({ appointmentTypeId }) => appointmentTypeId))
 
     for (const [appointmentTypeId, treatmentVariants] of treatments) {
       if (!await store.renewCatalogSyncLease(leaseToken)) throw new Error('catalog_sync_lease_lost')
@@ -181,7 +197,10 @@ export async function syncStripeCatalog({ stripe, store }) {
         if (!await store.renewCatalogSyncLease(leaseToken)) throw new Error('catalog_sync_lease_lost')
         const price = await ensurePrice({ stripe, variant, productId: product.id, prices, summary })
         await store.updateVariantStripeCatalog({
+          leaseToken,
           variantId: variant.id,
+          expectedStripeProductId: variant.stripeProductId,
+          expectedStripeDepositPriceId: variant.stripeDepositPriceId,
           stripeProductId: product.id,
           stripeDepositPriceId: price.id,
         })
@@ -196,12 +215,19 @@ export async function syncStripeCatalog({ stripe, store }) {
 
     if (!await store.renewCatalogSyncLease(leaseToken)) throw new Error('catalog_sync_lease_lost')
     for (const price of prices) {
-      if (price.active && !activeVariantIds.has(price.metadata?.bouclier_variant_id)) {
+      const variant = variantsById.get(price.metadata?.bouclier_variant_id)
+      if (price.active && variant && ownedPriceForVariant(price, variant) && !activeVariantIds.has(variant.id)) {
         await deactivatePrice(stripe, price, summary)
       }
     }
     for (const product of products) {
-      if (product.active && !canonicalProductIds.has(product.id)) {
+      const appointmentTypeId = productTypeId(product)
+      if (
+        product.active
+        && appointmentTypeIds.has(appointmentTypeId)
+        && ownedProductForType(product, appointmentTypeId)
+        && !canonicalProductIds.has(product.id)
+      ) {
         await stripe.products.update(product.id, { active: false }, {
           idempotencyKey: `bouclier-product-${product.id}-deactivate`,
         })

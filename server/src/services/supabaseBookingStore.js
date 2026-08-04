@@ -101,17 +101,23 @@ export function createSupabaseBookingStore(supabase) {
       }))
     },
 
-    updateVariantStripeCatalog({ variantId, stripeProductId, stripeDepositPriceId }) {
-      return unwrap(
-        supabase
-          .from('appointment_variants')
-          .update({
-            stripe_product_id: stripeProductId,
-            stripe_deposit_price_id: stripeDepositPriceId,
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', variantId),
-      )
+    async updateVariantStripeCatalog({
+      leaseToken,
+      variantId,
+      expectedStripeProductId,
+      expectedStripeDepositPriceId,
+      stripeProductId,
+      stripeDepositPriceId,
+    }) {
+      const updated = await unwrap(supabase.rpc('update_variant_stripe_catalog', {
+        p_holder_token: leaseToken,
+        p_variant_id: variantId,
+        p_expected_stripe_product_id: expectedStripeProductId,
+        p_expected_stripe_deposit_price_id: expectedStripeDepositPriceId,
+        p_stripe_product_id: stripeProductId,
+        p_stripe_deposit_price_id: stripeDepositPriceId,
+      }))
+      if (updated !== true) throw new Error('catalog_variant_changed')
     },
 
     async listAppointmentTypes() {

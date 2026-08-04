@@ -133,6 +133,44 @@ as $$
   where lease_name = 'stripe_catalog' and holder_token = p_holder_token;
 $$;
 
+create or replace function public.update_variant_stripe_catalog(
+  p_holder_token text,
+  p_variant_id text,
+  p_expected_stripe_product_id text,
+  p_expected_stripe_deposit_price_id text,
+  p_stripe_product_id text,
+  p_stripe_deposit_price_id text
+) returns boolean
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_updated_count integer;
+begin
+  if not exists (
+    select 1
+    from public.stripe_catalog_sync_leases
+    where lease_name = 'stripe_catalog'
+      and holder_token = p_holder_token
+      and expires_at > pg_catalog.clock_timestamp()
+  ) then
+    raise exception 'catalog_sync_lease_lost';
+  end if;
+
+  update public.appointment_variants
+  set stripe_product_id = p_stripe_product_id,
+      stripe_deposit_price_id = p_stripe_deposit_price_id,
+      updated_at = pg_catalog.clock_timestamp()
+  where id = p_variant_id
+    and stripe_product_id is not distinct from p_expected_stripe_product_id
+    and stripe_deposit_price_id is not distinct from p_expected_stripe_deposit_price_id;
+
+  get diagnostics v_updated_count = row_count;
+  return v_updated_count = 1;
+end;
+$$;
+
 create or replace function public.expire_booking_hold(
   p_stripe_event_id text,
   p_stripe_session_id text
@@ -153,6 +191,8 @@ revoke all on function public.renew_stripe_catalog_sync_lease(text,integer)
   from public, anon, authenticated;
 revoke all on function public.release_stripe_catalog_sync_lease(text)
   from public, anon, authenticated;
+revoke all on function public.update_variant_stripe_catalog(text,text,text,text,text,text)
+  from public, anon, authenticated;
 revoke all on function public.expire_booking_hold(text,text)
   from public, anon, authenticated;
 
@@ -161,6 +201,8 @@ grant execute on function public.acquire_stripe_catalog_sync_lease(text,integer)
 grant execute on function public.renew_stripe_catalog_sync_lease(text,integer)
   to service_role;
 grant execute on function public.release_stripe_catalog_sync_lease(text)
+  to service_role;
+grant execute on function public.update_variant_stripe_catalog(text,text,text,text,text,text)
   to service_role;
 grant execute on function public.expire_booking_hold(text,text)
   to service_role;

@@ -85,6 +85,18 @@ begin
     raise exception 'expire_booking_hold privileges are not hardened';
   end if;
 
+  if not has_function_privilege(
+    'service_role',
+    'public.update_variant_stripe_catalog(text,text,text,text,text,text)',
+    'execute'
+  ) or has_function_privilege(
+    'anon',
+    'public.update_variant_stripe_catalog(text,text,text,text,text,text)',
+    'execute'
+  ) then
+    raise exception 'update_variant_stripe_catalog privileges are not hardened';
+  end if;
+
   if not exists (
     select 1 from pg_class
     where oid = 'public.stripe_catalog_sync_leases'::regclass
@@ -92,6 +104,40 @@ begin
   ) then
     raise exception 'catalog sync lease RLS is not forced';
   end if;
+end;
+$$;
+
+insert into public.appointment_variants (
+  id, appointment_type_id, name, price_mxn_minor, duration_minutes, is_active
+) values (
+  'catalog-cas-variant', 'a3000000-0000-0000-0000-000000000001',
+  'Catalog CAS variant', 10000, 30, false
+);
+
+do $$
+begin
+  if not public.acquire_stripe_catalog_sync_lease('lease-token-cas-0001', 900) then
+    raise exception 'catalog CAS lease acquisition failed';
+  end if;
+  if not public.update_variant_stripe_catalog(
+    'lease-token-cas-0001', 'catalog-cas-variant', null, null,
+    'prod_managed123', 'price_managed123'
+  ) then
+    raise exception 'catalog CAS update did not report its affected row';
+  end if;
+  if public.update_variant_stripe_catalog(
+    'lease-token-cas-0001', 'catalog-cas-variant', null, null,
+    'prod_other123', 'price_other123'
+  ) then
+    raise exception 'catalog CAS accepted a concurrently stale snapshot';
+  end if;
+  if public.update_variant_stripe_catalog(
+    'lease-token-cas-0001', 'missing-catalog-variant', null, null,
+    'prod_other123', 'price_other123'
+  ) then
+    raise exception 'catalog CAS reported a missing row as updated';
+  end if;
+  perform public.release_stripe_catalog_sync_lease('lease-token-cas-0001');
 end;
 $$;
 
