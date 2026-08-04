@@ -1,103 +1,34 @@
-# Bouclier Clinique — Links del Sistema
+# Bouclier Dermatología — enlaces del sistema
 
 ## Plataformas
 
-| Plataforma | URL | Para quién |
+| Plataforma | URL | Audiencia |
 |---|---|---|
-| **Sitio Web** | https://bouclier-clinique.com | Público general |
-| **Dashboard** | https://bouclier-clinic-system.vercel.app | Administradores, Doctores, Recepción |
-| **Agendar Cita** | https://bouclier-clinique.com/citas | Pacientes |
+| Sitio público | https://bouclier-clinique.com | Pacientes y público general |
+| Dashboard | https://bouclier-clinic-system.vercel.app | Personal autorizado |
+| Reserva | https://bouclier-clinique.com/citas | Pacientes |
 
----
+## Aplicaciones
 
-## App Móvil — Paciente
+- Paciente: paquete `com.bouclier.patient`; distribución pública pendiente.
+- Clínica: paquete `com.bouclier.clinic`; distribución pública pendiente.
+- Desarrollo: ejecutar `npx expo start` dentro del repositorio correspondiente.
 
-**Nombre:** Bouclier Clinique (Paciente)
-**Paquete:** `com.bouclier.patient`
+Las credenciales de prueba, acceso de personal y recuperación de cuentas se gestionan fuera del repositorio mediante el gestor de secretos autorizado. No documentar contraseñas, tokens ni cuentas maestras en archivos versionados.
 
-| Plataforma | Estado | Link |
-|---|---|---|
-| iOS (App Store) | Pendiente de publicar | Próximamente |
-| Android (Google Play) | Pendiente de publicar | Próximamente |
-| Desarrollo (Expo) | Disponible | Ejecutar `npx expo start` en `bouclier-patient-app` |
-
-**Funciones:**
-- Ver citas próximas y pasadas
-- Check-in con código QR
-- Ver recetas médicas
-- Ver informes médicos
-- Perfil del paciente
-
-**Credenciales de prueba:**
-- Email: `paciente@test.com`
-- Contraseña: `Paciente123!`
-
----
-
-## App Móvil — Clínica (Staff)
-
-**Nombre:** Bouclier Clinica (Staff)
-**Paquete:** `com.bouclier.clinic`
-
-| Plataforma | Estado | Link |
-|---|---|---|
-| iOS (App Store) | Pendiente de publicar | Próximamente |
-| Android (Google Play) | Pendiente de publicar | Próximamente |
-| Desarrollo (Expo) | Disponible | Ejecutar `npx expo start` en `bouclier-clinic-app` |
-
-**Funciones:**
-- Vista del día (citas de hoy)
-- Cambiar estado de citas (confirmar, check-in, completar)
-- Lista de pacientes
-- Escanear QR para check-in
-- Perfil del doctor
-
-**Credenciales de prueba:**
-- Email: `dra.gissel@bouclier-clinique.com`
-- Contraseña: `Doctor123!`
-
----
-
-## Dashboard Web
-
-**URL:** https://bouclier-clinic-system.vercel.app
-**Acceso:** Solo con credenciales autorizadas
-
-**Funciones:**
-- Panel de control con estadísticas
-- Gestión de citas (calendario FullCalendar)
-- Gestión de pacientes (CRUD)
-- Gestión de doctores (CRUD)
-- Diagnósticos médicos (CIE-10)
-- Recetas médicas con archivos adjuntos
-- Informes médicos con archivos adjuntos
-- Check-in por QR
-
-**Credenciales Master:**
-- Email: `a.salvador@araeducacio.com`
-- Contraseña: `Bouclier2026!`
-
----
-
-## Repositorios GitHub
+## Repositorios
 
 | Repositorio | Rama | Contenido |
 |---|---|---|
-| [bouclier-clinique](https://github.com/belucci21/bouclier-clinique) | `master` | Sitio web público |
-| [bouclier-clinique](https://github.com/belucci21/bouclier-clinique) | `main` | Dashboard + Edge Functions |
-| [bouclier-patient-app](https://github.com/belucci21/bouclier-patient-app) | `main` | App móvil paciente |
-| [bouclier-clinic-app](https://github.com/belucci21/bouclier-clinic-app) | `main` | App móvil clínica |
+| [bouclier-clinique](https://github.com/belucci21/bouclier-clinique) | `master` | Sitio público |
+| [bouclier-clinique](https://github.com/belucci21/bouclier-clinique) | `main` | Dashboard y funciones |
+| [bouclier-patient-app](https://github.com/belucci21/bouclier-patient-app) | `main` | App paciente |
+| [bouclier-clinic-app](https://github.com/belucci21/bouclier-clinic-app) | `main` | App clínica |
 
----
+## Infraestructura
 
-## Supabase
+- Supabase: proyecto `rmcsgelrzrupwjbqbdsr`.
+- Clínica: Torre EXERTIA, oficinas 704 y 706, Boca del Río, Veracruz.
+- Contacto de citas: +52 229 108 7016.
 
-- **URL:** `https://rmcsgelrzrupwjbqbdsr.supabase.co`
-- **Panel:** https://supabase.com/dashboard/project/rmcsgelrzrupwjbqbdsr
-
----
-
-## Ubicación
-
-**Torre EXERTIA** — Veracruz, México
-**WhatsApp:** +52 229 108 7016
+Antes de producción deben rotarse todas las credenciales que hayan sido compartidas por canales no seguros, incluida la clave secreta live de Stripe expuesta durante el desarrollo.
