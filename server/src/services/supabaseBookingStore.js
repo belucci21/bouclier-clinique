@@ -123,8 +123,16 @@ export function createSupabaseBookingStore(supabase) {
     },
 
     async getSession(sessionId) {
-      const data = await unwrap(supabase.from('booking_holds').select('id,status,starts_at,deposit_mxn_minor').eq('stripe_checkout_session_id', sessionId).single())
-      return { holdId: data.id, status: data.status, startsAt: data.starts_at, depositMxnMinor: data.deposit_mxn_minor, currency: 'mxn' }
+      const data = await unwrap(supabase.from('booking_holds').select('id,status,starts_at,deposit_mxn_minor,scheduling_failure_reason').eq('stripe_checkout_session_id', sessionId).single())
+      return {
+        holdId: data.id,
+        status: data.status,
+        startsAt: data.starts_at,
+        depositMxnMinor: data.deposit_mxn_minor,
+        currency: 'mxn',
+        outcome: data.status === 'paid' ? 'scheduled' : data.status === 'failed' ? 'manual_review' : 'pending',
+        reason: data.scheduling_failure_reason || null,
+      }
     },
 
     async claimWebhookEvent(eventId, eventType) {
@@ -134,13 +142,20 @@ export function createSupabaseBookingStore(supabase) {
       return true
     },
 
-    completePayment({ eventId, session }) {
-      return unwrap(supabase.rpc('complete_booking_payment', {
+    async completePayment({ eventId, session }) {
+      const data = await unwrap(supabase.rpc('complete_booking_payment', {
         p_stripe_event_id: eventId,
         p_stripe_session_id: session.id,
         p_stripe_payment_intent_id: session.payment_intent || null,
         p_amount_mxn_minor: session.amount_total,
       }))
+      return {
+        outcome: data.outcome,
+        appointmentId: data.appointment_id,
+        holdId: data.hold_id,
+        reason: data.reason,
+        duplicate: data.duplicate,
+      }
     },
 
     releaseExpiredHold({ eventId, session }) {

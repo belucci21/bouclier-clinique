@@ -22,6 +22,9 @@ function fixture({ paymentsEnabled = false } = {}) {
     getHold: vi.fn().mockResolvedValue({ id: 'hold_1', status: 'active', expiresAt: '2026-08-04T12:30:00.000Z', depositMxnMinor: 30000, appointmentTypeName: 'Valoración dermatológica' }),
     markCheckoutCreated: vi.fn(),
     getSession: vi.fn(),
+    claimWebhookEvent: vi.fn().mockResolvedValue(true),
+    completePayment: vi.fn().mockResolvedValue({ outcome: 'scheduled', appointmentId: 'appointment_1', holdId: 'hold_1', reason: null, duplicate: false }),
+    releaseExpiredHold: vi.fn(),
   }
   const stripe = {
     checkout: { sessions: { create: vi.fn().mockResolvedValue({ id: 'cs_test_1', client_secret: 'secret_1' }) } },
@@ -192,5 +195,39 @@ describe('booking API', () => {
 
     expect(result.status).toBe(409)
     expect(result.body.error.code).toBe('hold_expired')
+  })
+
+  it('returns the deterministic scheduling outcome for a completed payment', async () => {
+    const { service, store } = fixture()
+    store.completePayment.mockResolvedValue({ outcome: 'manual_review', appointmentId: null, holdId: 'hold_1', reason: 'hold_expired', duplicate: false })
+    const event = {
+      id: 'evt_late',
+      type: 'checkout.session.completed',
+      data: { object: { id: 'cs_late', payment_intent: 'pi_late', amount_total: 30000 } },
+    }
+
+    await expect(service.processWebhook(event)).resolves.toEqual({
+      duplicate: false,
+      outcome: 'manual_review',
+      manualReview: true,
+    })
+  })
+
+  it('replays an already-claimed completed event through the idempotent payment RPC', async () => {
+    const { service, store } = fixture()
+    store.claimWebhookEvent.mockResolvedValue(false)
+    store.completePayment.mockResolvedValue({ outcome: 'scheduled', appointmentId: 'appointment_1', holdId: 'hold_1', reason: null, duplicate: true })
+    const event = {
+      id: 'evt_duplicate',
+      type: 'checkout.session.completed',
+      data: { object: { id: 'cs_success', payment_intent: 'pi_success', amount_total: 30000 } },
+    }
+
+    await expect(service.processWebhook(event)).resolves.toEqual({
+      duplicate: true,
+      outcome: 'scheduled',
+      manualReview: false,
+    })
+    expect(store.completePayment).toHaveBeenCalledOnce()
   })
 })

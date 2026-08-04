@@ -96,4 +96,58 @@ describe('Supabase booking store', () => {
       depositRateBps: 3000,
     })).rejects.toMatchObject({ code: 'slot_conflict' })
   })
+
+  it('maps the deterministic payment completion result', async () => {
+    const supabase = {
+      rpc: vi.fn().mockResolvedValue({
+        data: {
+          outcome: 'manual_review',
+          appointment_id: null,
+          hold_id: 'hold_1',
+          reason: 'slot_conflict',
+          duplicate: false,
+        },
+        error: null,
+      }),
+    }
+    const store = createSupabaseBookingStore(supabase)
+
+    await expect(store.completePayment({
+      eventId: 'evt_1',
+      session: { id: 'cs_1', payment_intent: 'pi_1', amount_total: 30000 },
+    })).resolves.toEqual({
+      outcome: 'manual_review',
+      appointmentId: null,
+      holdId: 'hold_1',
+      reason: 'slot_conflict',
+      duplicate: false,
+    })
+  })
+
+  it('surfaces manual-review outcome and reason from the booking session', async () => {
+    const single = vi.fn().mockResolvedValue({
+      data: {
+        id: 'hold_1',
+        status: 'failed',
+        starts_at: '2026-08-08T16:00:00.000Z',
+        deposit_mxn_minor: 30000,
+        scheduling_failure_reason: 'slot_conflict',
+      },
+      error: null,
+    })
+    const eq = vi.fn(() => ({ single }))
+    const select = vi.fn(() => ({ eq }))
+    const supabase = { from: vi.fn(() => ({ select })) }
+    const store = createSupabaseBookingStore(supabase)
+
+    await expect(store.getSession('cs_1')).resolves.toEqual({
+      holdId: 'hold_1',
+      status: 'failed',
+      startsAt: '2026-08-08T16:00:00.000Z',
+      depositMxnMinor: 30000,
+      currency: 'mxn',
+      outcome: 'manual_review',
+      reason: 'slot_conflict',
+    })
+  })
 })

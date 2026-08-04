@@ -181,3 +181,31 @@ The earlier concerns assigning variant schema, atomic overlap protection, and un
 - Build: `npm run build` â€” exit 0; Vite transformed 2,286 modules and produced the production bundle.
 - Whitespace: `git diff --check` â€” exit 0 (only LF-to-CRLF conversion warnings).
 - Migration self-review additionally expires stale `active`/`checkout_created` holds under the doctor advisory lock before the overlap check and insert, so the legacy exact-start unique index cannot make an expired hold block a reusable slot.
+
+## Fix round 2
+
+The late-payment race is closed by `202608040004_payment_completion_integrity.sql`.
+
+- `complete_booking_payment` now acquires the same transaction-scoped doctor advisory lock used by hold creation, then re-reads the hold under `FOR UPDATE`.
+- The captured payment is recorded idempotently before scheduling eligibility is decided. Expired/reclaimed holds, disallowed hold states, amount mismatches, and final overlaps become `status = 'failed'` with a persisted `scheduling_failure_reason`; the RPC returns a deterministic `manual_review` result and creates no appointment.
+- The final half-open overlap check covers blocked time, non-cancelled appointments of arbitrary duration, and every other paid or non-expired live hold. Successful scheduling and duplicate delivery both return deterministic JSON, with duplicate delivery preserving exactly one payment record and one appointment.
+- The webhook service no longer drops an already-claimed completed event. It always re-enters the idempotent payment RPC, closing the claim-before-processing crash window while still reporting duplicates.
+- `GET /api/booking/session/:id` now exposes `outcome` and `reason`, allowing staff/UI to distinguish `manual_review` from scheduled or pending sessions.
+- The replacement function uses an empty `search_path`; execution is revoked from `public`, `anon`, and `authenticated` and granted only to `service_role`.
+
+### Fix-round-2 TDD evidence
+
+- Server RED: focused tests failed 3/19 for missing payment result mapping, missing manual-review outcome, and the early-return duplicate path.
+- Session RED: the store test failed 1/5 because manual-review outcome/reason were absent.
+- SQL RED: the transactional migration test failed against migrations 001â€“003 because legacy completion returned a UUID and attempted direct scheduling. A tightened reclaimed-hold fixture also failed until expiry was evaluated before generic state rejection.
+- Server GREEN before the final verification gate: focused booking/store tests passed 19/19; the focused session store test passed 5/5.
+- SQL GREEN: migrations 001â€“004 applied in fresh PostgreSQL 15 and `supabase/tests/complete_booking_payment_integrity.sql` completed `DO` and `ROLLBACK` with exit 0. It covers successful scheduling, duplicate idempotency, reclaimed-expired payment, a differently-started overlapping replacement hold, paid payment records, persisted failure reasons, and zero appointments on manual-review paths.
+
+### Fix-round-2 final verification
+
+- Focused server: `npm test -- test/booking.test.js test/supabaseBookingStore.test.js` â€” 2 files, 20/20 tests passed.
+- Full server: `npm test` in `server/` â€” 3 files, 22/22 tests passed.
+- Full frontend: `npm test` â€” 17 files, 67/67 tests passed.
+- Lint: `npm run lint` â€” exit 0, no diagnostics.
+- Build: `npm run build` â€” exit 0; Vite transformed 2,286 modules and produced the production bundle.
+- Whitespace: `git diff --check` â€” exit 0 (only LF-to-CRLF conversion warnings).
