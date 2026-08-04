@@ -1,20 +1,28 @@
+@font-face {
+  font-family: 'Druk Wide';
+  src: url('/assets/fonts/DrukWide-Medium.woff') format('woff');
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+}
+
 :root {
-  --color-accent: #b89a5a;
-  --color-accent-light: #d4b97a;
-  --color-accent-dark: #9a7d3f;
-  --color-primary: #1a1a1a;
-  --color-primary-light: #2a2a2a;
-  --color-secondary: #f5f0e8;
-  --color-text: #1a1a1a;
-  --color-text-light: #666;
+  --color-accent: #111111;
+  --color-accent-light: #4a4a48;
+  --color-accent-dark: #000000;
+  --color-primary: #111111;
+  --color-primary-light: #1d1d1d;
+  --color-secondary: #e9e9e5;
+  --color-text: #111111;
+  --color-text-light: #5f5f5a;
   --color-text-white: #ffffff;
   --color-bg: #ffffff;
-  --color-bg-alt: #f9f7f3;
-  --color-border: rgba(0,0,0,0.08);
-  --font-display: 'Cormorant Garamond', Georgia, serif;
-  --font-body: 'Inter', -apple-system, sans-serif;
-  --header-height: 80px;
-  --max-width: 1200px;
+  --color-bg-alt: #f4f4f2;
+  --color-border: rgba(17,17,17,0.14);
+  --font-display: 'Druk Wide', sans-serif;
+  --font-body: Inter, 'Helvetica Neue', Arial, sans-serif;
+  --header-height: 92px;
+  --max-width: 1440px;
   --section-padding: 100px 0;
   --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -29,6 +37,24 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+:focus-visible {
+  outline: 2px solid #111111;
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 body {
