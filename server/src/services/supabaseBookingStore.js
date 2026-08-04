@@ -1,11 +1,9 @@
-function intervalConflict(errorMessage = 'slot conflict') {
-  const error = new Error(errorMessage)
-  error.code = '23505'
+function mapRpcError(error) {
+  const message = String(error?.message || '')
+  for (const code of ['slot_conflict', 'slot_unavailable', 'invalid_variant', 'invalid_slot']) {
+    if (message.includes(code)) error.code = code
+  }
   return error
-}
-
-function overlaps(start, end, interval) {
-  return start < new Date(interval.endAt) && end > new Date(interval.startAt)
 }
 
 export function createSupabaseBookingStore(supabase) {
@@ -16,38 +14,48 @@ export function createSupabaseBookingStore(supabase) {
   }
 
   async function listBusyIntervals({ doctorId, from, to, now }) {
-    const appointmentFloor = new Date(new Date(from).getTime() - 24 * 60 * 60_000).toISOString()
-    const [blockedTimes, appointments, holds] = await Promise.all([
-      unwrap(supabase.from('blocked_times').select('start_at,end_at').eq('doctor_id', doctorId).lt('start_at', to).gt('end_at', from)),
-      unwrap(supabase.from('appointments').select('scheduled_at,duration_minutes').eq('doctor_id', doctorId).gte('scheduled_at', appointmentFloor).lt('scheduled_at', to).neq('status', 'cancelled')),
-      unwrap(supabase.from('booking_holds').select('starts_at,ends_at').eq('doctor_id', doctorId).lt('starts_at', to).gt('ends_at', from).gt('expires_at', now).in('status', ['active', 'checkout_created', 'paid'])),
-    ])
-    return [
-      ...blockedTimes.map((item) => ({ startAt: item.start_at, endAt: item.end_at, source: 'blocked_time' })),
-      ...appointments.map((item) => ({
-        startAt: item.scheduled_at,
-        endAt: new Date(new Date(item.scheduled_at).getTime() + (item.duration_minutes || 30) * 60_000).toISOString(),
-        source: 'appointment',
-      })),
-      ...holds.map((item) => ({ startAt: item.starts_at, endAt: item.ends_at, source: 'hold' })),
-    ]
+    const data = await unwrap(supabase.rpc('list_booking_busy_intervals', {
+      p_doctor_id: doctorId,
+      p_from: from,
+      p_to: to,
+      p_now: now,
+    }))
+    return data.map((item) => ({ startAt: item.start_at, endAt: item.end_at, source: item.source }))
   }
 
   return {
     async listAppointmentTypes() {
-      const data = await unwrap(supabase.from('appointment_types').select('id,name,description,duration_minutes,price_mxn_minor').eq('is_active', true).not('price_mxn_minor', 'is', null).order('name'))
+      const data = await unwrap(
+        supabase
+          .from('appointment_types')
+          .select('id,name,description,duration_minutes,appointment_variants(id,name,price_mxn_minor,duration_minutes,is_active)')
+          .eq('is_active', true)
+          .eq('appointment_variants.is_active', true)
+          .order('name'),
+      )
       return data.map((item) => ({
         id: item.id,
         name: item.name,
         description: item.description || 'Valoración y protocolo personalizado',
         durationMinutes: item.duration_minutes || 30,
-        variants: [{ id: item.id, name: item.name, priceMxnMinor: item.price_mxn_minor, active: true }],
+        variants: (item.appointment_variants || []).map((variant) => ({
+          id: variant.id,
+          name: variant.name,
+          priceMxnMinor: variant.price_mxn_minor,
+          durationMinutes: variant.duration_minutes,
+          active: variant.is_active,
+        })),
       }))
     },
 
     async listDoctors() {
       const data = await unwrap(supabase.from('doctors').select('id,specialty,profiles!doctors_id_fkey(full_name)').eq('is_active', true))
       return data.map((doctor) => ({ id: doctor.id, name: doctor.profiles?.full_name || 'Especialista Bouclier', specialty: doctor.specialty || 'Dermatología' }))
+    },
+
+    async getActiveDoctor(id) {
+      const data = await unwrap(supabase.from('doctors').select('id').eq('id', id).eq('is_active', true).maybeSingle())
+      return data
     },
 
     async listAvailability({ doctorId }) {
@@ -57,31 +65,52 @@ export function createSupabaseBookingStore(supabase) {
 
     listBusyIntervals,
 
-    async getAppointmentType(id) {
-      const data = await unwrap(supabase.from('appointment_types').select('id,name,duration_minutes,price_mxn_minor').eq('id', id).eq('is_active', true).single())
-      return data && { id: data.id, name: data.name, durationMinutes: data.duration_minutes || 30, priceMxnMinor: data.price_mxn_minor }
-    },
-
-    async assertSlotAvailable({ doctorId, startsAt, endsAt, now }) {
-      const intervals = await listBusyIntervals({ doctorId, from: startsAt, to: endsAt, now })
-      if (intervals.some((interval) => overlaps(new Date(startsAt), new Date(endsAt), interval))) throw intervalConflict()
+    async getAppointmentVariant({ appointmentTypeId, variantId }) {
+      const data = await unwrap(
+        supabase
+          .from('appointment_variants')
+          .select('id,appointment_type_id,name,price_mxn_minor,duration_minutes,is_active,appointment_types!inner(id,name,is_active)')
+          .eq('id', variantId)
+          .eq('appointment_type_id', appointmentTypeId)
+          .eq('is_active', true)
+          .eq('appointment_types.is_active', true)
+          .maybeSingle(),
+      )
+      return data && {
+        id: data.id,
+        appointmentTypeId: data.appointment_type_id,
+        appointmentTypeName: data.appointment_types?.name,
+        name: data.name,
+        priceMxnMinor: data.price_mxn_minor,
+        durationMinutes: data.duration_minutes,
+        active: data.is_active,
+      }
     },
 
     async createHold(record) {
-      const data = await unwrap(supabase.from('booking_holds').insert({
-        appointment_type_id: record.appointmentTypeId,
-        doctor_id: record.doctorId,
-        patient_full_name: record.patient.fullName,
-        patient_email: record.patient.email,
-        patient_phone: record.patient.phone,
-        starts_at: record.startsAt,
-        ends_at: record.endsAt,
-        expires_at: record.expiresAt,
-        price_mxn_minor: record.priceMxnMinor,
-        deposit_rate_bps: record.depositRateBps,
-        deposit_mxn_minor: record.depositMxnMinor,
-      }).select('id,expires_at').single())
-      return { id: data.id, expiresAt: data.expires_at }
+      let data
+      try {
+        data = await unwrap(supabase.rpc('create_booking_hold_atomic', {
+          p_appointment_type_id: record.appointmentTypeId,
+          p_appointment_variant_id: record.variantId,
+          p_doctor_id: record.doctorId,
+          p_starts_at: record.startsAt,
+          p_patient_full_name: record.patient.fullName,
+          p_patient_email: record.patient.email,
+          p_patient_phone: record.patient.phone,
+          p_deposit_rate_bps: record.depositRateBps,
+        }))
+      } catch (error) {
+        throw mapRpcError(error)
+      }
+      const hold = data?.[0]
+      return {
+        id: hold.id,
+        expiresAt: hold.expires_at,
+        priceMxnMinor: hold.price_mxn_minor,
+        durationMinutes: hold.duration_minutes,
+        depositMxnMinor: hold.deposit_mxn_minor,
+      }
     },
 
     async getHold(id) {

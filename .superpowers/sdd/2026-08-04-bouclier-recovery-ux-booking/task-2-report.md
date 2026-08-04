@@ -148,3 +148,36 @@ Browser-supplied monetary values remain discarded. Existing server-side appointm
 - The current database unique index protects identical live start times. The server now preflights arbitrary interval overlaps, but two concurrent requests with different overlapping start times still require a transactional database exclusion/RPC strategy for absolute race safety; this belongs with the migration work in Task 3.
 - Appointment overlap retrieval includes starts from 24 hours before the requested range, which safely covers the clinic's current sub-day appointment durations. If multi-day appointments are introduced, the schema/query should expose an indexed appointment end timestamp.
 - Rendered responsive/visual QA against the approved image remains for the controller as directed.
+
+## Fix round 1
+
+Review findings about hold integrity, interval races, appointment overlap lookup, and variant authority are addressed in `202608040003_booking_integrity.sql` and the server booking layer.
+
+- `POST /api/booking/hold` now rejects starts outside the rolling 90-day window, starts not aligned to a 30-minute Mexico City boundary, inactive doctors, and intervals that do not fit an active availability window.
+- Appointment type/variant identity, active state, duration, and price are read from `appointment_variants`; unknown, mismatched, and inactive variants are rejected. The browser cannot set money or duration, and the response uses the values returned by the database.
+- `create_booking_hold_atomic` takes a transaction-scoped advisory lock per doctor, revalidates every bookability invariant, checks half-open interval overlap, computes price/deposit/expiry in the database, and inserts the hold in the same transaction. Its exact exception messages are mapped from PostgreSQL `P0001` responses to booking error codes by the Supabase store.
+- `list_booking_busy_intervals` uses true interval-overlap predicates for blocked time, appointments, and live holds; it has no fixed appointment lookback.
+- The migration adds the minimal variant table and `booking_holds.appointment_variant_id`, creates safe compatibility variants for existing types, repairs null or orphan hold references before applying the FK and NOT NULL constraints, and grants both security-definer RPCs only to `service_role`.
+
+### Fix-round RED evidence
+
+Before the production changes, `npm test -- test/booking.test.js test/supabaseBookingStore.test.js` failed with 9 failures and 6 passes. The failures covered misaligned/out-of-availability/out-of-range holds, unknown/mismatched/inactive variants, authoritative variant price/duration, and the two missing RPC-backed store paths.
+
+### Fix-round GREEN evidence
+
+- Focused server: `npm test -- test/booking.test.js test/supabaseBookingStore.test.js` â€” 2 files, 16/16 tests passed after adding direct RPC exception mapping coverage.
+- Disposable PostgreSQL 15 validation: migrations 001â€“003 applied; migration 003 reapplied successfully; compatibility seeding remained at one row; `anon` and `authenticated` lacked RPC execution while `service_role` had it; a multi-day appointment beginning ten days before the query was returned by true overlap; two concurrent differently-started overlapping holds produced one insert and one `slot_conflict`.
+
+### Corrected follow-up boundary
+
+The earlier concerns assigning variant schema, atomic overlap protection, and unbounded appointment overlap lookup to Task 3 are superseded by this fix round. Task 3 still owns real source-catalog synchronization and Stripe catalog/payment enablement. Hostinger and Stripe catalog configuration remain untouched.
+
+### Final bounded verification
+
+- Focused server: `npm test -- test/booking.test.js test/supabaseBookingStore.test.js` â€” 2 files, 16/16 tests passed.
+- Full server: `npm test` in `server/` â€” 3 files, 18/18 tests passed.
+- Full frontend: `npm test` â€” 17 files, 63/63 tests passed.
+- Lint: `npm run lint` â€” exit 0, no diagnostics.
+- Build: `npm run build` â€” exit 0; Vite transformed 2,286 modules and produced the production bundle.
+- Whitespace: `git diff --check` â€” exit 0 (only LF-to-CRLF conversion warnings).
+- Migration self-review additionally expires stale `active`/`checkout_created` holds under the doctor advisory lock before the overlap check and insert, so the legacy exact-start unique index cannot make an expired hold block a reusable slot.
