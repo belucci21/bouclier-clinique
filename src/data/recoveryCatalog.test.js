@@ -80,6 +80,24 @@ const EXPECTED_ACTIVE_VARIANTS = {
   'diamond-glow': [['47992698798388', 'Default Title', 255000]],
 }
 
+const EXPECTED_SOURCE_DESCRIPTIONS = {
+  'laser-duoglide-exion-micropuncion': 'EXION Fracc, Control de Pulsos por Inteligencia Artificial. Dosifica la energía inteligente para limitar la percepción dolorosa. La energía es entregada únicamente desde la punta de la aguja. Hace una contracción y desnaturalización del colágeno viejo y fibras de elastina\n\nConduce a una fuerte remodelación del tejido que se ve como: Estiramiento de la piel, Corrección de tejido fibrótico como cicatrices, Mejora la textura de la piel, Trata las manchas de la piel.\n\nCicatrices por acné\nCicatrices por accidente\nCicatrices post operatorios\nCicatrices por quemaduras',
+  hydrafacial: 'Protocolo de 4 pasos de limpieza profunda que incluyen: 1) limpieza, 2) exfoliación, 3)extracción de impurezas y 4) hidratación con antioxidantes.',
+  'laser-duoglide': 'La sinergia de las dos longitudes de onda de CO2+1540 nm también logra el calentamiento, adyacente y no coagulante de toda la zona de escaneo, y alcanza una gran profundidad dérmica.\n\nEl efecto térmico alcanza un nivel de profundidad que maximiza la acción de estimulación tisular y, por tanto, se obtiene un tratamiento aún más eficaz con tiempos de cicatrización reducidos.',
+  'depilacion-laser': 'MEDIOSTAR MONOLITH es el equipo más potente con la maxima frecuencia disponible en el mercado. Combinación única de longitudes de onda 810/940 nm con piezas de mano Monolith con refrigeración de contacto 360°, Mecánica única para un mantenimiento sencillo, Sistema de operación intuitivo.\n\nINMODE Triton® la mejor opción para depilación láser adaptable a todo tipo de vello y color de piel, siempre al cuidado de la seguridad del pacientes. Su innovación radica en optimizar la potencia así como la velocidad del pulso para obtener resultados satisfactorios desde la primera sesión; de igual forma, las tres ondas simultáneas disponibles en una sola plataforma con emisión paralela así como triple enfriamiento brinda máxima efectividad para eliminar el vello de cualquier parte del cuerpo.',
+  'accent-prime': 'Tratamiento 3 en 1: eliminación de grasa no deseada, celulitis y tensado de la piel. plataforma líder para remodelación corporal, se centra simultáneamente en la reducción de tejido graso, en la producción y mejora de colágeno y en la tonificación de la piel',
+  endermologie: 'Endermologie®, la única técnica 100 % natural, no invasiva y no agresiva de estimulación mecánica de la piel que permite reactivar el mecanismo de las células. Ejercita la piel y el tejido graso para suavizarlo y eliminar las acumulaciones fibrosas.\n\nSimultáneamente, la acción mecánica del cabezal de tratamiento estimula la eliminación natural de la grasa y reafirma la piel para devolverle su tonicidad y un aspecto más liso.',
+  'hollywood-peel': 'Hollywood Peel es un tratamiento que ofrece unos increíbles resultados de rejuvenecimiento facial. Consiste en aplicar una fina capa de carbón activo sobre el rostro, para luego retirarlo emitiendo luz laser sobre el carbono, este es vaporizado eliminando todas las células muertas al instante, se realiza con la más alta e innovadora tecnología en cuanto a láser, conocida como Q-Switch de Quanta System.\n\nBeneficios:\nMejora la luminosidad, elasticidad e hidratación de la piel.\nActúa como destructor bactericida y regula la producción de las glándulas sebáceas.\nReduce las marcas de acné.\nEstimula la producción del colágeno.\nAumenta la circulación sanguínea rejuveneciendo la piel.\nUnifica el tono de la piel.\n\nIdeal para tratar melasma, poros y textura.',
+  liftage: 'LIFTAGE es un HIFU que aplica un haz de ultrasonido de alta frecuencia en la piel para remodelar el tejido de alguna zona afectada. Con el uso de los transductores logra entregar ondas de ultrasonido uniformemente en las múltiples capas de la piel y tejidos corporales, sin necesidad de contacto directo con la epidermis',
+  'red-touch': 'RedTouch es el primer sistema con absorción selectiva por parte del colágeno. La capa epidérmica no sufre daños, lo cual reduce los efectos secundarios del tratamiento. Es una nueva tecnología capaz de ofrecer al usuario sesiones de tratamiento no invasivas.\n\nIdeal para tratar: melasma, acné, rejuvenecimiento y rosácea.',
+  'natura-peel': 'NaturaPeel® es un novedoso tratamiento de Quanta System para luchar contra los signos del envejecimiento cutáneo, desde impurezas de la piel y poros abiertos hasta líneas de expresión finas.\n\nLogra increibles resultados como: Apariencia de la piel uniforme y sana inmediatamente, Reducción del tamaño de los poros y la suavidad de la piel, Procedimiento relajante, Crema con principios activos naturales para un efecto antienvejecimiento más profundo.\n\nIdeal para tratar melasma, poros, textura y cicatrices',
+  'masaje-piedras-calientes': 'Terapia oriental que trabaja en el plano físico y mental , aliviando tensiones musculares y equilibrando la energía. Se utilizan piedras lisas de origen volcánico que se deslizan sobre la piel con un masaje relajante.',
+  'masaje-relajante': 'Tratamiento del cuerpo por frotamiento, amasamiento, y percusión, tiene como finalidad activar el flujo de la sangre y la linfa, aumentar flexibilidad de los músculos, aliviar el cansancio o inducir el sueño.',
+  'masaje-deep-tissue': 'Es técnica para tratar problemas crónicos musculares por debajo de las capas superficiales del músculo, produciendo un estado de relajación más profundo y duradero.',
+  oxygeneo: 'Combina una suave exfoliación, una oxigenación natural a la piel y un rejuvenecimiento facial profundo con la infusión de nutrientes revitalizantes esenciales.',
+  'diamond-glow': 'La varita patentada de DiamondGlow, con punta de diamante incrustada, ofrece un tratamiento de rejuvenecimiento de nivel superior que limpia y revitaliza profundamente la piel.',
+}
+
 describe('Bouclier recovery treatment registry', () => {
   it('keeps the 15 current source services separate from local clinical protocols', () => {
     expect(SOURCE_TREATMENTS.map(({ slug }) => slug)).toEqual(SOURCE_SLUGS)
@@ -124,6 +142,12 @@ describe('Bouclier recovery treatment registry', () => {
     expect(getTreatmentBySlug('laser-duoglide').bookingMode).toBe('quote')
     expect(getTreatmentBySlug('endermologie').bookingMode).toBe('quote')
     expect(getTreatmentBySlug('liftage').bookingMode).toBe('quote')
+  })
+
+  it('preserves the exact source clinical descriptions without sales calls to action', () => {
+    expect(Object.fromEntries(SOURCE_TREATMENTS.map(({ slug, description }) => [slug, description]))).toEqual(
+      EXPECTED_SOURCE_DESCRIPTIONS,
+    )
   })
 
   it('registers exactly the six real local before-and-after assets', () => {

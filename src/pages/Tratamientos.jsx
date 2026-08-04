@@ -2,13 +2,19 @@ import { useState } from 'react'
 import TreatmentCard from '../components/TreatmentCard.jsx'
 import SEO from '../components/SEO.jsx'
 import { CalendarDays, LockKeyhole, Tags } from 'lucide-react'
-import { CLINICAL_CONCERNS, TREATMENT_CATEGORIES, TREATMENTS } from '../data/treatments.js'
+import {
+  CLINICAL_CONCERNS,
+  CLINICAL_PROTOCOLS,
+  SOURCE_TREATMENTS,
+  TREATMENT_CATEGORIES,
+} from '../data/treatments.js'
 
 export default function Tratamientos() {
   const [activeCategory, setActiveCategory] = useState('todos')
+  const sourceCategories = TREATMENT_CATEGORIES.filter(({ id }) => id !== 'dermatologia-clinica')
   const visibleTreatments = activeCategory === 'todos'
-    ? TREATMENTS
-    : TREATMENTS.filter((treatment) => treatment.category === activeCategory)
+    ? SOURCE_TREATMENTS
+    : SOURCE_TREATMENTS.filter((treatment) => treatment.category === activeCategory)
 
   return (
     <main className="treatments-page">
@@ -23,42 +29,62 @@ export default function Tratamientos() {
         <h1>Tratamientos <br aria-hidden="true" />médicos avanzados.</h1>
       </header>
 
-      <div className="treatment-filters" role="group" aria-label="Filtrar tratamientos por categoría">
-        <button
-          className={activeCategory === 'todos' ? 'is-active' : ''}
-          type="button"
-          aria-pressed={activeCategory === 'todos'}
-          onClick={() => setActiveCategory('todos')}
-        >
-          Todos
-        </button>
-        {TREATMENT_CATEGORIES.map((category) => (
+      <section className="treatment-catalog-group" aria-labelledby="source-treatments-title">
+        <div className="treatment-catalog-group__header">
+          <p className="editorial-kicker">Servicios de la clínica</p>
+          <h2 id="source-treatments-title">Tratamientos de cabina</h2>
+        </div>
+
+        <div className="treatment-filters" role="group" aria-label="Filtrar tratamientos por categoría">
           <button
-            key={category.id}
-            className={activeCategory === category.id ? 'is-active' : ''}
+            className={activeCategory === 'todos' ? 'is-active' : ''}
             type="button"
-            aria-pressed={activeCategory === category.id}
-            onClick={() => setActiveCategory(category.id)}
+            aria-pressed={activeCategory === 'todos'}
+            onClick={() => setActiveCategory('todos')}
           >
-            {category.shortName}
+            Todos
           </button>
-        ))}
-      </div>
+          {sourceCategories.map((category) => (
+            <button
+              key={category.id}
+              className={activeCategory === category.id ? 'is-active' : ''}
+              type="button"
+              aria-pressed={activeCategory === category.id}
+              onClick={() => setActiveCategory(category.id)}
+            >
+              {category.shortName}
+            </button>
+          ))}
+        </div>
 
-      <p className="treatments-page__count" aria-live="polite">
-        {visibleTreatments.length} {visibleTreatments.length === 1 ? 'tratamiento' : 'tratamientos'}
-      </p>
+        <p className="treatments-page__count" aria-live="polite">
+          {visibleTreatments.length} {visibleTreatments.length === 1 ? 'tratamiento' : 'tratamientos'}
+        </p>
 
-      <section className="treatment-directory" aria-label="Catálogo de tratamientos">
-        {visibleTreatments.map((treatment) => (
-          <TreatmentCard key={treatment.slug} treatment={treatment} />
-        ))}
+        <div className="treatment-directory" aria-label="Tratamientos de cabina">
+          {visibleTreatments.map((treatment) => (
+            <TreatmentCard key={treatment.slug} treatment={treatment} />
+          ))}
+        </div>
       </section>
 
       <section className="treatment-confidence" aria-label="Información de reserva">
         <p><Tags aria-hidden="true" /> Precios y variantes activas mostrados.</p>
         <p><LockKeyhole aria-hidden="true" /> Pago en línea próximamente.</p>
         <p><CalendarDays aria-hidden="true" /> Agenda tu cita en línea disponible.</p>
+      </section>
+
+      <section className="treatment-catalog-group treatment-catalog-group--clinical" aria-labelledby="clinical-protocols-title">
+        <div className="treatment-catalog-group__header">
+          <p className="editorial-kicker">Atención dermatológica</p>
+          <h2 id="clinical-protocols-title">Dermatología clínica y protocolos</h2>
+          <p>Planes médicos que parten del diagnóstico y se cotizan durante una valoración personalizada.</p>
+        </div>
+        <div className="treatment-directory" aria-label="Protocolos clínicos">
+          {CLINICAL_PROTOCOLS.map((treatment) => (
+            <TreatmentCard key={treatment.slug} treatment={treatment} />
+          ))}
+        </div>
       </section>
 
       <section className="clinical-scope" aria-labelledby="clinical-scope-title">

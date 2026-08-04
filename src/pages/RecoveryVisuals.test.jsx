@@ -1,6 +1,6 @@
 /* @vitest-environment jsdom */
 import { readFileSync } from 'node:fs'
-import { cleanup, render, screen } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it } from 'vitest'
 import '../test/setup.js'
@@ -31,6 +31,16 @@ describe('approved recovery surfaces', () => {
     expect(screen.getByText('Desde $1,800 MXN')).toBeInTheDocument()
     expect(screen.getAllByText('Cotizar en valoración').length).toBeGreaterThan(0)
     expect(screen.queryByRole('link', { name: /comprar|agregar al carrito|tienda/i })).not.toBeInTheDocument()
+  })
+
+  it('renders 15 source services and nine clinical protocols in distinct titled groups', () => {
+    render(<MemoryRouter><Tratamientos /></MemoryRouter>)
+
+    const sourceSection = screen.getByRole('heading', { name: 'Tratamientos de cabina' }).closest('section')
+    const clinicalSection = screen.getByRole('heading', { name: 'Dermatología clínica y protocolos' }).closest('section')
+
+    expect(within(sourceSection).getAllByRole('article')).toHaveLength(15)
+    expect(within(clinicalSection).getAllByRole('article')).toHaveLength(9)
   })
 
   it('passes the treatment slug through the primary appointment CTA', () => {

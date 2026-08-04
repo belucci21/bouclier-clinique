@@ -122,6 +122,35 @@ body {
   line-height: 1.75;
 }
 
+.treatment-catalog-group__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.55fr);
+  gap: 18px 56px;
+  align-items: end;
+  margin-bottom: 30px;
+}
+
+.treatment-catalog-group__header .editorial-kicker {
+  grid-column: 1 / -1;
+  margin-bottom: 0;
+}
+
+.treatment-catalog-group__header h2 {
+  font-size: clamp(28px, 3.6vw, 52px);
+  line-height: 1.08;
+  overflow-wrap: break-word;
+  text-transform: uppercase;
+}
+
+.treatment-catalog-group__header > p:last-child:not(.editorial-kicker) {
+  color: var(--color-text-light);
+  line-height: 1.65;
+}
+
+.treatment-catalog-group--clinical {
+  margin-top: 92px;
+}
+
 .clinical-scope {
   display: grid;
   grid-template-columns: minmax(280px, 0.78fr) minmax(0, 1.22fr);
@@ -494,6 +523,7 @@ body {
   }
 
   .treatments-page__intro,
+  .treatment-catalog-group__header,
   .clinical-scope,
   .treatment-detail__hero,
   .treatment-detail__note {
