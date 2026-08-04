@@ -271,4 +271,19 @@ describe('booking API', () => {
     })
     expect(store.completePayment).toHaveBeenCalledOnce()
   })
+
+  it('retries expiration after claim-before-RPC failure on duplicate delivery', async () => {
+    const { service, store } = fixture()
+    store.claimWebhookEvent.mockResolvedValueOnce(true).mockResolvedValueOnce(false)
+    store.releaseExpiredHold.mockRejectedValueOnce(new Error('temporary database failure')).mockResolvedValueOnce(undefined)
+    const event = {
+      id: 'evt_expired_retry',
+      type: 'checkout.session.expired',
+      data: { object: { id: 'cs_expired_retry' } },
+    }
+
+    await expect(service.processWebhook(event)).rejects.toThrow('temporary database failure')
+    await expect(service.processWebhook(event)).resolves.toEqual({ duplicate: true })
+    expect(store.releaseExpiredHold).toHaveBeenCalledTimes(2)
+  })
 })

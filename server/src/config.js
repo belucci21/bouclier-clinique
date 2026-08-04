@@ -19,10 +19,16 @@ function paymentFlag(value) {
 }
 
 function validStripeSetup(env) {
-  return /^sk_(test|live)_/.test(env.STRIPE_SECRET_KEY)
-    && /^whsec_/.test(env.STRIPE_WEBHOOK_SECRET)
-    && /^pk_(test|live)_/.test(env.STRIPE_PUBLISHABLE_KEY)
-    && env.STRIPE_SECRET_KEY.slice(3, 7) === env.STRIPE_PUBLISHABLE_KEY.slice(3, 7)
+  const values = REQUIRED_STRIPE.map((name) => env[name])
+  if (values.some((value) => value !== value.trim())) return false
+  const secret = /^sk_(test|live)_([A-Za-z0-9]{16,})$/.exec(env.STRIPE_SECRET_KEY)
+  const publishable = /^pk_(test|live)_([A-Za-z0-9]{16,})$/.exec(env.STRIPE_PUBLISHABLE_KEY)
+  return Boolean(
+    secret
+    && publishable
+    && /^whsec_[A-Za-z0-9]{16,}$/.test(env.STRIPE_WEBHOOK_SECRET)
+    && secret[1] === publishable[1]
+  )
 }
 
 function httpsOrigin(value) {
@@ -48,6 +54,10 @@ export function loadConfig(env = process.env) {
     throw new Error(`Faltan variables de entorno: ${missingStripe.join(', ')}`)
   }
   if (paymentsEnabled && !validStripeSetup(env)) throw new Error('La configuracion de Stripe no es valida')
+  const stripeMode = paymentsEnabled ? env.STRIPE_SECRET_KEY.split('_')[1] : null
+  if (stripeMode === 'live' && env.STRIPE_CREDENTIAL_ROTATED !== 'true') {
+    throw new Error('Live Stripe requiere STRIPE_CREDENTIAL_ROTATED=true')
+  }
 
   const port = Number(env.PORT)
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT no es valido')
@@ -56,6 +66,7 @@ export function loadConfig(env = process.env) {
   return {
     paymentsEnabled,
     paymentsConfigured: paymentsEnabled && missingStripe.length === 0,
+    stripeMode,
     stripeSecretKey: env.STRIPE_SECRET_KEY,
     stripeWebhookSecret: env.STRIPE_WEBHOOK_SECRET,
     stripePublishableKey: env.STRIPE_PUBLISHABLE_KEY,

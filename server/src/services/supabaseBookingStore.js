@@ -24,6 +24,26 @@ export function createSupabaseBookingStore(supabase) {
   }
 
   return {
+    acquireCatalogSyncLease(holderToken) {
+      return unwrap(supabase.rpc('acquire_stripe_catalog_sync_lease', {
+        p_holder_token: holderToken,
+        p_ttl_seconds: 900,
+      }))
+    },
+
+    renewCatalogSyncLease(holderToken) {
+      return unwrap(supabase.rpc('renew_stripe_catalog_sync_lease', {
+        p_holder_token: holderToken,
+        p_ttl_seconds: 900,
+      }))
+    },
+
+    async releaseCatalogSyncLease(holderToken) {
+      await unwrap(supabase.rpc('release_stripe_catalog_sync_lease', {
+        p_holder_token: holderToken,
+      }))
+    },
+
     async checkHealth() {
       await unwrap(supabase.from('appointment_variants').select('id', { head: true, count: 'exact' }).limit(1))
     },
@@ -56,6 +76,26 @@ export function createSupabaseBookingStore(supabase) {
         priceMxnMinor: variant.price_mxn_minor,
         appointmentTypeId: variant.appointment_type_id,
         appointmentTypeName: variant.appointment_types.name,
+        stripeProductId: variant.stripe_product_id,
+        stripeDepositPriceId: variant.stripe_deposit_price_id,
+      }))
+    },
+
+    async listCatalogVariants() {
+      const data = await unwrap(
+        supabase
+          .from('appointment_variants')
+          .select('id,appointment_type_id,name,price_mxn_minor,is_active,stripe_product_id,stripe_deposit_price_id,appointment_types(name,is_active)')
+          .order('appointment_type_id'),
+      )
+      return data.map((variant) => ({
+        id: variant.id,
+        name: variant.name,
+        priceMxnMinor: variant.price_mxn_minor,
+        isActive: variant.is_active,
+        appointmentTypeId: variant.appointment_type_id,
+        appointmentTypeName: variant.appointment_types.name,
+        appointmentTypeActive: variant.appointment_types.is_active,
         stripeProductId: variant.stripe_product_id,
         stripeDepositPriceId: variant.stripe_deposit_price_id,
       }))

@@ -60,6 +60,54 @@ describe('Supabase booking store', () => {
     expect(secondEq).toHaveBeenCalledWith('appointment_types.is_active', true)
   })
 
+  it('loads inactive variants and treatment state for catalog reconciliation', async () => {
+    const order = vi.fn().mockResolvedValue({
+      data: [{
+        id: 'variant_retired',
+        name: 'Retired',
+        price_mxn_minor: 100000,
+        is_active: false,
+        stripe_product_id: 'prod_1',
+        stripe_deposit_price_id: 'price_1',
+        appointment_type_id: 'type_hydra',
+        appointment_types: { name: 'Hydrafacial', is_active: true },
+      }],
+      error: null,
+    })
+    const select = vi.fn(() => ({ order }))
+    const supabase = { from: vi.fn(() => ({ select })) }
+    const store = createSupabaseBookingStore(supabase)
+
+    await expect(store.listCatalogVariants()).resolves.toEqual([{
+      id: 'variant_retired',
+      name: 'Retired',
+      priceMxnMinor: 100000,
+      isActive: false,
+      appointmentTypeId: 'type_hydra',
+      appointmentTypeName: 'Hydrafacial',
+      appointmentTypeActive: true,
+      stripeProductId: 'prod_1',
+      stripeDepositPriceId: 'price_1',
+    }])
+  })
+
+  it('uses token-bound database RPCs for the catalog sync lease', async () => {
+    const rpc = vi.fn()
+      .mockResolvedValueOnce({ data: true, error: null })
+      .mockResolvedValueOnce({ data: true, error: null })
+      .mockResolvedValueOnce({ data: null, error: null })
+    const store = createSupabaseBookingStore({ rpc })
+
+    await expect(store.acquireCatalogSyncLease('lease-token')).resolves.toBe(true)
+    await expect(store.renewCatalogSyncLease('lease-token')).resolves.toBe(true)
+    await expect(store.releaseCatalogSyncLease('lease-token')).resolves.toBeUndefined()
+    expect(rpc.mock.calls).toEqual([
+      ['acquire_stripe_catalog_sync_lease', { p_holder_token: 'lease-token', p_ttl_seconds: 900 }],
+      ['renew_stripe_catalog_sync_lease', { p_holder_token: 'lease-token', p_ttl_seconds: 900 }],
+      ['release_stripe_catalog_sync_lease', { p_holder_token: 'lease-token' }],
+    ])
+  })
+
   it('persists the synchronized Product and Price identifiers together', async () => {
     const eq = vi.fn().mockResolvedValue({ data: null, error: null })
     const update = vi.fn(() => ({ eq }))

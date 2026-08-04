@@ -8,6 +8,12 @@ const REQUIRED_RUNTIME = {
   PORT: '3000',
 }
 
+const TEST_STRIPE = {
+  STRIPE_SECRET_KEY: 'sk_test_1234567890abcdef',
+  STRIPE_WEBHOOK_SECRET: 'whsec_1234567890abcdef',
+  STRIPE_PUBLISHABLE_KEY: 'pk_test_1234567890abcdef',
+}
+
 describe('server configuration', () => {
   it('defaults payments off and starts without any Stripe credential', () => {
     const config = loadConfig(REQUIRED_RUNTIME)
@@ -39,12 +45,40 @@ describe('server configuration', () => {
     const config = loadConfig({
       ...REQUIRED_RUNTIME,
       PAYMENTS_ENABLED: 'true',
-      STRIPE_SECRET_KEY: 'sk_test_rotated_example',
-      STRIPE_WEBHOOK_SECRET: 'whsec_rotated_example',
-      STRIPE_PUBLISHABLE_KEY: 'pk_test_rotated_example',
+      ...TEST_STRIPE,
     })
 
     expect(config).toMatchObject({ paymentsEnabled: true, paymentsConfigured: true })
+  })
+
+  it.each([
+    ['bare secret prefix', { ...TEST_STRIPE, STRIPE_SECRET_KEY: 'sk_test_' }],
+    ['bare publishable prefix', { ...TEST_STRIPE, STRIPE_PUBLISHABLE_KEY: 'pk_test_' }],
+    ['bare webhook prefix', { ...TEST_STRIPE, STRIPE_WEBHOOK_SECRET: 'whsec_' }],
+    ['padded secret', { ...TEST_STRIPE, STRIPE_SECRET_KEY: ` ${TEST_STRIPE.STRIPE_SECRET_KEY}` }],
+    ['padded webhook', { ...TEST_STRIPE, STRIPE_WEBHOOK_SECRET: `${TEST_STRIPE.STRIPE_WEBHOOK_SECRET} ` }],
+    ['malformed secret body', { ...TEST_STRIPE, STRIPE_SECRET_KEY: 'sk_test_1234567890abc!' }],
+    ['mixed modes', { ...TEST_STRIPE, STRIPE_PUBLISHABLE_KEY: 'pk_live_1234567890abcdef' }],
+  ])('rejects %s credentials at startup', (_label, stripeEnv) => {
+    expect(() => loadConfig({ ...REQUIRED_RUNTIME, PAYMENTS_ENABLED: 'true', ...stripeEnv }))
+      .toThrow('configuracion de Stripe no es valida')
+  })
+
+  it('requires explicit rotation attestation for live startup', () => {
+    const liveStripe = {
+      STRIPE_SECRET_KEY: 'sk_live_1234567890abcdef',
+      STRIPE_WEBHOOK_SECRET: 'whsec_1234567890abcdef',
+      STRIPE_PUBLISHABLE_KEY: 'pk_live_1234567890abcdef',
+    }
+
+    expect(() => loadConfig({ ...REQUIRED_RUNTIME, PAYMENTS_ENABLED: 'true', ...liveStripe }))
+      .toThrow('STRIPE_CREDENTIAL_ROTATED=true')
+    expect(loadConfig({
+      ...REQUIRED_RUNTIME,
+      PAYMENTS_ENABLED: 'true',
+      STRIPE_CREDENTIAL_ROTATED: 'true',
+      ...liveStripe,
+    })).toMatchObject({ paymentsEnabled: true, paymentsConfigured: true })
   })
 
   it('rejects ambiguous payment flag values', () => {

@@ -46,6 +46,9 @@ Servidor Node, solo al activar pagos:
 - `STRIPE_SECRET_KEY` (`sk_test_...` durante verificacion; una nueva `sk_live_...` despues de rotar);
 - `STRIPE_WEBHOOK_SECRET` (`whsec_...` del endpoint exacto);
 - `STRIPE_PUBLISHABLE_KEY` del mismo modo test/live que la clave secreta.
+- `STRIPE_CREDENTIAL_ROTATED=true` es obligatorio para arrancar con claves live; test no requiere esta confirmacion.
+
+La API rechaza credenciales con espacios, prefijos vacios, cuerpos cortos o modos secret/publishable distintos. La confirmacion de rotacion no corrige una clave invalida ni sustituye su revocacion real.
 
 Build SPA:
 
@@ -80,7 +83,7 @@ psql $env:LOCAL_DATABASE_URL -v ON_ERROR_STOP=1 -f supabase/tests/stripe_variant
 
 ## Sincronizacion del catalogo Stripe
 
-El comando es solo de servidor. Usa Stripe API `2026-02-25.clover`, crea un Product por tratamiento fuente y un Price MXN inmutable por variante activa con el anticipo exacto del 30%. Reutiliza IDs persistidos, desactiva un Price obsoleto antes de reemplazarlo y usa metadata/idempotency estables.
+El comando es solo de servidor. Usa Stripe API `2026-02-25.clover`, crea un Product por tratamiento fuente y un Price MXN inmutable por variante activa con el anticipo exacto del 30%. Descubre todo el catalogo Bouclier con paginacion y metadata estable, recupera mapeos perdidos, desactiva duplicados/stale/inactivos y persiste el objeto canonico. Un lease renovable en Supabase impide dos sincronizaciones simultaneas; errores de red/autorizacion detienen el proceso y nunca se interpretan como objetos ausentes.
 
 Primero ejecutar contra Stripe test. Cargar variables mediante el gestor seguro del entorno, no en Git ni en el historial del shell:
 
@@ -139,4 +142,4 @@ curl.exe -i -X POST https://<origen-api>/api/booking/checkout-session -H "Conten
 
 Con pagos desactivados, health debe mostrar Supabase listo y pagos desactivados; options debe informar `false`; checkout debe devolver `503 payments_disabled`. Una ruta SPA debe devolver HTML, mientras `/api/ruta-inexistente` debe devolver 404 y nunca `index.html`.
 
-Con pagos activos, health solo queda `ok` cuando todas las variantes activas tienen IDs persistidos. En Stripe test confirmar el 30% exacto, metodos dinamicos, una sola cita ante replay, liberacion del hold expirado y ausencia de secretos/datos clinicos en logs.
+Con pagos activos, health solo queda `ok` cuando todas las variantes activas tienen IDs persistidos y los Products/Prices reales de Stripe estan activos, administrados por Bouclier y coinciden con Product, variante, MXN y 30% autoritativo. En Stripe test confirmar el 30% exacto, metodos dinamicos, una sola cita ante replay, reintento de expiracion despues de fallo transitorio, liberacion del hold expirado y ausencia de secretos/datos clinicos en logs.

@@ -58,4 +58,43 @@ describe('health service', () => {
       payments: { enabled: true, configured: true, ready: false },
     })
   })
+
+  it('reports degraded readiness when persisted Stripe objects do not match authoritative money', async () => {
+    const store = {
+      checkHealth: vi.fn().mockResolvedValue(undefined),
+      checkPaymentCatalog: vi.fn().mockResolvedValue(undefined),
+      listActiveCatalogVariants: vi.fn().mockResolvedValue([{
+        id: 'variant_face',
+        name: 'Facial',
+        priceMxnMinor: 100000,
+        appointmentTypeId: 'type_hydra',
+        appointmentTypeName: 'Hydrafacial',
+        stripeProductId: 'prod_managed',
+        stripeDepositPriceId: 'price_stale',
+      }]),
+    }
+    const stripe = {
+      products: { retrieve: vi.fn().mockResolvedValue({
+        id: 'prod_managed', active: true, metadata: { bouclier_catalog: 'appointment_deposits', bouclier_appointment_type_id: 'type_hydra' },
+      }) },
+      prices: { retrieve: vi.fn().mockResolvedValue({
+        id: 'price_stale', active: true, type: 'one_time', currency: 'mxn', unit_amount: 29999, product: 'prod_managed',
+        metadata: { bouclier_catalog: 'appointment_deposits', bouclier_variant_id: 'variant_face', bouclier_deposit_rate_bps: '3000' },
+      }) },
+    }
+    const service = createHealthService({
+      store,
+      stripe,
+      paymentsEnabled: true,
+      paymentsConfigured: true,
+      environment: 'production',
+      nodeVersion: 'v22.0.0',
+    })
+
+    await expect(service.check()).resolves.toMatchObject({
+      status: 'degraded',
+      payments: { enabled: true, configured: true, ready: false },
+    })
+    expect(stripe.prices.retrieve).toHaveBeenCalledWith('price_stale')
+  })
 })

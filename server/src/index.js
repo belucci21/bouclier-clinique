@@ -27,6 +27,7 @@ const webhookHandler = config.paymentsEnabled
     })
 const healthService = createHealthService({
   store,
+  stripe,
   paymentsEnabled: config.paymentsEnabled,
   paymentsConfigured: config.paymentsConfigured,
   environment: config.environment,

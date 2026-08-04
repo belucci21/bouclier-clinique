@@ -1,5 +1,98 @@
 begin;
 
+-- One-release compatibility bridge for legacy deployments that named the
+-- appointment type foreign key `type_id`. Keep both columns synchronized
+-- while application code migrates to the canonical `appointment_type_id`.
+alter table public.appointments
+  add column if not exists appointment_type_id uuid,
+  add column if not exists type_id uuid;
+
+do $$
+begin
+  if exists (
+    select 1 from public.appointments
+    where appointment_type_id is not null
+      and type_id is not null
+      and appointment_type_id <> type_id
+  ) then
+    raise exception 'appointments type_id and appointment_type_id disagree';
+  end if;
+end;
+$$;
+
+update public.appointments
+set appointment_type_id = coalesce(appointment_type_id, type_id),
+    type_id = coalesce(appointment_type_id, type_id)
+where appointment_type_id is null or type_id is null;
+
+do $$
+begin
+  if exists (
+    select 1 from public.appointments
+    where appointment_type_id is null or type_id is null
+  ) then
+    raise exception 'appointments contain rows without an appointment type';
+  end if;
+end;
+$$;
+
+alter table public.appointments
+  alter column appointment_type_id set not null,
+  alter column type_id set not null;
+
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.appointments'::regclass
+      and conname = 'appointments_appointment_type_id_fkey'
+  ) then
+    alter table public.appointments
+      add constraint appointments_appointment_type_id_fkey
+      foreign key (appointment_type_id) references public.appointment_types(id);
+  end if;
+end;
+$$;
+
+create index if not exists appointments_appointment_type_id_idx
+  on public.appointments (appointment_type_id);
+
+create or replace function public.synchronize_appointment_type_columns()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if tg_op = 'UPDATE' then
+    if new.appointment_type_id is distinct from old.appointment_type_id
+      and new.type_id is distinct from old.type_id
+      and new.appointment_type_id is distinct from new.type_id then
+      raise exception 'appointments type columns disagree';
+    elsif new.appointment_type_id is distinct from old.appointment_type_id then
+      new.type_id := new.appointment_type_id;
+    elsif new.type_id is distinct from old.type_id then
+      new.appointment_type_id := new.type_id;
+    end if;
+  elsif new.appointment_type_id is null then
+    new.appointment_type_id := new.type_id;
+  elsif new.type_id is null then
+    new.type_id := new.appointment_type_id;
+  elsif new.appointment_type_id is distinct from new.type_id then
+    raise exception 'appointments type columns disagree';
+  end if;
+
+  if new.appointment_type_id is null or new.type_id is null then
+    raise exception 'appointment type is required';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists synchronize_appointment_type_columns on public.appointments;
+create trigger synchronize_appointment_type_columns
+before insert or update of appointment_type_id, type_id on public.appointments
+for each row execute function public.synchronize_appointment_type_columns();
+
 create table if not exists public.appointment_variants (
   id text primary key,
   appointment_type_id uuid not null references public.appointment_types(id),

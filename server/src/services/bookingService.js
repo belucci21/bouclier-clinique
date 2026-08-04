@@ -266,8 +266,8 @@ export function createBookingService({ store, stripe, publicWebUrl, paymentsEnab
           manualReview: payment.outcome === 'manual_review',
         }
       } else if (event.type === 'checkout.session.expired') {
-        if (!claimed) return { duplicate: true }
         await store.releaseExpiredHold({ eventId: event.id, session: event.data.object })
+        return { duplicate: !claimed }
       }
       return { duplicate: false }
     },

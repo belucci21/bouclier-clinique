@@ -1,5 +1,8 @@
+import { checkStripeCatalogReadiness } from './stripeCatalogSync.js'
+
 export function createHealthService({
   store,
+  stripe,
   paymentsEnabled,
   paymentsConfigured,
   environment,
@@ -18,6 +21,7 @@ export function createHealthService({
       if (supabaseReady && paymentsEnabled && paymentsConfigured) {
         try {
           await store.checkPaymentCatalog()
+          await checkStripeCatalogReadiness({ stripe, store })
           paymentCatalogReady = true
         } catch {
           paymentCatalogReady = false
