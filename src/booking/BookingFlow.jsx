@@ -256,7 +256,9 @@ export default function BookingFlow({ api = bookingApi, PaymentComponent = Strip
 
       {error && (
         <div className="booking-flow__error" role="alert">
-          <p>{error.message || 'No pudimos conectar con la agenda. Puedes continuar y reservar por WhatsApp.'}</p>
+          <p>{error.code === 'api_unavailable'
+            ? 'La agenda en línea está temporalmente sin conexión. Puedes elegir servicio, especialista, fecha y hora y enviarnos la solicitud por WhatsApp.'
+            : error.message || 'No pudimos conectar con la agenda. Puedes continuar y reservar por WhatsApp.'}</p>
           {error.code === 'slot_conflict' && <button type="button" onClick={backToSlots}>Elegir otro horario</button>}
         </div>
       )}

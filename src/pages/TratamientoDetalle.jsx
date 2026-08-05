@@ -33,7 +33,9 @@ export default function TratamientoDetalle() {
             <ArrowLeft aria-hidden="true" size={17} /> Todos los tratamientos
           </Link>
           <p className="editorial-kicker">{treatment.eyebrow}</p>
-          <h1>{treatment.name}</h1>
+          <h1 className={treatment.name.length > 28 ? 'treatment-detail__title--long' : undefined}>
+            {treatment.name}
+          </h1>
           <p className="treatment-detail__summary">{treatment.summary}</p>
           <div className="treatment-detail__actions">
             <Link className="btn-primary" to={`/citas?tratamiento=${treatment.slug}`}>

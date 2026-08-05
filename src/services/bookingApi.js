@@ -9,14 +9,18 @@ function apiError(payload, status) {
   return error
 }
 
+function unavailableError(status, cause) {
+  const error = new Error('La agenda en línea no está disponible en este momento', { cause })
+  error.code = 'api_unavailable'
+  error.retryable = true
+  if (status !== undefined) error.status = status
+  return error
+}
+
 async function parseResponse(response) {
   const contentType = response.headers?.get?.('content-type') || ''
-  if (response.ok && !contentType.toLowerCase().includes('application/json')) {
-    const error = new Error('La agenda en línea no está disponible en este momento')
-    error.code = 'api_unavailable'
-    error.retryable = true
-    error.status = response.status
-    throw error
+  if (!contentType.toLowerCase().includes('application/json')) {
+    throw unavailableError(response.status)
   }
 
   let payload
@@ -41,12 +45,17 @@ export function createBookingApi({ fetchImpl = globalThis.fetch, baseUrl = DEFAU
   if (typeof fetchImpl !== 'function') throw new TypeError('fetchImpl es obligatorio')
 
   async function request(path, { method = 'GET', body } = {}) {
-    const response = await fetchImpl(`${baseUrl}${path}`, {
-      method,
-      credentials: 'same-origin',
-      headers: body ? { 'Content-Type': 'application/json' } : undefined,
-      body: body ? JSON.stringify(body) : undefined,
-    })
+    let response
+    try {
+      response = await fetchImpl(`${baseUrl}${path}`, {
+        method,
+        credentials: 'same-origin',
+        headers: body ? { 'Content-Type': 'application/json' } : undefined,
+        body: body ? JSON.stringify(body) : undefined,
+      })
+    } catch (cause) {
+      throw unavailableError(undefined, cause)
+    }
     return parseResponse(response)
   }
 

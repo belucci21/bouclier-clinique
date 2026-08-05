@@ -82,12 +82,12 @@ describe('BookingFlow', () => {
     const user = userEvent.setup()
     window.history.replaceState({}, '', '/citas?tratamiento=hydrafacial&variante=47992673763636')
     const api = apiFixture({
-      getOptions: vi.fn().mockRejectedValue(Object.assign(new Error('Agenda en línea temporalmente no disponible'), { code: 'api_unavailable' })),
+      getOptions: vi.fn().mockRejectedValue(Object.assign(new Error('No pudimos completar la solicitud'), { code: 'api_unavailable' })),
       getAvailability: vi.fn().mockRejectedValue(Object.assign(new Error('Sin conexión'), { code: 'api_unavailable' })),
     })
     render(<BookingFlow api={api} now={() => AUGUST_NOW} PaymentComponent={() => null} />)
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(/temporalmente no disponible/i)
+    expect(await screen.findByRole('alert')).toHaveTextContent(/agenda en línea está temporalmente sin conexión/i)
     expect(screen.getAllByRole('listitem')).toHaveLength(5)
     await user.click(screen.getByRole('button', { name: /continuar con el especialista/i }))
     await user.click(screen.getByRole('button', { name: /dra\. gissel castellanos/i }))

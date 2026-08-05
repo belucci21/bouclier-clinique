@@ -43,6 +43,27 @@ describe('bookingApi', () => {
     })
   })
 
+  it('treats a non-JSON gateway failure as an unavailable API', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue(response(null, { ok: false, status: 502, contentType: 'text/html' }))
+    const api = createBookingApi({ fetchImpl, baseUrl: '' })
+
+    await expect(api.getOptions()).rejects.toMatchObject({
+      code: 'api_unavailable',
+      retryable: true,
+      status: 502,
+    })
+  })
+
+  it('normalizes network failures so the WhatsApp fallback can activate', async () => {
+    const fetchImpl = vi.fn().mockRejectedValue(new TypeError('Failed to fetch'))
+    const api = createBookingApi({ fetchImpl, baseUrl: '' })
+
+    await expect(api.getOptions()).rejects.toMatchObject({
+      code: 'api_unavailable',
+      retryable: true,
+    })
+  })
+
   it('requests monthly availability with every encoded selection identifier', async () => {
     const fetchImpl = vi.fn().mockResolvedValue(response({ slots: [] }))
     const api = createBookingApi({ fetchImpl, baseUrl: '' })

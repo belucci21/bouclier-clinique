@@ -15,6 +15,27 @@ describe('approved recovery surfaces', () => {
     const styles = readFileSync('src/styles/global.css', 'utf8')
 
     expect(styles).toMatch(/\.footer\.editorial-footer\s*\{\s*background:\s*#efefec;/)
+    expect(styles).toMatch(/\.editorial-footer \.footer__location p\s*\{[^}]*color:\s*#343432;/s)
+    expect(styles).toMatch(/\.editorial-footer :is\([^)]+\)\s*\{[^}]*color:\s*#343432;/s)
+  })
+
+  it('constrains wide display copy to its grid column at every viewport', () => {
+    const styles = readFileSync('src/styles/global.css', 'utf8')
+
+    expect(styles).toMatch(/\.treatment-detail__hero > \*,\s*\.treatment-detail__copy,\s*\.home-results__intro > \*\s*\{\s*min-width:\s*0;/)
+    expect(styles).toMatch(/\.treatment-detail__copy h1[^}]*width:\s*100%;[^}]*max-width:\s*100%;[^}]*overflow-wrap:\s*anywhere;/s)
+    expect(styles).toMatch(/h1\.treatment-detail__title--long\s*\{[^}]*font-size:\s*clamp\(28px,\s*3vw,\s*54px\);[^}]*overflow-wrap:\s*normal;[^}]*word-break:\s*normal;/s)
+    expect(styles).toMatch(/@media \(max-width:\s*420px\)[\s\S]*?h1\.treatment-detail__title--long\s*\{[^}]*font-size:\s*clamp\(26px,\s*7vw,\s*29px\);/)
+    expect(styles).toMatch(/\.home-results__intro h2[^}]*width:\s*100%;[^}]*max-width:\s*100%;[^}]*overflow-wrap:\s*anywhere;/s)
+  })
+
+  it('uses fully visible, wrapping treatment filters on narrow screens', () => {
+    const styles = readFileSync('src/styles/global.css', 'utf8')
+
+    expect(styles).toMatch(/@media \(max-width:\s*820px\)[\s\S]*?\.treatment-filters\s*\{[^}]*flex-wrap:\s*wrap;[^}]*overflow:\s*visible;/)
+    expect(styles).toMatch(/@media \(max-width:\s*560px\)[\s\S]*?\.treatment-filters\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/)
+    expect(styles).toMatch(/\.treatment-filters button\s*\{[^}]*white-space:\s*normal;[^}]*overflow-wrap:\s*anywhere;/s)
+    expect(styles).toMatch(/@media \(max-width:\s*680px\)[\s\S]*?\.booking-flow__progress\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);[^}]*overflow:\s*visible;/)
   })
 
   it('shows six documented real cases on the homepage', () => {
