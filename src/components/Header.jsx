@@ -10,6 +10,7 @@ const navLinks = [
   { label: 'Método', to: '/metodo-bouclier' },
   { label: 'Dra. Gissel', to: '/dra-gissel' },
   { label: 'Mi portal', to: '/paciente/login' },
+  { label: 'Descargar app', to: '/descargar' },
 ]
 
 export default function Header() {
