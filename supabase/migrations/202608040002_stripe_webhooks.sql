@@ -11,6 +11,9 @@ create table if not exists public.stripe_webhook_events (
 
 alter table public.stripe_webhook_events enable row level security;
 
+revoke all on table public.stripe_webhook_events
+  from public, anon, authenticated;
+
 create or replace function public.complete_booking_payment(
   p_stripe_event_id text,
   p_stripe_session_id text,

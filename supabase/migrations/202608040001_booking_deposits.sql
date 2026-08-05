@@ -63,6 +63,9 @@ create index if not exists payment_records_hold_status_idx
 alter table public.booking_holds enable row level security;
 alter table public.payment_records enable row level security;
 
+revoke all on table public.booking_holds, public.payment_records
+  from public, anon, authenticated;
+
 -- No anonymous or authenticated write policies are defined intentionally.
 -- These tables are mutated only by the Hostinger API using the service role.
 
