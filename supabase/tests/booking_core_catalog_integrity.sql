@@ -71,6 +71,11 @@ begin
     or has_table_privilege('authenticated', 'public.payment_records', 'INSERT') then
     raise exception 'payment/hold tables expose direct client writes';
   end if;
+
+  if has_function_privilege('anon', 'public.handle_new_user_profile()', 'EXECUTE')
+    or has_function_privilege('authenticated', 'public.handle_new_user_profile()', 'EXECUTE') then
+    raise exception 'profile trigger function is client executable';
+  end if;
 end;
 $$;
 
