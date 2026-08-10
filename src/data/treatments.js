@@ -31,8 +31,9 @@ const sourceAsset = (slug, count = 1) => Array.from(
   (_, index) => `/assets/treatments/source/${slug}-${index + 1}.webp`,
 )
 
-const sourceTreatment = ({ gallery, variants, ...treatment }) => Object.freeze({
+const sourceTreatment = ({ gallery, variants, sourceHandle, ...treatment }) => Object.freeze({
   source: 'source',
+  sourceHandle: sourceHandle ?? treatment.slug,
   bookingMode: variants.some(({ active, priceMxnMinor }) => active && priceMxnMinor > 0) ? 'direct' : 'quote',
   durationMinutes: 60,
   ...treatment,
@@ -62,6 +63,7 @@ export const SOURCE_TREATMENTS = Object.freeze([
   }),
   sourceTreatment({
     slug: 'hydrafacial',
+    sourceHandle: 'hydrafacial-1',
     name: 'Hydrafacial',
     category: 'limpieza-profunda',
     eyebrow: 'Limpieza profunda',
@@ -170,6 +172,7 @@ export const SOURCE_TREATMENTS = Object.freeze([
   }),
   sourceTreatment({
     slug: 'red-touch',
+    sourceHandle: 'redtouch',
     name: 'Red Touch',
     category: 'laser-facial',
     eyebrow: 'Láser de colágeno',
@@ -227,6 +230,7 @@ export const SOURCE_TREATMENTS = Object.freeze([
   }),
   sourceTreatment({
     slug: 'masaje-deep-tissue',
+    sourceHandle: 'masaje-deep-tessue',
     name: 'Masaje Deep Tissue',
     category: 'relajacion',
     eyebrow: 'Liberación muscular',

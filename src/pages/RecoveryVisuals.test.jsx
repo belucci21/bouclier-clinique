@@ -24,9 +24,18 @@ describe('approved recovery surfaces', () => {
 
     expect(styles).toMatch(/\.treatment-detail__hero > \*,\s*\.treatment-detail__copy,\s*\.home-results__intro > \*\s*\{\s*min-width:\s*0;/)
     expect(styles).toMatch(/\.treatment-detail__copy h1[^}]*width:\s*100%;[^}]*max-width:\s*100%;[^}]*overflow-wrap:\s*anywhere;/s)
-    expect(styles).toMatch(/h1\.treatment-detail__title--long\s*\{[^}]*font-size:\s*clamp\(28px,\s*3vw,\s*54px\);[^}]*overflow-wrap:\s*normal;[^}]*word-break:\s*normal;/s)
-    expect(styles).toMatch(/@media \(max-width:\s*420px\)[\s\S]*?h1\.treatment-detail__title--long\s*\{[^}]*font-size:\s*clamp\(26px,\s*7vw,\s*29px\);/)
+    expect(styles).toMatch(/h1\.treatment-detail__title--long\s*\{[^}]*font-size:\s*clamp\(27px,\s*2\.6vw,\s*46px\);[^}]*overflow-wrap:\s*normal;[^}]*word-break:\s*normal;/s)
+    expect(styles).toMatch(/@media \(max-width:\s*420px\)[\s\S]*?h1\.treatment-detail__title--long\s*\{[^}]*font-size:\s*clamp\(24px,\s*6\.5vw,\s*28px\);/)
     expect(styles).toMatch(/\.home-results__intro h2[^}]*width:\s*100%;[^}]*max-width:\s*100%;[^}]*overflow-wrap:\s*anywhere;/s)
+  })
+
+  it('uses a restrained display scale across primary editorial titles', () => {
+    const styles = readFileSync('src/styles/global.css', 'utf8')
+
+    expect(styles).toMatch(/\.editorial-hero h1\s*\{[^}]*font-size:\s*clamp\(44px,\s*4vw,\s*64px\);/s)
+    expect(styles).toMatch(/\.editorial-page__header h1\s*\{[^}]*font-size:\s*clamp\(42px,\s*5\.2vw,\s*76px\);/s)
+    expect(styles).toMatch(/\.treatment-detail__copy h1,[\s\S]*?font-size:\s*clamp\(42px,\s*5vw,\s*78px\);/)
+    expect(styles).toMatch(/\.page-hero__title\s*\{[^}]*font-size:\s*clamp\(32px,\s*5vw,\s*54px\);/s)
   })
 
   it('uses fully visible, wrapping treatment filters on narrow screens', () => {

@@ -40,6 +40,7 @@ describe('clinical treatment registry', () => {
 
   it('includes every clinical treatment promoted by the dermatology site', () => {
     expect(SOURCE_TREATMENTS).toHaveLength(15)
+    expect(new Set(SOURCE_TREATMENTS.map(({ sourceHandle }) => sourceHandle)).size).toBe(15)
     expect(CLINICAL_PROTOCOLS.map(({ slug }) => slug)).toEqual(expect.arrayContaining([
       'exion-facial',
       'retiro-tatuaje-cejas',
