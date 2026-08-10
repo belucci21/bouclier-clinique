@@ -1,9 +1,9 @@
 # Database Ownership
 
-The Supabase project `rmcsgelrzrupwjbqbdsr` is exclusively owned by Bouclier Clinique.
+The Supabase project `rmcsgelrzrupwjbqbdsr` is exclusively reserved for Il Colosseo.
 
-- Do not configure this project as the database for Il Colosseo or any other client application.
-- Do not share its URL, API keys, connection strings, or service-role credentials outside Bouclier Clinique.
-- Any external application must use a separate Supabase project and separate credentials.
+- Bouclier Clinique must not configure this project in any application, environment, deployment, or local development setup.
+- Bouclier Clinique must migrate to a separate Supabase project before its next deployment.
+- Do not share Il Colosseo connection strings, API keys, or service-role credentials with Bouclier Clinique.
 
-This prevents unrelated data models and customer data from being mixed in the same database.
+This prevents restaurant and clinical data from being mixed in the same database.
