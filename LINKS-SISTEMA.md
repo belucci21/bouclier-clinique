@@ -27,7 +27,7 @@ Las credenciales de prueba, acceso de personal y recuperación de cuentas se ges
 
 ## Infraestructura
 
-- Supabase: proyecto `rmcsgelrzrupwjbqbdsr`.
+- Supabase: proyecto propio de Bouclier (`tmcxgiqmmjpgxqrivbod`). No usar el proyecto reservado para Il Colosseo.
 - Clínica: Torre EXERTIA, oficinas 704 y 706, Boca del Río, Veracruz.
 - Contacto de citas: +52 229 108 7016.
 
