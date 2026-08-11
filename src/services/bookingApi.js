@@ -1,4 +1,15 @@
-const DEFAULT_BASE_URL = import.meta.env.VITE_API_BASE_URL || ''
+const PRODUCTION_API_BASE_URL = 'https://api.bouclier-clinique.com'
+
+export function resolveBookingApiBaseUrl({ configuredUrl = '', production = false } = {}) {
+  const normalizedUrl = configuredUrl.trim().replace(/\/+$/, '')
+  if (normalizedUrl) return normalizedUrl
+  return production ? PRODUCTION_API_BASE_URL : ''
+}
+
+const DEFAULT_BASE_URL = resolveBookingApiBaseUrl({
+  configuredUrl: import.meta.env.VITE_API_BASE_URL,
+  production: import.meta.env.PROD,
+})
 
 function apiError(payload, status) {
   const source = payload?.error || payload || {}
