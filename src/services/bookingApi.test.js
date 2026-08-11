@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createBookingApi } from './bookingApi.js'
+import { createBookingApi, resolveBookingApiBaseUrl } from './bookingApi.js'
 
 function response(body, { ok = true, status = 200, contentType = 'application/json' } = {}) {
   return {
@@ -11,6 +11,20 @@ function response(body, { ok = true, status = 200, contentType = 'application/js
 }
 
 describe('bookingApi', () => {
+  it('uses the dedicated clinical API when a production build has no explicit base URL', () => {
+    expect(resolveBookingApiBaseUrl({ configuredUrl: '', production: true }))
+      .toBe('https://api.bouclier-clinique.com')
+  })
+
+  it('keeps same-origin API requests during local development', () => {
+    expect(resolveBookingApiBaseUrl({ configuredUrl: '', production: false })).toBe('')
+  })
+
+  it('normalizes an explicitly configured API base URL', () => {
+    expect(resolveBookingApiBaseUrl({ configuredUrl: 'https://example.test///', production: true }))
+      .toBe('https://example.test')
+  })
+
   it('creates a hold without trusting browser-supplied amounts', async () => {
     const fetchImpl = vi.fn().mockResolvedValue(response({ holdId: 'hold_1' }))
     const api = createBookingApi({ fetchImpl, baseUrl: 'https://api.example.test' })
