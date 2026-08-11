@@ -1,6 +1,6 @@
 import { useRef } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { Smartphone, Shield, Bell, Calendar, QrCode, Clock, Star, Heart } from 'lucide-react'
+import { Smartphone, Shield, Bell, Calendar, QrCode, Clock, Star, Heart, Stethoscope, UserRound } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import SEO from '../components/SEO.jsx'
 
@@ -32,12 +32,35 @@ const patientFeatures = [
   { icon: Star, title: 'Fácil y Rápido', desc: 'Interfaz sencilla diseñada para ti' },
 ]
 
+const androidApps = [
+  {
+    id: 'patient',
+    name: 'Bouclier Pacientes',
+    audience: 'Para pacientes',
+    description: 'Agenda citas, consulta tu historial y recibe recordatorios.',
+    icon: UserRound,
+    url: 'https://github.com/belucci21/bouclier-clinique/releases/download/android-v1.0.0-20260811/Bouclier-Pacientes.apk',
+    filename: 'Bouclier-Pacientes.apk',
+    ariaLabel: 'Descargar app para pacientes en Android',
+  },
+  {
+    id: 'clinic',
+    name: 'Bouclier Clínica',
+    audience: 'Para personal autorizado',
+    description: 'Gestiona la agenda y la atención clínica desde Android.',
+    icon: Stethoscope,
+    url: 'https://github.com/belucci21/bouclier-clinique/releases/download/android-v1.0.0-20260811/Bouclier-Clinica.apk',
+    filename: 'Bouclier-Clinica.apk',
+    ariaLabel: 'Descargar app clínica para Android',
+  },
+]
+
 export default function Descargar() {
   return (
     <main>
       <SEO
         title="Descargar App | Bouclier Dermatología"
-        description="Descarga la app de Bouclier Dermatología para Android. Agenda citas, haz check-in y gestiona tu salud desde tu celular."
+        description="Descarga las apps de Bouclier Dermatología para Android: pacientes y personal clínico autorizado."
         canonical="https://bouclier-clinique.com/descargar"
       />
 
@@ -46,8 +69,8 @@ export default function Descargar() {
         <div className="page-hero__overlay" style={{ background: 'linear-gradient(135deg, rgba(26,26,26,0.85), rgba(26,26,26,0.95))' }} />
         <motion.div className="page-hero__content" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }}>
           <p className="section-label" style={{ color: 'var(--color-accent)' }}>App Móvil</p>
-          <h1 className="page-hero__title">Descarga Nuestra App</h1>
-          <p className="page-hero__subtitle">Gestiona tus citas y salud desde tu celular. Disponible para Android.</p>
+          <h1 className="page-hero__title">Apps Bouclier para Android</h1>
+          <p className="page-hero__subtitle">Una app para pacientes y otra para el equipo clínico autorizado.</p>
         </motion.div>
       </section>
 
@@ -89,49 +112,74 @@ export default function Descargar() {
             ))}
           </div>
 
-          {/* Download Section */}
+          {/* Android downloads */}
           <motion.div variants={fadeUp} style={{ textAlign: 'center' }}>
-            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 500, marginBottom: '32px' }}>Descargar Ahora</h3>
+            <h3 style={{ fontFamily: 'var(--font-display)', fontSize: '28px', fontWeight: 500, marginBottom: '12px' }}>Elige tu aplicación</h3>
+            <p style={{ color: 'var(--color-text-light)', margin: '0 auto 32px', maxWidth: '580px', lineHeight: 1.6 }}>
+              Descarga el instalador oficial para Android según el tipo de acceso que necesitas.
+            </p>
 
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
-              {/* Android Download */}
-              <a href="https://expo.dev/artifacts/eas/-AU9FeaVS8S31lLCzYtLseCEJoML6OYfNKlWEhowlQA.apk" target="_blank" rel="noopener noreferrer"
-                download="Bouclier-Paciente.apk"
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '14px',
-                  background: 'var(--color-primary)', color: '#fff',
-                  padding: '18px 36px', borderRadius: '14px',
-                  textDecoration: 'none', fontSize: '17px', fontWeight: 700,
-                  boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
-                  transition: 'all 0.3s ease'
-                }}>
-                <Smartphone className="w-6 h-6" style={{ color: '#fff' }} />
-                <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontSize: '11px', fontWeight: 400, opacity: 0.7, lineHeight: 1 }}>Descargar para</div>
-                  <div style={{ fontSize: '17px', lineHeight: 1.2 }}>Android</div>
-                </div>
-              </a>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'stretch', gap: '20px', flexWrap: 'wrap' }}>
+              {androidApps.map(({ id, name, audience, description, icon: Icon, url, filename, ariaLabel }) => {
+                const content = (
+                  <>
+                    <div style={{
+                      width: '52px', height: '52px', flex: '0 0 52px', borderRadius: '14px',
+                      background: url ? 'rgba(255,255,255,0.12)' : 'rgba(17,17,17,0.06)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                      <Icon className="w-6 h-6" aria-hidden="true" />
+                    </div>
+                    <div style={{ minWidth: 0, textAlign: 'left' }}>
+                      <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', opacity: 0.7 }}>{audience}</div>
+                      <div style={{ fontSize: '19px', fontWeight: 700, lineHeight: 1.25, marginTop: '4px' }}>{name}</div>
+                      <div style={{ fontSize: '13px', fontWeight: 400, lineHeight: 1.45, marginTop: '8px', opacity: 0.74 }}>{description}</div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, marginTop: '14px' }}>{url ? 'Descargar APK para Android' : 'Preparando APK actualizado'}</div>
+                    </div>
+                  </>
+                )
 
-              {/* iOS Coming Soon */}
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: '14px',
-                background: 'var(--color-bg-alt)', color: 'var(--color-text-light)',
-                padding: '18px 36px', borderRadius: '14px',
-                fontSize: '17px', fontWeight: 600,
-                border: '1px solid var(--color-border)',
-                cursor: 'not-allowed'
-              }}>
-                <Smartphone className="w-6 h-6" style={{ color: '#666' }} />
-                <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontSize: '11px', fontWeight: 400, opacity: 0.5, lineHeight: 1 }}>Próximamente en</div>
-                  <div style={{ fontSize: '17px', lineHeight: 1.2, color: '#666' }}>iOS</div>
-                </div>
-              </div>
+                const sharedStyle = {
+                  boxSizing: 'border-box', width: 'min(100%, 360px)', minHeight: '190px',
+                  display: 'flex', alignItems: 'flex-start', gap: '18px', padding: '28px',
+                  borderRadius: '18px', textDecoration: 'none', transition: 'all 0.3s ease'
+                }
+
+                return url ? (
+                  <a
+                    key={id}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download={filename}
+                    aria-label={ariaLabel}
+                    style={{ ...sharedStyle, background: 'var(--color-primary)', color: '#fff', boxShadow: '0 4px 24px rgba(0,0,0,0.18)' }}
+                  >
+                    {content}
+                  </a>
+                ) : (
+                  <div key={id} aria-label={`${name}: compilación en curso`} style={{ ...sharedStyle, background: 'var(--color-bg-alt)', color: 'var(--color-text-light)', border: '1px solid var(--color-border)' }}>
+                    {content}
+                  </div>
+                )
+              })}
             </div>
 
             <p style={{ color: '#666', fontSize: '13px', marginTop: '24px' }}>
-              Versión 1.0.0 · Android 6.0+
+              Instalación directa para Android · Google Play próximamente
             </p>
+            <p style={{ color: 'var(--color-text-light)', fontSize: '13px', maxWidth: '620px', margin: '10px auto 0', lineHeight: 1.6 }}>
+              Android puede pedir permiso para instalar aplicaciones desde el navegador. Descarga únicamente desde esta página oficial.
+            </p>
+
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: '12px', marginTop: '20px',
+              background: 'var(--color-bg-alt)', color: 'var(--color-text-light)', padding: '14px 22px',
+              borderRadius: '12px', border: '1px solid var(--color-border)'
+            }}>
+              <Smartphone className="w-5 h-5" style={{ color: '#666' }} />
+              <span style={{ fontSize: '14px', fontWeight: 600 }}>iOS estará disponible después de TestFlight</span>
+            </div>
           </motion.div>
         </div>
       </AnimatedSection>
