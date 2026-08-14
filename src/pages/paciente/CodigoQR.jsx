@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { usePatientAuth } from '../../contexts/usePatientAuth.js';
+import { usePatientAuth } from '../../contexts/PatientAuthContext.jsx';
 import { supabase } from '../../lib/supabase';
 
 export default function CodigoQR() {
