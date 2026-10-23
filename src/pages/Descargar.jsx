@@ -24,11 +24,11 @@ function AnimatedSection({ children, className = '', style }) {
 }
 
 const patientFeatures = [
-  { icon: Calendar, title: 'Agendar Citas', desc: 'Reserva tu cita en línea en cualquier momento del día' },
-  { icon: QrCode, title: 'Check-in QR', desc: 'Escanea el código QR al llegar para registrarte al instante' },
-  { icon: Bell, title: 'Recordatorios', desc: 'Recibe notificaciones de tus próximas citas y tratamientos' },
-  { icon: Shield, title: 'Historial Médico', desc: 'Consulta tus diagnósticos, recetas e informes' },
-  { icon: Heart, title: 'Mi Perfil', desc: 'Gestiona tu información personal y datos de contacto' },
+  { icon: Calendar, title: 'Mis Citas', desc: 'Consulta tus citas vinculadas. Para reservar o realizar cambios, contacta con recepción hasta que se habilite la reserva en la app.' },
+  { icon: QrCode, title: 'Mi QR', desc: 'Muestra tu QR de identificación a recepción. El pase de entrada a EXERTIA es independiente y lo emite recepción.' },
+  { icon: Bell, title: 'Avisos de Acceso', desc: 'Activa las notificaciones para recibir un aviso cuando esté disponible tu pase real de EXERTIA. Consulta el QR dentro de la app.' },
+  { icon: Shield, title: 'Documentos Clínicos', desc: 'Consulta las recetas disponibles para tu expediente vinculado. Solicita a recepción cualquier documento que todavía no aparezca.' },
+  { icon: Heart, title: 'Mi Perfil', desc: 'Consulta tus datos y contacta con la clínica para actualizar la información de tu expediente.' },
   { icon: Star, title: 'Fácil y Rápido', desc: 'Interfaz sencilla diseñada para ti' },
 ]
 
@@ -37,7 +37,7 @@ export default function Descargar() {
     <main>
       <SEO
         title="Descargar App | Bouclier Dermatología"
-        description="Descarga la app de Bouclier Dermatología para Android. Agenda citas, haz check-in y gestiona tu salud desde tu celular."
+        description="Descarga Bouclier Pacientes para Android. Consulta tus citas vinculadas, recetas disponibles y tu identificación QR desde tu celular."
         canonical="https://bouclier-clinique.com/descargar"
       />
 
@@ -65,7 +65,7 @@ export default function Descargar() {
             </div>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '40px', fontWeight: 500, marginBottom: '12px' }}>App Bouclier Paciente</h2>
             <p style={{ color: '#999', fontSize: '18px', maxWidth: '600px', margin: '0 auto', lineHeight: '1.7' }}>
-              Tu portal personal para agendar citas, hacer check-in, consultar tu historial y recibir recordatorios.
+              Consulta tus citas vinculadas, recetas disponibles e identificación clínica. Los pases de EXERTIA se consultan de forma privada en la app cuando recepción los adjunta a tu cita.
             </p>
           </motion.div>
 
@@ -95,7 +95,7 @@ export default function Descargar() {
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
               {/* Android Download */}
-              <a href="https://github.com/belucci21/bouclier-clinique/releases/download/android-v1.0.0-20260811/Bouclier-Pacientes.apk" target="_blank" rel="noopener noreferrer"
+              <a href="https://github.com/belucci21/bouclier-clinique/releases/download/android-pacientes-20261023/Bouclier-Pacientes.apk" target="_blank" rel="noopener noreferrer"
                 download="Bouclier-Pacientes.apk"
                 style={{
                   display: 'flex', alignItems: 'center', gap: '14px',
@@ -148,7 +148,7 @@ export default function Descargar() {
               ¿No puedes descargar la app?
             </h3>
             <p style={{ color: '#999', fontSize: '16px', maxWidth: '500px', margin: '0 auto 28px', lineHeight: '1.7' }}>
-              Accede a tu cuenta desde el navegador. Tu portal de paciente tiene todas las funciones de la app.
+              Accede a las consultas disponibles de tu cuenta desde el navegador. Algunas funciones, como los avisos y el pase privado de EXERTIA, requieren la app.
             </p>
             <Link to="/paciente/login"
               style={{
