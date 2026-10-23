@@ -95,7 +95,7 @@ export default function Descargar() {
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
               {/* Android Download */}
-              <a href="https://github.com/belucci21/bouclier-clinique/releases/download/android-v1.0.0-20260811/Bouclier-Pacientes.apk" target="_blank" rel="noopener noreferrer"
+              <a href="https://github.com/belucci21/bouclier-clinique/releases/download/android-pacientes-20261023/Bouclier-Pacientes.apk" target="_blank" rel="noopener noreferrer"
                 download="Bouclier-Pacientes.apk"
                 style={{
                   display: 'flex', alignItems: 'center', gap: '14px',

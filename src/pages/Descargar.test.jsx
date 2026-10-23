@@ -34,6 +34,7 @@ describe('Descargar', () => {
     const patientHref = patientDownload.getAttribute('href')
 
     expect(patientHref).toMatch(/^https:\/\/github\.com\/belucci21\/bouclier-clinique\/releases\/download\/.+\/Bouclier-Pacientes\.apk$/)
+    expect(patientHref).toContain('/android-pacientes-20261023/')
     expect(patientDownload.getAttribute('download')).toBe('Bouclier-Pacientes.apk')
     expect(screen.queryByText(/bouclier clínica/i)).toBeNull()
     expect(document.querySelectorAll('a[download$=".apk"]')).toHaveLength(1)
