@@ -24,7 +24,7 @@ function AnimatedSection({ children, className = '', style }) {
 }
 
 const patientFeatures = [
-  { icon: Calendar, title: 'Mis Citas', desc: 'Consulta tus citas vinculadas. Para reservar o realizar cambios, contacta con recepción hasta que se habilite la reserva en la app.' },
+  { icon: Calendar, title: 'Mis Citas', desc: 'Consulta tus citas vinculadas y reserva una Consulta Dermatológica de 30 minutos con los horarios disponibles. Para otros tratamientos, cancelaciones o cambios, contacta con recepción.' },
   { icon: QrCode, title: 'Mi QR', desc: 'Muestra tu QR de identificación a recepción. El pase de entrada a EXERTIA es independiente y lo emite recepción.' },
   { icon: Bell, title: 'Avisos de Acceso', desc: 'Activa las notificaciones para recibir un aviso cuando esté disponible tu pase real de EXERTIA. Consulta el QR dentro de la app.' },
   { icon: Shield, title: 'Documentos Clínicos', desc: 'Consulta las recetas disponibles para tu expediente vinculado. Solicita a recepción cualquier documento que todavía no aparezca.' },
@@ -95,7 +95,7 @@ export default function Descargar() {
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
               {/* Android Download */}
-              <a href="https://github.com/belucci21/bouclier-clinique/releases/download/android-pacientes-20261023/Bouclier-Pacientes.apk" target="_blank" rel="noopener noreferrer"
+              <a href="https://github.com/belucci21/bouclier-clinique/releases/download/android-pacientes-20261024/Bouclier-Pacientes.apk" target="_blank" rel="noopener noreferrer"
                 download="Bouclier-Pacientes.apk"
                 style={{
                   display: 'flex', alignItems: 'center', gap: '14px',
@@ -130,7 +130,7 @@ export default function Descargar() {
             </div>
 
             <p style={{ color: '#666', fontSize: '13px', marginTop: '24px' }}>
-              Versión 1.0.0 · Android
+              Versión 1.0.0 · Android · Compilación 17
             </p>
           </motion.div>
         </div>
