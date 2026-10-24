@@ -11,6 +11,11 @@ import Tratamientos from './Tratamientos.jsx'
 afterEach(cleanup)
 
 describe('approved recovery surfaces', () => {
+  it('keeps patient login and primary portal action labels white on black', () => {
+    const styles = readFileSync('src/styles/global.css', 'utf8')
+    expect(styles).toMatch(/\.portal-login__btn\s*\{[^}]*color:\s*#fff;/s)
+    expect(styles).toMatch(/\.portal-btn--primary\s*\{[^}]*color:\s*#fff;/s)
+  })
   it('keeps the editorial footer light even after the generic footer rules load', () => {
     const styles = readFileSync('src/styles/global.css', 'utf8')
 

@@ -4367,7 +4367,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   padding: 14px;
   background: var(--color-accent);
-  color: var(--color-primary);
+  color: #fff;
   border: none;
   border-radius: 8px;
   font-size: 15px;
@@ -4740,7 +4740,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .portal-btn--primary {
   background: var(--color-accent);
-  color: var(--color-primary);
+  color: #fff;
 }
 
 .portal-btn--primary:hover {

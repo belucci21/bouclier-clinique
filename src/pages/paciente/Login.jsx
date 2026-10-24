@@ -99,8 +99,9 @@ export default function Login() {
             )}
 
             <div className="portal-login__field">
-              <label className="portal-login__label">Correo electrónico</label>
+              <label className="portal-login__label" htmlFor="patient-email">Correo electrónico</label>
               <input
+                id="patient-email"
                 type="email"
                 className="portal-login__input"
                 value={email}
@@ -111,8 +112,9 @@ export default function Login() {
             </div>
 
             <div className="portal-login__field">
-              <label className="portal-login__label">Contraseña</label>
+              <label className="portal-login__label" htmlFor="patient-password">Contraseña</label>
               <input
+                id="patient-password"
                 type="password"
                 className="portal-login__input"
                 value={password}

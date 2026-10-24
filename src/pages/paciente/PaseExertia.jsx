@@ -61,7 +61,7 @@ export default function PaseExertia() {
       {value.pass?.doors?.length ? <p>{value.pass.doors.join(' · ')}</p> : null}
     </article>)}
     <div className="portal-access__actions">
-      <button type="button" className="portal-btn" disabled={loading} onClick={() => setRevision(value => value + 1)}>Actualizar pase</button>
+      <button type="button" className="portal-btn portal-btn--primary" disabled={loading} onClick={() => setRevision(value => value + 1)}>Actualizar pase</button>
       <a href="mailto:marketing@bouclier-clinique.com">Contactar con Bouclier</a>
       <Link to="/descargar">Abrir la página de la app</Link>
     </div>
