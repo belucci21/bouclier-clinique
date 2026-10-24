@@ -1,0 +1,9 @@
+.portal-access { max-width: 850px; }
+.portal-access__notice { padding: 20px; border: 1px solid #d4d4d4; background: #f5f5f2; color: #252525; line-height: 1.6; margin-bottom: 24px; }
+.portal-access__card { padding: clamp(18px, 4vw, 30px); border: 1px solid #d4d4d4; background: white; color: #111; margin: 24px 0; overflow-wrap: anywhere; }
+.portal-access__card h2 { font-size: 1.1rem; line-height: 1.5; }
+.portal-access__card p { line-height: 1.6; }
+.portal-access__qr { display: block; max-width: 100%; width: 360px; height: auto; margin: 24px auto; object-fit: contain; }
+.portal-access__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 22px; margin: 24px 0; }
+.portal-access__actions a { color: #111; text-decoration: underline; text-underline-offset: 4px; }
+.portal-access__error { color: #9b2424; line-height: 1.6; }

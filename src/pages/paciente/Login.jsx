@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import SEO from '../../components/SEO';
 import { usePatientAuth } from '../../contexts/usePatientAuth.js';
+import { patientReturnPath } from '../../lib/patientReturnPath.js';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -11,6 +12,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { signIn } = usePatientAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -25,7 +27,7 @@ export default function Login() {
       if (!emailRegex.test(email)) throw new Error('Correo electrónico inválido');
 
       await signIn(email.trim().toLowerCase(), password);
-      navigate('/paciente/dashboard');
+      navigate(patientReturnPath(location.state?.returnTo), { replace: true });
     } catch (err) {
       if (err.message.includes('Invalid login')) {
         setError('Correo o contraseña incorrectos');

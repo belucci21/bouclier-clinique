@@ -10,6 +10,7 @@ import Informes from './Informes.jsx'
 import Login from './Login.jsx'
 import Perfil from './Perfil.jsx'
 import Recetas from './Recetas.jsx'
+import PaseExertia from './PaseExertia.jsx'
 
 export default function PatientPortalApp() {
   return (
@@ -25,6 +26,7 @@ export default function PatientPortalApp() {
             <Route path="informes" element={<Informes />} />
             <Route path="perfil" element={<Perfil />} />
             <Route path="qr" element={<CodigoQR />} />
+            <Route path="acceso" element={<PaseExertia />} />
             <Route path="agendar" element={<AgendarCita />} />
           </Route>
         </Route>
