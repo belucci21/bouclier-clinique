@@ -45,7 +45,7 @@ export default function Descargar() {
       <section className="page-hero">
         <div className="page-hero__overlay" style={{ background: 'linear-gradient(135deg, rgba(26,26,26,0.85), rgba(26,26,26,0.95))' }} />
         <motion.div className="page-hero__content" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 0.3 }}>
-          <p className="section-label" style={{ color: 'var(--color-accent)' }}>App Móvil</p>
+          <p className="section-label" style={{ color: '#fff' }}>App Móvil</p>
           <h1 className="page-hero__title">Descarga Nuestra App</h1>
           <p className="page-hero__subtitle">Gestiona tus citas y salud desde tu celular. Disponible para Android.</p>
         </motion.div>

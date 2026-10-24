@@ -25,6 +25,7 @@ describe('Descargar', () => {
 
     expect(screen.getByRole('main')).toBeTruthy()
     expect(screen.getByRole('heading', { level: 1, name: /descarga nuestra app/i })).toBeTruthy()
+    expect(screen.getByText('App Móvil').style.color).toBe('rgb(255, 255, 255)')
 
     const portalLink = screen.getByRole('link', { name: /abrir portal web/i })
     expect(portalLink.getAttribute('href')).toBe('/paciente/login')
