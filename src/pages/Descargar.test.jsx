@@ -25,6 +25,7 @@ describe('Descargar', () => {
 
     expect(screen.getByRole('main')).toBeTruthy()
     expect(screen.getByRole('heading', { level: 1, name: /descarga nuestra app/i })).toBeTruthy()
+    expect(screen.getByText('App Móvil').style.color).toBe('rgb(255, 255, 255)')
 
     const portalLink = screen.getByRole('link', { name: /abrir portal web/i })
     expect(portalLink.getAttribute('href')).toBe('/paciente/login')
@@ -34,10 +35,12 @@ describe('Descargar', () => {
     const patientHref = patientDownload.getAttribute('href')
 
     expect(patientHref).toMatch(/^https:\/\/github\.com\/belucci21\/bouclier-clinique\/releases\/download\/.+\/Bouclier-Pacientes\.apk$/)
-    expect(patientHref).toContain('/android-pacientes-20261023/')
+    expect(patientHref).toContain('/android-pacientes-20261024/')
     expect(patientDownload.getAttribute('download')).toBe('Bouclier-Pacientes.apk')
     expect(screen.queryByText(/bouclier clínica/i)).toBeNull()
     expect(document.querySelectorAll('a[download$=".apk"]')).toHaveLength(1)
+    expect(screen.getByText(/compilación 17/i)).toBeTruthy()
+    expect(screen.getByText(/consulta dermatológica de 30 minutos/i)).toBeTruthy()
     expect(document.title).toContain('Bouclier Dermatología')
   })
 })
