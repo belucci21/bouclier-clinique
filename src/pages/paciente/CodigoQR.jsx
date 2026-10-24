@@ -41,7 +41,8 @@ export default function CodigoQR() {
       </> : null}
       <button type="button" className="portal-btn" disabled={loading} onClick={() => setRevision(value => value + 1)}>Actualizar identificación</button>
     </div>
-    <p>El pase real de EXERTIA se consulta de forma privada dentro de la aplicación de pacientes.</p>
+    <p>El pase real de EXERTIA es independiente y se consulta de forma privada.</p>
+    <Link to="/paciente/acceso">Ver mi pase de entrada a EXERTIA</Link>
     <Link to="/descargar">Descargar Bouclier Pacientes</Link>
   </section>;
 }
