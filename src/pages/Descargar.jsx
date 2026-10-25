@@ -95,7 +95,7 @@ export default function Descargar() {
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
               {/* Android Download */}
-              <a href="https://github.com/belucci21/bouclier-clinique/releases/download/android-pacientes-20261024/Bouclier-Pacientes.apk" target="_blank" rel="noopener noreferrer"
+              <a href="https://github.com/belucci21/bouclier-clinique/releases/download/android-pacientes-20261025-qr/Bouclier-Pacientes.apk" target="_blank" rel="noopener noreferrer"
                 download="Bouclier-Pacientes.apk"
                 style={{
                   display: 'flex', alignItems: 'center', gap: '14px',
@@ -130,7 +130,7 @@ export default function Descargar() {
             </div>
 
             <p style={{ color: '#666', fontSize: '13px', marginTop: '24px' }}>
-              Versión 1.0.0 · Android · Compilación 17
+              Versión 1.0.0 · Android · Compilación 18
             </p>
           </motion.div>
         </div>
@@ -148,7 +148,7 @@ export default function Descargar() {
               ¿No puedes descargar la app?
             </h3>
             <p style={{ color: '#999', fontSize: '16px', maxWidth: '500px', margin: '0 auto 28px', lineHeight: '1.7' }}>
-              Accede a las consultas disponibles de tu cuenta desde el navegador. Algunas funciones, como los avisos y el pase privado de EXERTIA, requieren la app.
+              Consulta tus citas, documentos disponibles y el pase privado de EXERTIA desde el navegador. Para recibir avisos en el celular, utiliza la app y activa las notificaciones.
             </p>
             <Link to="/paciente/login"
               style={{
