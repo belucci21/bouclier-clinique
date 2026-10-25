@@ -4147,9 +4147,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .portal-sidebar__link--active {
-  color: var(--color-accent);
+  color: #fff;
   background: rgba(255,255,255,0.08);
-  border-left-color: var(--color-accent);
+  border-left-color: #fff;
 }
 
 .portal-sidebar__icon {
