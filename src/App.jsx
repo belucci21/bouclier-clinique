@@ -14,6 +14,7 @@ const DraGissel = lazy(() => import('./pages/DraGissel.jsx'))
 const Contacto = lazy(() => import('./pages/Contacto.jsx'))
 const PreguntasFrecuentes = lazy(() => import('./pages/PreguntasFrecuentes.jsx'))
 const Legal = lazy(() => import('./pages/Legal.jsx'))
+const AuthConfirmation = lazy(() => import('./pages/AuthConfirmation.jsx'))
 const Citas = lazy(() => import('./pages/Citas.jsx'))
 const PatientPortalApp = lazy(() => import('./pages/paciente/PatientPortalApp.jsx'))
 
@@ -50,6 +51,11 @@ export default function App() {
         <Route path="/contacto" element={<LazyPage><Contacto /></LazyPage>} />
         <Route path="/preguntas-frecuentes" element={<LazyPage><PreguntasFrecuentes /></LazyPage>} />
         <Route path="/aviso-de-privacidad" element={<LazyPage><Legal /></LazyPage>} />
+        <Route path="/privacidad" element={<LazyPage><Legal /></LazyPage>} />
+        <Route path="/terminos-y-condiciones" element={<LazyPage><Legal kind="terms" /></LazyPage>} />
+        <Route path="/terminos" element={<LazyPage><Legal kind="terms" /></LazyPage>} />
+        <Route path="/auth/confirmacion" element={<LazyPage><AuthConfirmation /></LazyPage>} />
+        <Route path="/auth/callback" element={<LazyPage><AuthConfirmation /></LazyPage>} />
         <Route path="/paciente/*" element={<LazyPage><PatientPortalApp /></LazyPage>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

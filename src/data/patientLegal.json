@@ -1,0 +1,78 @@
+{
+  "version": "2026-11-02",
+  "updatedLabel": "2 de noviembre de 2026",
+  "supportEmail": "marketing@bouclier-clinique.com",
+  "responsible": "Dra. Gissel Ivonne Castellanos Ramos · Bouclier Dermatología",
+  "terms": [
+    {
+      "title": "Servicio y responsable",
+      "body": "Bouclier Pacientes y el portal web son herramientas de Bouclier Dermatología, bajo la responsabilidad de la Dra. Gissel Ivonne Castellanos Ramos. Domicilio de atención: Torre EXERTIA, oficinas 704 y 706, Barco Viejo s/n, Col. Mocambo, C.P. 94293, Boca del Río, Veracruz, México. Soporte: marketing@bouclier-clinique.com."
+    },
+    {
+      "title": "Cuenta y acceso al expediente",
+      "body": "Utiliza datos propios y protege tu contraseña y los códigos recibidos por correo. Una cuenta con correo confirmado puede entrar sin expediente previo. Desde la app puedes autorizar la creación de tu ficha inicial en Flowww; el sistema debe verificar su identificador antes de habilitar funciones clínicas. Si ya existe un expediente, la clínica debe validar el vínculo para evitar duplicados y accesos ajenos. Confirmar el correo no vincula por sí solo un expediente ni concede permisos de personal. No está permitido acceder a datos ajenos ni compartir credenciales. Los menores deben actuar mediante su representante legal y conforme al procedimiento de la clínica."
+    },
+    {
+      "title": "Información y atención médica",
+      "body": "La aplicación permite consultar información disponible de la atención, citas, recetas e informes propios. Puede haber información aún no integrada; una pantalla sin documentos no demuestra que no existan. La app no realiza diagnósticos ni sustituye la valoración, la prescripción o el consentimiento informado del profesional. No es un canal de urgencias; ante una emergencia, acude a los servicios de emergencia."
+    },
+    {
+      "title": "Citas, horarios y cambios",
+      "body": "Los horarios se interpretan en America/Mexico_City. Una selección o solicitud no equivale a una reserva: la cita requiere confirmación del sistema clínico. Los cambios y cancelaciones disponibles dependen de las capacidades habilitadas; cuando no estén disponibles, contacta con recepción. Para cambios con menos de 24 horas, contacta con la clínica. No se considerará prestado un servicio médico únicamente por no cancelar una cita."
+    },
+    {
+      "title": "Identificación y acceso al edificio",
+      "body": "El QR de identificación clínica es distinto del pase de acceso a EXERTIA. Solo un pase real emitido por el proveedor autorizado puede permitir la entrada, dentro de su vigencia y condiciones. Los avisos por app y correo dependen de que exista ese pase, la vigencia de la cita, los permisos del dispositivo y la conexión. El correo enlaza al portal privado; no adjunta el QR. Contacta con recepción si el pase no está disponible."
+    },
+    {
+      "title": "Pagos",
+      "body": "Esta versión no habilita pagos clínicos online. Cualquier precio o condición debe confirmarse con la clínica antes de contratar un servicio. La app no incorpora la tienda ni las promociones comerciales de Shopify. Estos términos no limitan los derechos de facturación, reembolso o protección al consumidor previstos en la legislación aplicable."
+    },
+    {
+      "title": "Desarrollo asistido por inteligencia artificial",
+      "body": "Esta aplicación se ha desarrollado con ayuda de herramientas de inteligencia artificial para tareas de programación, redacción y revisión. Esta declaración describe el proceso de desarrollo, no un servicio médico automatizado. La versión actual no utiliza IA generativa para elaborar diagnósticos ni recetas; las decisiones clínicas corresponden a profesionales autorizados. La responsabilidad de la operación del servicio sigue correspondiendo a Bouclier."
+    },
+    {
+      "title": "Disponibilidad y cambios",
+      "body": "Pueden producirse interrupciones de red, mantenimiento o retrasos de actualización. Bouclier comunicará las incidencias relevantes por sus canales de atención. Las actualizaciones materiales de estos términos se identificarán con una nueva fecha y, cuando corresponda, requerirán nueva aceptación. No se excluyen responsabilidades ni derechos irrenunciables establecidos por la ley."
+    },
+    {
+      "title": "Contacto y legislación",
+      "body": "Para soporte, aclaraciones o solicitudes relativas a la cuenta escribe a marketing@bouclier-clinique.com. Se aplica la legislación mexicana y las autoridades competentes conforme a ella, sin renuncia a los derechos del paciente o consumidor. Consulta también el aviso de privacidad antes de facilitar datos personales."
+    }
+  ],
+  "privacy": [
+    {
+      "title": "Responsable y contacto",
+      "body": "La Dra. Gissel Ivonne Castellanos Ramos, responsable de Bouclier Dermatología, con domicilio en Torre EXERTIA, oficinas 704 y 706, Barco Viejo s/n, Col. Mocambo, C.P. 94293, Boca del Río, Veracruz, México, es responsable del tratamiento. Para privacidad y derechos ARCO puedes escribir a marketing@bouclier-clinique.com o al contacto institucional bouclier.bdr@gmail.com."
+    },
+    {
+      "title": "Datos tratados",
+      "body": "Según los servicios utilizados, se tratan datos de identificación y contacto, identificadores de cuenta, citas, datos sensibles de salud, recetas, informes y fotografías clínicas facilitadas en la atención. Para notificaciones se registra el identificador técnico del dispositivo y la preferencia de avisos. Los pases de edificio y sus imágenes se vinculan a la cita y se mantienen en acceso privado."
+    },
+    {
+      "title": "Finalidades necesarias",
+      "body": "Los datos se utilizan para autenticar y proteger la cuenta, validar su relación con el expediente, gestionar la atención y las citas, mostrar documentos clínicos autorizados y comunicar información operativa, incluidos los pases. El tratamiento de datos sensibles requiere el consentimiento o supuesto legal aplicable; abrir una cuenta no sustituye el consentimiento informado clínico ni autoriza usos publicitarios."
+    },
+    {
+      "title": "Proveedores y separación de información",
+      "body": "La operación utiliza proveedores de autenticación e infraestructura, el sistema clínico Flowww, servicios de notificaciones Expo/Firebase y el proveedor de correo. Sus accesos deben limitarse a la finalidad del servicio y sujetarse a las obligaciones de confidencialidad y protección aplicables. EXERTIA y su sistema de control de acceso intervienen en la emisión del pase. La tienda Shopify no recibe expedientes, citas, recetas ni pases clínicos. No se venden datos personales ni se realiza seguimiento publicitario entre apps."
+    },
+    {
+      "title": "Permisos y comunicaciones",
+      "body": "Las notificaciones y el acceso a fotografías se solicitan cuando la función los requiere. Puedes modificar los permisos en el sistema del teléfono y la preferencia de avisos en la app. Desactivar avisos no cancela la cita ni elimina la cuenta. Los correos del pase contienen un enlace que exige autenticación; no deben incluir QR ni información clínica. El servicio no necesita geolocalización continua ni acceso a tus contactos."
+    },
+    {
+      "title": "Conservación y eliminación de cuenta",
+      "body": "Puedes solicitar la eliminación de tu cuenta y de los datos asociados no sujetos a conservación legal. La clínica verificará la titularidad, comunicará el plazo y confirmará la finalización; cerrar sesión o desinstalar la app no elimina la cuenta. Los expedientes clínicos y documentos que deban conservarse por ley no se borran por cerrar el acceso digital y continuarán protegidos con acceso restringido. Las copias de seguridad se sujetan a su ciclo de conservación y a las obligaciones aplicables."
+    },
+    {
+      "title": "Derechos, revocación y limitación",
+      "body": "Puedes ejercer acceso, rectificación, cancelación u oposición, solicitar la revocación del consentimiento o limitar usos no necesarios. Envía la solicitud al contacto de privacidad indicando el derecho y un medio de respuesta. La clínica pedirá únicamente la información necesaria para verificar titularidad o representación y responderá conforme a los plazos legales. No envíes expedientes ni documentos de identidad por un canal no indicado como seguro."
+    },
+    {
+      "title": "Inteligencia artificial y actualizaciones",
+      "body": "La mención de IA se refiere al apoyo utilizado en el desarrollo del software. La app actual no ofrece un asistente generativo para diagnóstico o prescripción. Cualquier futura función que comparta datos personales con un proveedor de IA deberá explicarse antes de usarla y obtener el consentimiento que corresponda. Las modificaciones de este aviso se publicarán con su fecha en la web y la app; las finalidades secundarias requerirán una elección independiente."
+    }
+  ]
+}

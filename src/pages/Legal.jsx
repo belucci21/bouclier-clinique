@@ -1,17 +1,22 @@
 import SEO from '../components/SEO.jsx'
-import { PRIVACY_NOTICE } from '../data/siteContent.js'
+import legal from '../data/patientLegal.json'
 
-export default function Legal() {
+export default function Legal({ kind = 'privacy' }) {
+  const isTerms = kind === 'terms'
+  const title = isTerms ? 'Términos y condiciones' : 'Aviso de privacidad'
+  const path = isTerms ? '/terminos-y-condiciones' : '/aviso-de-privacidad'
+  const sections = isTerms ? legal.terms : legal.privacy
   return (
     <main className="editorial-page legal-page">
-      <SEO title="Aviso de privacidad | Bouclier Dermatología" description="Aviso de privacidad de Bouclier Dermatología." canonical="https://bouclier-clinique.com/aviso-de-privacidad" />
+      <SEO title={`${title} | Bouclier Dermatología`} description={`${title} de la web y Bouclier Pacientes.`} canonical={`https://bouclier-clinique.com${path}`} />
       <header className="editorial-page__header editorial-page__header--compact">
         <p className="editorial-kicker">Información legal</p>
-        <h1>Aviso de privacidad.</h1>
-        <p>Versión clínica consolidada a partir del aviso vigente de Bouclier Dermatología.</p>
+        <h1>{title}.</h1>
+        <p>Web y Bouclier Pacientes · Actualizado el {legal.updatedLabel}.</p>
+        <p><a href="/aviso-de-privacidad">Privacidad</a> · <a href="/terminos-y-condiciones">Términos de uso</a> · <a href={`mailto:${legal.supportEmail}`}>Soporte y derechos sobre tus datos</a></p>
       </header>
       <section className="legal-page__content">
-        {PRIVACY_NOTICE.map((section, index) => (
+        {sections.map((section, index) => (
           <article key={section.title}>
             <span>{String(index + 1).padStart(2, '0')}</span>
             <div><h2>{section.title}</h2><p>{section.body}</p></div>
