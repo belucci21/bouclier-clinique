@@ -47,6 +47,7 @@ export default function Footer() {
             <Link to="/contacto" className="footer__link">Contacto</Link>
             <Link to="/preguntas-frecuentes" className="footer__link">Preguntas frecuentes</Link>
             <Link to="/aviso-de-privacidad" className="footer__link">Aviso de privacidad</Link>
+            <Link to="/terminos-y-condiciones" className="footer__link">Términos de uso de la app</Link>
           </nav>
         </div>
 

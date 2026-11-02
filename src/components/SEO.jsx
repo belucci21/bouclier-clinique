@@ -1,9 +1,10 @@
 import { Helmet } from 'react-helmet-async'
 
-export default function SEO({ title, description, canonical, ogImage, ogType = 'website' }) {
+export default function SEO({ title, description, canonical, ogImage, ogType = 'website', noindex = false }) {
   return (
     <Helmet>
       <title>{title}</title>
+      {noindex && <meta name="robots" content="noindex, nofollow" />}
       {description && <meta name="description" content={description} />}
       {canonical && <link rel="canonical" href={canonical} />}
       <meta property="og:title" content={title} />
