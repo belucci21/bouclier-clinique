@@ -30,7 +30,7 @@ export default function AuthConfirmation() {
       <p className="editorial-kicker">Bouclier Pacientes</p>
       <h1>{status === 'checking' ? 'Verificando correo.' : confirmed ? 'Correo confirmado.' : 'Revisa tu acceso.'}</h1>
       <p role="status">{status === 'checking' ? 'Estamos comprobando el enlace de confirmación.' : confirmed
-        ? 'Tu correo está verificado. Vuelve a la app e inicia sesión con tu correo y contraseña. La clínica debe validar por separado la vinculación con tu expediente.'
+        ? 'Tu correo está verificado. Vuelve a la app e inicia sesión con tu correo y contraseña, aunque todavía no tengas expediente. Podrás completar tu registro clínico desde la app. Si ya tienes expediente, la clínica debe verificar el vínculo.'
         : status === 'error' ? 'Este enlace no es válido, ya se utilizó o ha caducado. Si ya confirmaste tu correo, inicia sesión en la app. Si no, solicita un nuevo enlace desde la app o contacta con soporte.'
         : 'No hay una confirmación pendiente en esta página. Si ya verificaste tu correo, vuelve a la app e inicia sesión. No necesitas crear otra cuenta.'}</p>
       <p><Link className="btn-primary" to="/paciente/login">Ir al portal de pacientes</Link></p>

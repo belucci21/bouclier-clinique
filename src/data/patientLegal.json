@@ -10,7 +10,7 @@
     },
     {
       "title": "Cuenta y acceso al expediente",
-      "body": "Utiliza datos propios y protege tu contraseña y los códigos recibidos por correo. Confirmar el correo acredita su control, pero no vincula por sí solo un expediente ni concede permisos de personal. La clínica debe validar esa vinculación. No está permitido acceder a datos ajenos ni compartir credenciales. Los menores deben actuar mediante su representante legal y conforme al procedimiento de la clínica."
+      "body": "Utiliza datos propios y protege tu contraseña y los códigos recibidos por correo. Una cuenta con correo confirmado puede entrar sin expediente previo. Desde la app puedes autorizar la creación de tu ficha inicial en Flowww; el sistema debe verificar su identificador antes de habilitar funciones clínicas. Si ya existe un expediente, la clínica debe validar el vínculo para evitar duplicados y accesos ajenos. Confirmar el correo no vincula por sí solo un expediente ni concede permisos de personal. No está permitido acceder a datos ajenos ni compartir credenciales. Los menores deben actuar mediante su representante legal y conforme al procedimiento de la clínica."
     },
     {
       "title": "Información y atención médica",
