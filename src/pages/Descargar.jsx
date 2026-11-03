@@ -65,7 +65,7 @@ export default function Descargar() {
             </div>
             <h2 style={{ fontFamily: 'var(--font-display)', fontSize: '40px', fontWeight: 500, marginBottom: '12px' }}>App Bouclier Paciente</h2>
             <p style={{ color: '#999', fontSize: '18px', maxWidth: '600px', margin: '0 auto', lineHeight: '1.7' }}>
-              Consulta tus citas vinculadas, recetas disponibles e identificación clínica. Los pases de EXERTIA se consultan de forma privada en la app cuando recepción los adjunta a tu cita.
+              Entra con tu cuenta aunque todavía no tengas expediente y completa tu registro clínico desde la app cuando quieras reservar. Tus citas, recetas e identificación clínica estarán disponibles al verificar el vínculo. Los pases de EXERTIA se consultan de forma privada cuando recepción los adjunta a tu cita.
             </p>
           </motion.div>
 
@@ -95,7 +95,7 @@ export default function Descargar() {
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
               {/* Android Download */}
-              <a href="https://github.com/belucci21/bouclier-clinique/releases/download/android-pacientes-20261025-qr/Bouclier-Pacientes.apk" target="_blank" rel="noopener noreferrer"
+              <a href="https://github.com/belucci21/bouclier-clinique/releases/download/android-pacientes-20261103-acceso/Bouclier-Pacientes.apk" target="_blank" rel="noopener noreferrer"
                 download="Bouclier-Pacientes.apk"
                 style={{
                   display: 'flex', alignItems: 'center', gap: '14px',
@@ -130,7 +130,10 @@ export default function Descargar() {
             </div>
 
             <p style={{ color: '#666', fontSize: '13px', marginTop: '24px' }}>
-              Versión 1.0.0 · Android · Compilación 18
+              Versión 1.0.0 · Android · Compilación 19
+            </p>
+            <p style={{ color: 'var(--color-text-light)', fontSize: '14px', maxWidth: '600px', margin: '16px auto 0', lineHeight: 1.7 }}>
+              Si ya la tienes instalada, descarga esta versión y elige «Actualizar», sin desinstalar la anterior. Inicia sesión con tu misma cuenta: no necesitas registrarte otra vez ni tener un expediente previo.
             </p>
           </motion.div>
         </div>
